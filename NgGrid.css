@@ -1,0 +1,8 @@
+.grid {
+	position: relative;
+}
+
+.grid-item {
+	position: absolute;
+	display: inline-block;
+}

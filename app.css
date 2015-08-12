@@ -1,0 +1,9 @@
+.grid-item {
+	border: solid 1px;
+}
+
+.handle {
+	width: 100%;
+	height: 50px;
+	background: blue;
+}
