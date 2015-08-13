@@ -1,4 +1,3 @@
-.gitignore
 *.js
 typings
 npm-debug.log

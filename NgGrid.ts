@@ -113,7 +113,6 @@ export class NgGrid {
 	public addItem(ngItem: NgGridItem) {
 		this._items.push(ngItem);
 		this.fixGridCollisions(ngItem.getGridPosition(), ngItem.getSize());
-		console.log(ngItem.getGridPosition(), ngItem.getSize());
 		this.addToGrid(ngItem);
 	}
 	
@@ -124,12 +123,10 @@ export class NgGrid {
 	}
 	
 	public onMouseDown(e) {
-		console.log(e);
 		var mousePos = this.getMousePosition(e);
 		var item = this.getItemFromPosition(mousePos);
 		
 		if (item != null) {
-			console.log(item, item.canResize(e), item.canDrag(e));
 			if (item.canResize(e) != null) {
 				this.resizeStart(e);
 			} else if (item.canDrag(e)) {
@@ -146,6 +143,7 @@ export class NgGrid {
 		
 		this._resizingItem = item;
 		this._resizeDirection = item.canResize(e);
+		this.removeFromGrid(item);
 		this.isResizing = true;
 	}
 	
@@ -162,7 +160,11 @@ export class NgGrid {
 	}
 	
 	public onMouseMove(e) {
-		if (this.isDragging) {
+		if (e.buttons == 0 && this.isDragging) {
+			this.dragStop(e);
+		} else if (e.buttons == 0 && this.isDragging) {
+			this.resizeStop(e);
+		} else if (this.isDragging) {
 			this.drag(e);
 		} else if (this.isResizing) {
 			this.resize(e);
@@ -199,7 +201,7 @@ export class NgGrid {
 	
 	public resize(e) {
 		if (this.isResizing) {
-			var mousePos = this.getMousePosition(e)
+			var mousePos = this.getMousePosition(e);
 			var itemPos = this._resizingItem.getPosition();
 			var itemDims = this._resizingItem.getDimensions();
 			var newW = this._resizeDirection == 'height' ? itemDims.width : (mousePos.left - itemPos.left + 10);
@@ -212,10 +214,11 @@ export class NgGrid {
 			
 			this._resizingItem.setDimensions(newW, newH);
 			
+			this.fixGridCollisions(this._resizingItem.getGridPosition(), this._resizingItem.getSize());
+			
             var bigGrid = this.maxGridSize(itemPos.left + newW, itemPos.top + newH);
-            // console.log(bigGrid);
-            this.setGridCols(bigGrid.sizex);
-            this.setGridRows(bigGrid.sizey);
+            this.setGridCols(bigGrid.sizex + 1);
+            this.setGridRows(bigGrid.sizey + 1);
 			
 			return false;
 		}
@@ -250,8 +253,9 @@ export class NgGrid {
 			this.isResizing = false;
 			
             var gridSize = this.calculateGridSize(this._resizingItem);
-            console.log(gridSize);
+            
             this._resizingItem.setSize(gridSize.sizex, gridSize.sizey);
+			this.addToGrid(this._resizingItem);
             
             this._resizingItem = null;
             this._resizeDirection = null;
@@ -285,9 +289,10 @@ export class NgGrid {
 	
 	checkGridCollision(pos: {col: number, row: number}, dims: {x: number, y: number}):boolean {
 		var positions = this.getCollisions(pos, dims);
-		var collision = false;
 		
-		if (positions.length == 0) return false;
+		if (positions == null || positions.length == 0) return false;
+		
+		var collision = false;
 		
 		positions.map(function(v) {
 			collision = (v === null) ? collision : true;
@@ -394,7 +399,6 @@ export class NgGrid {
 		
 		this.setGridRows(pos.row + dims.y);
 		this.setGridCols(pos.col + dims.x);
-		console.log(pos, dims);
 		
 		for (var j = 0; j < dims.y; j++) {
 			if (this._itemGrid[pos.row + j] != null) {
