@@ -112,6 +112,8 @@ export class NgGrid {
 	
 	public addItem(ngItem: NgGridItem) {
 		this._items.push(ngItem);
+		this.fixGridCollisions(ngItem.getGridPosition(), ngItem.getSize());
+		console.log(ngItem.getGridPosition(), ngItem.getSize());
 		this.addToGrid(ngItem);
 	}
 	
@@ -180,10 +182,16 @@ export class NgGrid {
 			this._draggingItem.setPosition((mousePos.left - this._posOffset.left), (mousePos.top - this._posOffset.top));
 			
 			var gridPos = this.calculateGridPosition(this._draggingItem);
-			gridPos = this.fixGridPosition(gridPos);
+			var dims = this._draggingItem.getSize();
 			
-			this.setGridRows(gridPos.row);
-			this.setGridCols(gridPos.col);
+			this.fixGridCollisions(gridPos, dims);
+			
+			this.addToGrid(this._draggingItem);
+			this.cascadeGrid();
+			this.removeFromGrid(this._draggingItem);
+			
+			this.setGridRows(gridPos.row + dims.y);
+			this.setGridCols(gridPos.col + dims.x);
 			
 			return false;
 		}
@@ -275,23 +283,96 @@ export class NgGrid {
 		return { 'col': col, 'row': row };
 	}
 	
-	checkGridCollision(col: number, row: number):boolean {
-		if (this._itemGrid[row] === undefined) return false;
-		if (this._itemGrid[row][col] === undefined) return false;
-		return this._itemGrid[row][col] !== null;
+	checkGridCollision(pos: {col: number, row: number}, dims: {x: number, y: number}):boolean {
+		var positions = this.getCollisions(pos, dims);
+		var collision = false;
+		
+		if (positions.length == 0) return false;
+		
+		positions.map(function(v) {
+			collision = (v === null) ? collision : true;
+		});
+		
+		return collision;
 	}
 	
-	fixGridPosition(pos: {col: number, row: number}): {col: number, row: number} {
-		while (this.checkGridCollision(pos.col, pos.row)) {
+	getCollisions(pos: {col: number, row: number}, dims: {x: number, y: number}):Array<NgGridItem> {
+		var returns = [];
+		
+		for (var j = 0; j < dims.y; j++)
+			if (this._itemGrid[pos.row + j] != null)
+				for (var i = 0; i < dims.x; i++)
+					if (this._itemGrid[pos.row + j][pos.col + i] != null)
+						returns.push(this._itemGrid[pos.row + j][pos.col + i]);
+		
+		return returns;
+	}
+	
+	fixGridCollisions(pos: {col: number, row: number}, dims: {x: number, y: number}) {
+		while (this.checkGridCollision(pos, dims)) {
+			var collisions = this.getCollisions(pos, dims);
+			var me = this;
+			
+			this.removeFromGrid(collisions[0]);
+			var itemPos = collisions[0].getGridPosition();
+			var itemDims = collisions[0].getSize();
+			
+			switch (this._cascade) {
+				case "up":
+					if (itemPos.row == this._maxRows)
+						itemPos.col++;
+					else
+						itemPos.row++;
+					
+					collisions[0].setGridPosition(itemPos.col, itemPos.row);
+					break;
+				case "down":
+					if (itemPos.row == 1)
+						itemPos.col++;
+					else
+						itemPos.row--;
+					
+					collisions[0].setGridPosition(itemPos.col, itemPos.row);
+					break;
+				case "left":
+					if (itemPos.col == this._maxCols)
+						itemPos.row++;
+					else
+						itemPos.col++;
+					
+					collisions[0].setGridPosition(itemPos.col, itemPos.row);
+					break;
+				case "right":
+					if (itemPos.col == 1)
+						itemPos.row++;
+					else
+						itemPos.col--;
+					
+					collisions[0].setGridPosition(itemPos.col, itemPos.row);
+					break;
+			}
+			
+			this.fixGridCollisions(itemPos, itemDims);
+			
+			this.addToGrid(collisions[0]);
+		}
+	}
+	
+	cascadeGrid() {
+		
+	}
+	
+	fixGridPosition(pos: {col: number, row: number}, dims: {x: number, y: number}): {col: number, row: number} {
+		while (this.checkGridCollision(pos, dims)) {
 			pos.col++;
 			
-			this.setGridCols(pos.col);
+			this.setGridCols(pos.col + dims.x);
 			
 			if (this._maxCols > 0 && pos.col > this._maxCols) {
 				pos.col = 1;
 				pos.row++;
 				
-				this.setGridRows(pos.row);
+				this.setGridRows(pos.row + dims.y);
 				
 				if (this._maxRows > 0 && pos.row > this._maxRows) {
 					throw new Error("Unable to calculate grid position");
@@ -304,21 +385,30 @@ export class NgGrid {
 	
 	addToGrid(item: NgGridItem) {
 		var pos = item.getGridPosition();
+		var dims = item.getSize();
 		
-		if (this.checkGridCollision(pos.col, pos.row)) {
-			pos = this.fixGridPosition(pos);
-			item.setGridPosition(pos.col, pos.row);
+		if (this.checkGridCollision(pos, dims)) {
+			this.fixGridCollisions(pos, dims);
+			pos = item.getGridPosition();
 		}
 		
-		this.setGridRows(pos.row);
-		this.setGridCols(pos.col);
+		this.setGridRows(pos.row + dims.y);
+		this.setGridCols(pos.col + dims.x);
+		console.log(pos, dims);
 		
-		if (this._itemGrid[pos.row][pos.col] == null) {
-			this._itemGrid[pos.row][pos.col] = item;
-			
-			this.updateSize(pos.col, pos.row);
-		} else
-			throw new Error("Cannot add item to grid. Space already taken.");
+		for (var j = 0; j < dims.y; j++) {
+			if (this._itemGrid[pos.row + j] != null) {
+				for (var i = 0; i < dims.x; i++) {
+					if (this._itemGrid[pos.row + j][pos.col + i] == null) {
+						this._itemGrid[pos.row + j][pos.col + i] = item;
+				
+						this.updateSize(pos.col, pos.row);
+					} else {
+						throw new Error("Cannot add item to grid. Space already taken.");
+					}
+				}
+			}
+		}
 	}
 	
 	removeFromGrid(item: NgGridItem) {
