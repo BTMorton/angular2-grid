@@ -272,13 +272,13 @@ export class NgGrid {
 		}
 	}
 	
-	maxGridSize(w: number, h: number):{x: number, y: number} {
+	private maxGridSize(w: number, h: number):{x: number, y: number} {
 		var sizex = Math.ceil((w + (this.colWidth / 2)) / (this.colWidth + this.marginLeft + this.marginRight));
 		var sizey = Math.ceil((h + (this.rowHeight / 2)) / (this.rowHeight + this.marginTop + this.marginBottom));
 		return { 'x': sizex, 'y': sizey };
 	}
 	
-	calculateGridSize(item: NgGridItem):{x: number, y: number} {
+	private calculateGridSize(item: NgGridItem):{x: number, y: number} {
 		var dims = item.getDimensions();
 		
         dims.width += this.marginLeft + this.marginRight;
@@ -290,14 +290,14 @@ export class NgGrid {
 		return { 'x': sizex, 'y': sizey };
 	}
 	
-	calculateGridPosition(item: NgGridItem):{col: number, row: number} {
+	private calculateGridPosition(item: NgGridItem):{col: number, row: number} {
 		var pos = item.getPosition();
 		var col = Math.round(pos.left / (this.colWidth + this.marginLeft + this.marginRight)) + 1;
 		var row = Math.round(pos.top / (this.rowHeight + this.marginTop + this.marginBottom)) + 1;
 		return { 'col': col, 'row': row };
 	}
 	
-	checkGridCollision(pos: {col: number, row: number}, dims: {x: number, y: number}):boolean {
+	private checkGridCollision(pos: {col: number, row: number}, dims: {x: number, y: number}):boolean {
 		var positions = this.getCollisions(pos, dims);
 		
 		if (positions == null || positions.length == 0) return false;
@@ -311,7 +311,7 @@ export class NgGrid {
 		return collision;
 	}
 	
-	getCollisions(pos: {col: number, row: number}, dims: {x: number, y: number}):Array<NgGridItem> {
+	private getCollisions(pos: {col: number, row: number}, dims: {x: number, y: number}):Array<NgGridItem> {
 		var returns = [];
 		
 		for (var j = 0; j < dims.y; j++)
@@ -323,7 +323,7 @@ export class NgGrid {
 		return returns;
 	}
 	
-	fixGridCollisions(pos: {col: number, row: number}, dims: {x: number, y: number}) {
+	private fixGridCollisions(pos: {col: number, row: number}, dims: {x: number, y: number}) {
 		while (this.checkGridCollision(pos, dims)) {
 			var collisions = this.getCollisions(pos, dims);
 			var me = this;
@@ -373,7 +373,7 @@ export class NgGrid {
 		}
 	}
 	
-	cascadeGrid(pos?: {col: number, row: number}, dims?: {x: number, y: number}) {
+	private cascadeGrid(pos?: {col: number, row: number}, dims?: {x: number, y: number}) {
 		switch (this._cascade) {
 			case "up":
 				var lowRow: Array<number> = [0];
@@ -413,7 +413,7 @@ export class NgGrid {
 		}
 	}
 	
-	fixGridPosition(pos: {col: number, row: number}, dims: {x: number, y: number}): {col: number, row: number} {
+	private fixGridPosition(pos: {col: number, row: number}, dims: {x: number, y: number}): {col: number, row: number} {
 		while (this.checkGridCollision(pos, dims)) {
 			pos.col++;
 			
@@ -434,7 +434,7 @@ export class NgGrid {
 		return pos;
 	}
 	
-	addToGrid(item: NgGridItem) {
+	public addToGrid(item: NgGridItem) {
 		var pos = item.getGridPosition();
 		var dims = item.getSize();
 		
@@ -457,7 +457,7 @@ export class NgGrid {
 		}
 	}
 	
-	removeFromGrid(item: NgGridItem) {
+	public removeFromGrid(item: NgGridItem) {
 		for (var y in this._itemGrid)
 			for (var x in this._itemGrid[y])
 				if (this._itemGrid[y][x] == item)
@@ -507,6 +507,7 @@ export class NgGrid {
 	private getMaxRow() {
 		return Math.max.apply(null, Object.keys(this._itemGrid));
 	}
+	
 	private getMaxCol() {
 		var me = this;
 		var maxes = [0];
@@ -540,7 +541,7 @@ export class NgGrid {
 		};
 	}
 	
-	getItemFromPosition(position: {left: number, top: number}): NgGridItem {
+	private getItemFromPosition(position: {left: number, top: number}): NgGridItem {
 		for (var x in this._items) {
 			var size = this._items[x].getDimensions();
 			var pos = this._items[x].getPosition();
@@ -560,7 +561,14 @@ export class NgGrid {
 	properties: [ 'config: ng-grid-item' ]
 })
 export class NgGridItem {
-	private static CONST_DEFAULT_CONFIG = {'col': 1, 'row': 1, 'sizex': 1, 'sizey': 1, 'dragHandle': null, 'resizeHandle': null};
+	private static CONST_DEFAULT_CONFIG = {
+		'col': 1,
+		'row': 1,
+		'sizex': 1,
+		'sizey': 1,
+		'dragHandle': null,
+		'resizeHandle': null
+	};
 	
 	private _col: number = 1;
 	private _row: number = 1;
@@ -762,55 +770,3 @@ export class NgGridItem {
 		this._elemHeight = h;
 	}
 }
-
-// @Component {
-// 	selector: 'ng-grid-handle',
-// 	hostListeners: {
-// 		'mousedown': 'resizeStart()',
-// 		'mousemove': 'resize()',
-// 		'mouseup': 'resizeStop()',
-// 		'touchstart': 'resizeStart()',
-// 		'touchmove': 'resize()',
-// 		'touchend': 'resizeStop()'
-// 	}
-// }
-// @View {
-// 	template: '<div class="handle"></div>'
-// }
-// export class NgGridHandle {
-// 	private isResizing: boolean = false;
-	
-// 	constructor(private _ngEl: ElementRef, private _renderer: Renderer, private _eventManager: EventManager, private @Parent() _ngGridItem: NgGridItem, private @Parent() _ngGrid: NgGrid) {
-		
-//     }
-	
-// 	resizeStart(e) {
-//         e.preventDefault();
-// 		if (!this._ngGrid.resizeEnable || this.isResizing) return;
-		
-// 		this.isResizing = true;
-// 		this.onResizeStart(e);
-// 		this._ngGridItem.resizeStart();
-// 	}
-	
-// 	resize(e) {
-//         e.preventDefault();
-// 		if (!this.isResizing) return;
-		
-// 		var offset = this.getOffset(e);
-		
-// 		this.onResize.next(e, location);
-// 		this._ngGridItem.resize();
-// 	}
-	
-// 	resizeEnd(e) {
-//         e.preventDefault();
-// 		if (!this.isResizing) return;
-		
-// 		this.isResizing = false;
-		
-// 		var offset = this.getOffset(e);
-		
-// 		this._ngGridItem.resizeEnd();
-// 	}
-// }

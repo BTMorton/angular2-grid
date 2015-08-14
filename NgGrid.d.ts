@@ -55,56 +55,14 @@ export declare class NgGrid {
     onMouseUp(e: any): void;
     dragStop(e: any): boolean;
     resizeStop(e: any): void;
-    maxGridSize(w: number, h: number): {
-        x: number;
-        y: number;
-    };
-    calculateGridSize(item: NgGridItem): {
-        x: number;
-        y: number;
-    };
-    calculateGridPosition(item: NgGridItem): {
-        col: number;
-        row: number;
-    };
-    checkGridCollision(pos: {
-        col: number;
-        row: number;
-    }, dims: {
-        x: number;
-        y: number;
-    }): boolean;
-    getCollisions(pos: {
-        col: number;
-        row: number;
-    }, dims: {
-        x: number;
-        y: number;
-    }): Array<NgGridItem>;
-    fixGridCollisions(pos: {
-        col: number;
-        row: number;
-    }, dims: {
-        x: number;
-        y: number;
-    }): void;
-    cascadeGrid(pos?: {
-        col: number;
-        row: number;
-    }, dims?: {
-        x: number;
-        y: number;
-    }): void;
-    fixGridPosition(pos: {
-        col: number;
-        row: number;
-    }, dims: {
-        x: number;
-        y: number;
-    }): {
-        col: number;
-        row: number;
-    };
+    private maxGridSize(w, h);
+    private calculateGridSize(item);
+    private calculateGridPosition(item);
+    private checkGridCollision(pos, dims);
+    private getCollisions(pos, dims);
+    private fixGridCollisions(pos, dims);
+    private cascadeGrid(pos?, dims?);
+    private fixGridPosition(pos, dims);
     addToGrid(item: NgGridItem): void;
     removeFromGrid(item: NgGridItem): void;
     private updateSize(col?, row?);
@@ -113,10 +71,7 @@ export declare class NgGrid {
     private getMaxCol();
     private getMousePosition(e);
     private getAbsoluteMousePosition(e);
-    getItemFromPosition(position: {
-        left: number;
-        top: number;
-    }): NgGridItem;
+    private getItemFromPosition(position);
 }
 export declare class NgGridItem {
     private _ngEl;
