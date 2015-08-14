@@ -9,6 +9,7 @@ import {View, Component, Directive, LifecycleEvent, ElementRef, Pipe, Pipes, Ren
 	host: {
 		'(^mousedown)': 'onMouseDown($event)',
 		'(^mousemove)': 'onMouseMove($event)',
+		// '(^document:mousemove)': 'onMouseMove($event)',
 		'(^mouseup)': 'onMouseUp($event)',
 		'(^touchstart)': 'onMouseDown($event)',
 		'(^touchmove)': 'onMouseMove($event)',
@@ -189,9 +190,8 @@ export class NgGrid {
 			
 			this.fixGridCollisions(gridPos, dims);
 			this.cascadeGrid(gridPos, dims);
-			
-			this.setGridRows(gridPos.row + dims.y);
-			this.setGridCols(gridPos.col + dims.x);
+			console.log(gridPos.row, dims.y);
+			this.updateSize(gridPos.col + dims.x - 1, gridPos.row + dims.y - 1);
 			
 			return false;
 		}
@@ -212,12 +212,19 @@ export class NgGrid {
 			
 			this._resizingItem.setDimensions(newW, newH);
 			
-			this.fixGridCollisions(this._resizingItem.getGridPosition(), this._resizingItem.getSize());
-			this.cascadeGrid(this._resizingItem.getGridPosition(), this.calculateGridSize(this._resizingItem));
+			var calcSize = this.calculateGridSize(this._resizingItem);
+			
+			var iGridPos = this._resizingItem.getGridPosition();
+			
+			this.fixGridCollisions(iGridPos, this._resizingItem.getSize());
+			this.cascadeGrid(iGridPos, calcSize);
 			
             var bigGrid = this.maxGridSize(itemPos.left + newW, itemPos.top + newH);
-            this.setGridCols(bigGrid.sizex + 1);
-            this.setGridRows(bigGrid.sizey + 1);
+            
+            if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col;
+            if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row;
+            
+            this.updateSize(bigGrid.x, bigGrid.y);
 			
 			return false;
 		}
@@ -265,10 +272,10 @@ export class NgGrid {
 		}
 	}
 	
-	maxGridSize(w: number, h: number):{sizex: number, sizey: number} {
-		var sizex = Math.ceil(w / (this.colWidth + this.marginLeft + this.marginRight));
-		var sizey = Math.ceil(h / (this.rowHeight + this.marginTop + this.marginBottom));
-		return { 'sizex': sizex, 'sizey': sizey };
+	maxGridSize(w: number, h: number):{x: number, y: number} {
+		var sizex = Math.ceil((w + (this.colWidth / 2)) / (this.colWidth + this.marginLeft + this.marginRight));
+		var sizey = Math.ceil((h + (this.rowHeight / 2)) / (this.rowHeight + this.marginTop + this.marginBottom));
+		return { 'x': sizex, 'y': sizey };
 	}
 	
 	calculateGridSize(item: NgGridItem):{x: number, y: number} {
@@ -321,6 +328,7 @@ export class NgGrid {
 			var collisions = this.getCollisions(pos, dims);
 			var me = this;
 			this.removeFromGrid(collisions[0]);
+			
 			var itemPos = collisions[0].getGridPosition();
 			var itemDims = collisions[0].getSize();
 			
@@ -370,23 +378,21 @@ export class NgGrid {
 			case "up":
 				var lowRow: Array<number> = [0];
 				
-				for (var c in this._itemGrid[1])
-					lowRow[c] = 1;
+				for (var i:number = 1; i <= this.getMaxCol(); i++)
+					lowRow[i] = 1;
 				
-				for (var r in this._itemGrid) {
-					for (var c in this._itemGrid[r]) {
-						if (parseInt(r) < lowRow[c]) continue;
+				for (var r:number = 1; r <= this.getMaxRow(); r++) {
+					for (var c:number = 1; c <= this.getMaxCol(); c++) {
+						if (r < lowRow[c]) continue;
 						if (this._itemGrid[r][c] != null) {
 							var item = this._itemGrid[r][c];
 							var itemDims = item.getSize();
 							var itemPos = item.getGridPosition();
-							var rNum: number = parseInt(r);
-							var cNum: number = parseInt(c);
 							
-							if (itemPos.row < rNum) continue;	//	If this is a repeated element in the grid
+							if (itemPos.col != c || itemPos.row != r) continue;	//	If this is not the element's start
 							
-							if (pos && cNum >= pos.col && cNum < (pos.col + dims.x)) {	//	If our element is in this column
-								if (rNum >= pos.row && rNum < (pos.row + dims.y)) {	//	If this row is occupied by our element
+							if (pos && c >= pos.col && c < (pos.col + dims.x)) {	//	If our element is in this column
+								if (r >= pos.row && r < (pos.row + dims.y)) {	//	If this row is occupied by our element
 									lowRow[c] = pos.row + dims.y;	//	Set the lowest row to be below it
 								} else if (itemDims.y > (pos.row - lowRow[c])) {	//	If the item can't fit above our element
 									lowRow[c] = pos.row + dims.y;	//	Set the lowest row to be below our element
@@ -395,7 +401,7 @@ export class NgGrid {
 							
 							if (lowRow[c] != itemPos.row) {	//	If the item is not already on this row move it up
 								this.removeFromGrid(item);
-								item.setGridPosition(parseInt(c), lowRow[c]);
+								item.setGridPosition(c, lowRow[c]);
 								this.addToGrid(item);
 							}
 							
@@ -411,13 +417,13 @@ export class NgGrid {
 		while (this.checkGridCollision(pos, dims)) {
 			pos.col++;
 			
-			this.setGridCols(pos.col + dims.x);
+			this.updateSize(pos.col + dims.x - 1, null);
 			
 			if (this._maxCols > 0 && (pos.col + dims.x - 1) > this._maxCols) {
 				pos.col = 1;
 				pos.row++;
 				
-				this.setGridRows(pos.row + dims.y);
+				this.updateSize(null, pos.row + dims.y - 1);
 				
 				if (this._maxRows > 0 && (pos.row + dims.y - 1) > this._maxRows) {
 					throw new Error("Unable to calculate grid position");
@@ -437,19 +443,15 @@ export class NgGrid {
 			pos = item.getGridPosition();
 		}
 		
-		this.setGridRows(pos.row + dims.y);
-		this.setGridCols(pos.col + dims.x);
-		
 		for (var j = 0; j < dims.y; j++) {
-			if (this._itemGrid[pos.row + j] != null) {
-				for (var i = 0; i < dims.x; i++) {
-					if (this._itemGrid[pos.row + j][pos.col + i] == null) {
-						this._itemGrid[pos.row + j][pos.col + i] = item;
-				
-						this.updateSize(pos.col, pos.row);
-					} else {
-						throw new Error("Cannot add item to grid. Space already taken.");
-					}
+			if (this._itemGrid[pos.row + j] == null) this._itemGrid[pos.row + j] = {};
+			for (var i = 0; i < dims.x; i++) {
+				if (this._itemGrid[pos.row + j][pos.col + i] == null) {
+					this._itemGrid[pos.row + j][pos.col + i] = item;
+					
+					this.updateSize(pos.col + dims.x - 1, pos.row + dims.y - 1);
+				} else {
+					throw new Error("Cannot add item to grid. Space already taken.");
 				}
 			}
 		}
@@ -462,39 +464,54 @@ export class NgGrid {
 					this._itemGrid[y][x] = null;
 	}
 	
-	private setGridRows(row) {
-		var maxRow = Math.max.apply(null, Object.keys(this._itemGrid));
-		
-		if (row > maxRow) {
-			for (var i = 1; i <= row; i++)
-				if (this._itemGrid[i] === undefined) this._itemGrid[i] = {};
-			
-			this.updateSize();
-		}
-	}
-	
-	private setGridCols(col) {
-		var maxCol = Math.max.apply(null, Object.keys(this._itemGrid[1]));
-		
-		if (col > maxCol) {
-			for (var x in this._itemGrid)
-				for (var i = 1; i <= col; i++)
-					if (this._itemGrid[x][i] === undefined) this._itemGrid[x][i] = null;
-				
-			
-			this.updateSize();
-		}
-	}
-	
 	private updateSize(col?: number, row?:number) {
 		col = (col == undefined) ? 0 : col;
 		row = (row == undefined) ? 0 : row;
 		
-		var maxRow = Math.max(Math.max.apply(null, Object.keys(this._itemGrid)), row);
-		var maxCol = Math.max(Math.max.apply(null, Object.keys(this._itemGrid[1])), col);
+		this.filterGrid();
+		
+		var maxRow = Math.max(this.getMaxRow(), row);
+		var maxCol = Math.max(this.getMaxCol(), col);
 		
 		this._renderer.setElementStyle(this._ngEl, 'width', (maxCol * (this.colWidth + this.marginLeft + this.marginRight))+"px");
 		this._renderer.setElementStyle(this._ngEl, 'height', (maxRow * (this.rowHeight + this.marginTop + this.marginBottom)) + "px");
+	}
+	
+	private filterGrid() {
+		var curMaxCol = this.getMaxCol();
+		var curMaxRow = this.getMaxRow();
+		var maxCol = 0;
+		var maxRow = 0;
+		
+		for (var r:number = 1; r <= curMaxRow; r++) {
+			for (var c:number = 1; c <= curMaxCol; c++) {
+				if (this._itemGrid[r][c] != null) {
+					maxCol = Math.max(maxCol, c);
+					maxRow = Math.max(maxRow, r);
+				}
+			}
+		}
+		
+		if (curMaxRow != maxRow)
+			for (var r: number = maxRow + 1; r <= curMaxRow; r++)
+				if (this._itemGrid[r] !== undefined)
+					delete this._itemGrid[r];
+		
+		if (curMaxCol != maxCol)
+			for (var r: number = 1; r <= maxRow; r++)
+				for (var c: number = maxCol + 1; c <= curMaxCol; c++)
+					if (this._itemGrid[r][c] !== undefined)
+						delete this._itemGrid[r][c];
+	}
+	
+	private getMaxRow() {
+		return Math.max.apply(null, Object.keys(this._itemGrid));
+	}
+	private getMaxCol() {
+		var me = this;
+		var maxes = [0];
+		Object.keys(me._itemGrid).map(function(v) { maxes.push(Math.max.apply(null, Object.keys(me._itemGrid[v]))); });
+		return Math.max.apply(null, maxes);
 	}
 	
 	private getMousePosition(e): {left: number, top: number} {
