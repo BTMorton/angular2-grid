@@ -190,7 +190,7 @@ export class NgGrid {
 			
 			this.fixGridCollisions(gridPos, dims);
 			this.cascadeGrid(gridPos, dims);
-			console.log(gridPos.row, dims.y);
+			
 			this.updateSize(gridPos.col + dims.x - 1, gridPos.row + dims.y - 1);
 			
 			return false;
@@ -382,8 +382,12 @@ export class NgGrid {
 					lowRow[i] = 1;
 				
 				for (var r:number = 1; r <= this.getMaxRow(); r++) {
+					if (this._itemGrid[r] == undefined) continue;
+					
 					for (var c:number = 1; c <= this.getMaxCol(); c++) {
+						if (this._itemGrid[r] == undefined) break;
 						if (r < lowRow[c]) continue;
+						
 						if (this._itemGrid[r][c] != null) {
 							var item = this._itemGrid[r][c];
 							var itemDims = item.getSize();
