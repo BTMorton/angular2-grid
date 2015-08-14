@@ -27,24 +27,24 @@ To use this in your own application, all you need to do is add the `[ng-grid]` a
 
 To configure the grid with your own options, it is as easy as adding them as the attribute value. The defaults for the grid are:
 
-```json
+```javascript
 {
-	'margins': [10],    //	The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
-	'draggable': true,  //	Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
-	'resizeable': true, //	Whether the items can be resized. Can be updated using enableResize()/disableResize()
-	'max_cols': 0,      //	The maximum number of columns allowed. Set to 0 for infinite
-	'max_rows': 0,      //	The maximum number of rows allowed. Set to 0 for infinite
-	'col_width': 250,   //	The width of each column
-	'row_height': 250,  //	The height of each row
-	'cascade': 'up',    //	The direction to cascade grid items ('up', 'right', 'down', 'left')
-	'min_width': 100,   //	The minimum width of an item
-	'min_height': 100   //	The minimum height of an item
+    'margins': [10],    //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
+    'draggable': true,  //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
+    'resizeable': true, //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
+    'max_cols': 0,      //  The maximum number of columns allowed. Set to 0 for infinite
+    'max_rows': 0,      //  The maximum number of rows allowed. Set to 0 for infinite
+    'col_width': 250,   //  The width of each column
+    'row_height': 250,  //  The height of each row
+    'cascade': 'up',    //  The direction to cascade grid items ('up', 'right', 'down', 'left')
+    'min_width': 100,   //  The minimum width of an item
+    'min_height': 100   //  The minimum height of an item
 }
 ```
 
 The defaults for the grid item are:
 
-```json
+```javascript
 {
     'col': 1,               //  The start column for the item
     'row': 1,               //  The start row for the item
@@ -55,3 +55,17 @@ The defaults for the grid item are:
                             //    15 pixels from the bottom for vertical, and the square in the corner bottom-right for both
 }
 ```
+
+#### Example
+------------
+
+```html
+<div [ng-grid]="{'resizeable': false, 'margins': [5, 10]}">
+	<div *ng-for="#box of boxes" [ng-grid-item]="{'dragHandle': '.title'}">
+		<div class="title">{{box.title}}</div>
+		<p>{{box.text}}</p>
+	</div>
+</div>
+```
+
+In order to include the relevant files, you will need to import `NgGrid` and `NgGridItem` to your app and add them to the `@View` directives.
