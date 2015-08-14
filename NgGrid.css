@@ -1,8 +1,14 @@
 .grid {
 	position: relative;
+	background-color: #efefef;
 }
 
 .grid-item {
 	position: absolute;
 	display: inline-block;
+	background-color: #ffffff;
+}
+
+.placeholder {
+	background-color: #333;
 }
