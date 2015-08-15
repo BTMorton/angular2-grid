@@ -27,6 +27,10 @@ class MyAppComponent {
 	addBox() {
 		this.boxes.push(this.curNum++);
 	}
+	
+	eventThrown(e) {
+		console.log("NgGrid has thrown an event!", e);
+	}
 }
 
 bootstrap(MyAppComponent);

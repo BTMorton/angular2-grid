@@ -14,7 +14,8 @@ import {View, Component, Directive, LifecycleEvent, ElementRef, Pipe, Pipes, Ren
 		'(^touchstart)': 'onMouseDown($event)',
 		'(^touchmove)': 'onMouseMove($event)',
 		'(^touchend)': 'onMouseUp($event)'
-	}
+	},
+	events: ['onDragStart', 'onDrag', 'onDragStop', 'onResizeStart', 'onResize', 'onResizeStop']
 })
 export class NgGrid {
 	public onDragStart: EventEmitter = new EventEmitter();
@@ -147,6 +148,8 @@ export class NgGrid {
 		this._resizeDirection = item.canResize(e);
 		this.removeFromGrid(item);
 		this.isResizing = true;
+		
+		this.onResizeStart.next(item);
 	}
 	
 	private dragStart(e) {
@@ -159,6 +162,8 @@ export class NgGrid {
 		this._posOffset = pOffset;
 		this.removeFromGrid(item);
 		this.isDragging = true;
+		
+		this.onDragStart.next(item);
 	}
 	
 	public onMouseMove(e) {
@@ -192,6 +197,7 @@ export class NgGrid {
 			this.cascadeGrid(gridPos, dims);
 			
 			this.updateSize(gridPos.col + dims.x - 1, gridPos.row + dims.y - 1);
+			this.onDrag.next(this._draggingItem);
 			
 			return false;
 		}
@@ -225,6 +231,7 @@ export class NgGrid {
             if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row;
             
             this.updateSize(bigGrid.x, bigGrid.y);
+			this.onResize.next(this._resizingItem);
 			
 			return false;
 		}
@@ -251,6 +258,7 @@ export class NgGrid {
 			
 			this._draggingItem = null;
 			this._posOffset = null;
+			this.onDragStop.next(this._draggingItem);
 			
 			return false;
 		}
@@ -269,6 +277,7 @@ export class NgGrid {
             
             this._resizingItem = null;
             this._resizeDirection = null;
+			this.onResizeStop.next(this._resizingItem);
 		}
 	}
 	

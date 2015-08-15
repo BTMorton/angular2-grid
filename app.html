@@ -3,7 +3,7 @@
 <br />
 <a (click)="addBox()">Add Box</a>
 <br /><br />
-<div [ng-grid]="{'margins': [5]}">
+<div [ng-grid]="{'margins': [5]}" (on-drag-start)="eventThrown($event)">
 	<div *ng-for="#box of boxes; #i = index" [ng-grid-item]="{'dragHandle': '.handle'}">
 		<div class="handle"></div>
 		{{box}}
