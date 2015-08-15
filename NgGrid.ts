@@ -488,6 +488,8 @@ export class NgGrid {
 		var maxRow = 0;
 		
 		for (var r:number = 1; r <= curMaxRow; r++) {
+			if (this._itemGrid[r] == undefined) continue;
+			
 			for (var c:number = 1; c <= curMaxCol; c++) {
 				if (this._itemGrid[r][c] != null) {
 					maxCol = Math.max(maxCol, c);
@@ -502,10 +504,13 @@ export class NgGrid {
 					delete this._itemGrid[r];
 		
 		if (curMaxCol != maxCol)
-			for (var r: number = 1; r <= maxRow; r++)
+			for (var r: number = 1; r <= maxRow; r++) {
+				if (this._itemGrid[r] == undefined) continue;
+				
 				for (var c: number = maxCol + 1; c <= curMaxCol; c++)
 					if (this._itemGrid[r][c] !== undefined)
 						delete this._itemGrid[r][c];
+			}
 	}
 	
 	private getMaxRow() {
