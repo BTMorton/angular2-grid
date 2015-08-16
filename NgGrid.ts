@@ -335,6 +335,7 @@ export class NgGrid {
 	private fixGridCollisions(pos: {col: number, row: number}, dims: {x: number, y: number}) {
 		while (this.checkGridCollision(pos, dims)) {
 			var collisions = this.getCollisions(pos, dims);
+			
 			var me = this;
 			this.removeFromGrid(collisions[0]);
 			
@@ -383,6 +384,8 @@ export class NgGrid {
 	}
 	
 	private cascadeGrid(pos?: {col: number, row: number}, dims?: {x: number, y: number}) {
+		if (pos && !dims) throw new Error("Cannot cascade with only position and not dimensions");
+		
 		switch (this._cascade) {
 			case "up":
 				var lowRow: Array<number> = [0];
@@ -404,21 +407,30 @@ export class NgGrid {
 							
 							if (itemPos.col != c || itemPos.row != r) continue;	//	If this is not the element's start
 							
-							if (pos && c >= pos.col && c < (pos.col + dims.x)) {	//	If our element is in this column
-								if (r >= pos.row && r < (pos.row + dims.y)) {	//	If this row is occupied by our element
-									lowRow[c] = pos.row + dims.y;	//	Set the lowest row to be below it
-								} else if (itemDims.y > (pos.row - lowRow[c])) {	//	If the item can't fit above our element
-									lowRow[c] = pos.row + dims.y;	//	Set the lowest row to be below our element
+							var lowest = lowRow[c];
+							
+							for (var i: number = 1; i < itemDims.x; i++) {
+								lowest = Math.max(lowRow[(c + i)], lowest);
+							}
+							
+							if (pos && (c + itemDims.x) > pos.col && c < (pos.col + dims.x)) {          //	If our element is in one of the item's columns
+								if ((r >= pos.row && r < (pos.row + dims.y)) ||                         //	If this row is occupied by our element
+										((itemDims.y > (pos.row - lowest)) &&                           //	Or the item can't fit above our element
+										(r >= (pos.row + dims.y) && lowest < (pos.row + dims.y)))) {    //		And this row is below our element, but we haven't caught it
+									lowest = Math.max(lowest, pos.row + dims.y);                        //	Set the lowest row to be below it
 								}
 							}
 							
-							if (lowRow[c] != itemPos.row) {	//	If the item is not already on this row move it up
+							if (lowest != itemPos.row) {	//	If the item is not already on this row move it up
 								this.removeFromGrid(item);
-								item.setGridPosition(c, lowRow[c]);
+								item.setGridPosition(c, lowest);
 								this.addToGrid(item);
 							}
 							
-							lowRow[c] += itemDims.y;	//	Update the lowest row to be below the item
+							for (var i: number = 0; i < itemDims.x; i++) {
+								lowRow[c+i] = lowest + itemDims.y;	//	Update the lowest row to be below the item
+							}
+							
 						}
 					}
 				}
