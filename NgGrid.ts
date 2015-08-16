@@ -205,13 +205,16 @@ export class NgGrid {
 			var mousePos = this._getMousePosition(e)
 			this._draggingItem.setPosition((mousePos.left - this._posOffset.left), (mousePos.top - this._posOffset.top));
 			
+			var itemPos = this._draggingItem.getGridPosition();
 			var gridPos = this._calculateGridPosition(this._draggingItem);
 			var dims = this._draggingItem.getSize();
 			
-			this._fixGridCollisions(gridPos, dims);
-			this._cascadeGrid(gridPos, dims);
+			if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
+				this._fixGridCollisions(gridPos, dims);
+				this._cascadeGrid(gridPos, dims);
+				this._updateSize(gridPos.col + dims.x - 1, gridPos.row + dims.y - 1);
+			}
 			
-			this._updateSize(gridPos.col + dims.x - 1, gridPos.row + dims.y - 1);
 			this.onDrag.next(this._draggingItem);
 		}
 	}
@@ -232,11 +235,13 @@ export class NgGrid {
 			this._resizingItem.setDimensions(newW, newH);
 			
 			var calcSize = this._calculateGridSize(this._resizingItem);
-			
+			var itemSize = this._resizingItem.getSize();
 			var iGridPos = this._resizingItem.getGridPosition();
 			
-			this._fixGridCollisions(iGridPos, this._resizingItem.getSize());
-			this._cascadeGrid(iGridPos, calcSize);
+			if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
+				this._fixGridCollisions(iGridPos, calcSize);
+				this._cascadeGrid(iGridPos, calcSize);
+			}
 			
             var bigGrid = this._maxGridSize(itemPos.left + newW, itemPos.top + newH);
             
