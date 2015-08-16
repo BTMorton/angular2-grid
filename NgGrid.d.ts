@@ -43,35 +43,35 @@ export declare class NgGrid {
     disableDrag(): void;
     enableResize(): void;
     disableResize(): void;
-    private _setAttr(name, val);
     addItem(ngItem: NgGridItem): void;
     removeItem(ngItem: NgGridItem): void;
-    onMouseDown(e: any): boolean;
-    private resizeStart(e);
-    private dragStart(e);
-    onMouseMove(e: any): void;
-    drag(e: any): boolean;
-    resize(e: any): boolean;
-    onMouseUp(e: any): void;
-    dragStop(e: any): boolean;
-    resizeStop(e: any): void;
-    private maxGridSize(w, h);
-    private calculateGridSize(item);
-    private calculateGridPosition(item);
-    private checkGridCollision(pos, dims);
-    private getCollisions(pos, dims);
-    private fixGridCollisions(pos, dims);
-    private cascadeGrid(pos?, dims?);
-    private fixGridPosition(pos, dims);
-    addToGrid(item: NgGridItem): void;
-    removeFromGrid(item: NgGridItem): void;
-    private updateSize(col?, row?);
-    private filterGrid();
-    private getMaxRow();
-    private getMaxCol();
-    private getMousePosition(e);
-    private getAbsoluteMousePosition(e);
-    private getItemFromPosition(position);
+    private _onMouseDown(e);
+    private _resizeStart(e);
+    private _dragStart(e);
+    private _onMouseMove(e);
+    private _drag(e);
+    private _resize(e);
+    private _onMouseUp(e);
+    private _dragStop(e);
+    private _resizeStop(e);
+    private _setAttr(name, val);
+    private _maxGridSize(w, h);
+    private _calculateGridSize(item);
+    private _calculateGridPosition(item);
+    private _checkGridCollision(pos, dims);
+    private _getCollisions(pos, dims);
+    private _fixGridCollisions(pos, dims);
+    private _cascadeGrid(pos?, dims?);
+    private _fixGridPosition(pos, dims);
+    private _addToGrid(item);
+    private _removeFromGrid(item);
+    private _updateSize(col?, row?);
+    private _filterGrid();
+    private _getMaxRow();
+    private _getMaxCol();
+    private _getMousePosition(e);
+    private _getAbsoluteMousePosition(e);
+    private _getItemFromPosition(position);
 }
 export declare class NgGridItem {
     private _ngEl;
@@ -95,11 +95,8 @@ export declare class NgGridItem {
     canDrag(e: any): boolean;
     canResize(e: any): string;
     onMouseMove(e: any): void;
-    private getMousePosition(e);
-    setConfig(config: any): void;
-    recalculateDimensions(): void;
-    getDragHandle(): any;
-    getResizeHandle(): any;
+    getDragHandle(): string;
+    getResizeHandle(): string;
     getDimensions(): {
         width: number;
         height: number;
@@ -108,8 +105,6 @@ export declare class NgGridItem {
         x: number;
         y: number;
     };
-    setSize(x: any, y: any): void;
-    recalculatePosition(): void;
     getPosition(): {
         left: number;
         top: number;
@@ -118,7 +113,12 @@ export declare class NgGridItem {
         col: number;
         row: number;
     };
+    setConfig(config: any): void;
+    setSize(x: any, y: any): void;
     setGridPosition(col: any, row: any): void;
     setPosition(x: any, y: any): void;
     setDimensions(w: any, h: any): void;
+    private _recalculatePosition();
+    private _recalculateDimensions();
+    private _getMousePosition(e);
 }
