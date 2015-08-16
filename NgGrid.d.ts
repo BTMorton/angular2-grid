@@ -1,8 +1,9 @@
 /// <reference path="typings/angular2/angular2.d.ts" />
-import { ElementRef, Renderer, EventEmitter } from 'angular2/angular2';
+import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader } from 'angular2/angular2';
 export declare class NgGrid {
     private _ngEl;
     private _renderer;
+    private _loader;
     onDragStart: EventEmitter;
     onDrag: EventEmitter;
     onDragStop: EventEmitter;
@@ -34,9 +35,11 @@ export declare class NgGrid {
     private _posOffset;
     private _adding;
     private _cascade;
+    private _placeholderRef;
+    private _fixToGrid;
     private static CONST_DEFAULT_CONFIG;
     config: any;
-    constructor(_ngEl: ElementRef, _renderer: Renderer);
+    constructor(_ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader);
     setConfig(config: any): void;
     setMargins(margins: any): void;
     enableDrag(): void;
@@ -54,10 +57,9 @@ export declare class NgGrid {
     private _onMouseUp(e);
     private _dragStop(e);
     private _resizeStop(e);
-    private _setAttr(name, val);
     private _maxGridSize(w, h);
-    private _calculateGridSize(item);
-    private _calculateGridPosition(item);
+    private _calculateGridSize(width, height);
+    private _calculateGridPosition(left, top);
     private _checkGridCollision(pos, dims);
     private _getCollisions(pos, dims);
     private _fixGridCollisions(pos, dims);
@@ -72,6 +74,7 @@ export declare class NgGrid {
     private _getMousePosition(e);
     private _getAbsoluteMousePosition(e);
     private _getItemFromPosition(position);
+    private _createPlaceholder(pos, dims);
 }
 export declare class NgGridItem {
     private _ngEl;
@@ -95,6 +98,7 @@ export declare class NgGridItem {
     canDrag(e: any): boolean;
     canResize(e: any): string;
     onMouseMove(e: any): void;
+    getElement(): ElementRef;
     getDragHandle(): string;
     getResizeHandle(): string;
     getDimensions(): {
@@ -114,10 +118,12 @@ export declare class NgGridItem {
         row: number;
     };
     setConfig(config: any): void;
-    setSize(x: any, y: any): void;
-    setGridPosition(col: any, row: any): void;
-    setPosition(x: any, y: any): void;
-    setDimensions(w: any, h: any): void;
+    setSize(x: number, y: number): void;
+    setGridPosition(col: number, row: number): void;
+    setPosition(x: number, y: number): void;
+    setDimensions(w: number, h: number): void;
+    startMoving(): void;
+    stopMoving(): void;
     private _recalculatePosition();
     private _recalculateDimensions();
     private _getMousePosition(e);

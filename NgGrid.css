@@ -7,8 +7,16 @@
 	position: absolute;
 	display: inline-block;
 	background-color: #ffffff;
+	z-index: 1;
+}
+
+.grid-item.moving {
+	z-index: 3;
 }
 
 .placeholder {
-	background-color: #333;
+	background-color: rgba(0, 0, 0, 0.3);
+	position: absolute;
+	display: inline-block;
+	z-index: 2;
 }
