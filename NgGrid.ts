@@ -34,6 +34,7 @@ export class NgGrid {
 	public marginLeft: number = 10;
 	public isDragging: boolean = false;
 	public isResizing: boolean = false;
+	public autoStyle: boolean = true;
 	
 	//	Private variables
 	private _resizeEnable: boolean = true;
@@ -68,7 +69,8 @@ export class NgGrid {
 		'cascade': 'up',
 		'min_width': 100,
 		'min_height': 100,
-		'fix_to_grid': false
+		'fix_to_grid': false,
+		'auto_style': true
 	};
 	
 	//	[ng-grid] attribute handler
@@ -85,6 +87,7 @@ export class NgGrid {
 	//	Constructor
 	constructor(private _ngEl: ElementRef, private _renderer: Renderer, private _loader: DynamicComponentLoader) {
 		this._renderer.setElementClass(this._ngEl, 'grid', true);
+		if (this.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'relative');
 	}
 	
 	//	Public methods
@@ -95,6 +98,7 @@ export class NgGrid {
 		this.setMargins(this._config.margins);
 		this.colWidth = this._config.col_width;
 		this.rowHeight = this._config.row_height;
+		this.autoStyle = this._config.auto_style;
 		this._dragEnable = this._config.draggable;
 		this._resizeEnable = this._config.resizeable;
 		this._maxRows = this._config.max_rows;
@@ -685,6 +689,7 @@ export class NgGridItem {
 	//	Constructor
 	constructor(private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid:NgGrid) {//@Host()
 		this._renderer.setElementClass(this._ngEl, 'grid-item', true);
+		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 		this._recalculateDimensions();
 		this._recalculatePosition();
 	}
@@ -752,26 +757,28 @@ export class NgGridItem {
 	}
 	
 	public onMouseMove(e: any): void {
-		if (this.canDrag(e)) {
-			this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
-		} else if (!this._resizeHandle) {
-			var mousePos = this._getMousePosition(e);
-			var dims = this.getDimensions();
+		if (this._ngGrid.autoStyle) {
+			if (this.canDrag(e)) {
+				this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
+			} else if (!this._resizeHandle) {
+				var mousePos = this._getMousePosition(e);
+				var dims = this.getDimensions();
 
-			if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
-				&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
+					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+					this._renderer.setElementStyle(this._ngEl, 'cursor', 'nwse-resize');
+				} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15) {
+					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ew-resize');
+				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ns-resize');
+				} else {
+					this._renderer.setElementStyle(this._ngEl, 'cursor', 'default');
+				}
+			} else if (this.canResize(e)) {
 				this._renderer.setElementStyle(this._ngEl, 'cursor', 'nwse-resize');
-			} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15) {
-				this._renderer.setElementStyle(this._ngEl, 'cursor', 'ew-resize');
-			} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
-				this._renderer.setElementStyle(this._ngEl, 'cursor', 'ns-resize');
 			} else {
 				this._renderer.setElementStyle(this._ngEl, 'cursor', 'default');
 			}
-		} else if (this.canResize(e)) {
-			this._renderer.setElementStyle(this._ngEl, 'cursor', 'nwse-resize');
-		} else {
-			this._renderer.setElementStyle(this._ngEl, 'cursor', 'default');
 		}
 	}
 	
@@ -845,10 +852,14 @@ export class NgGridItem {
 	
 	public startMoving() {
 		this._renderer.setElementClass(this._ngEl, 'moving', true);
+		var style = window.getComputedStyle(this._ngEl.nativeElement);
+		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'z-index', (parseInt(style.getPropertyValue('z-index')) + 1).toString());
 	}
 	
 	public stopMoving() {
 		this._renderer.setElementClass(this._ngEl, 'moving', false);
+		var style = window.getComputedStyle(this._ngEl.nativeElement);
+		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'z-index', (parseInt(style.getPropertyValue('z-index')) - 1).toString());
 	}
 	
 	//	Private methods
@@ -895,8 +906,9 @@ class NgGridPlaceholder {
 	private _col: number;
 	private _row: number;
 	
-	constructor (private _renderer: Renderer, private _ngEl: ElementRef, @Host() private _ngGrid: NgGrid) {	//, @Host() private _ngGrid: NgGrid
+	constructor (private _renderer: Renderer, private _ngEl: ElementRef, @Host() private _ngGrid: NgGrid) {
 		this._renderer.setElementClass(this._ngEl, 'placeholder', true);
+		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 	}
 	
 	public setSize(x: number, y: number): void {

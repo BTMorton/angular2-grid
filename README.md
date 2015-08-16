@@ -29,16 +29,18 @@ To configure the grid with your own options, it is as easy as adding them as the
 
 ```javascript
 {
-    'margins': [10],    //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
-    'draggable': true,  //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
-    'resizeable': true, //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
-    'max_cols': 0,      //  The maximum number of columns allowed. Set to 0 for infinite
-    'max_rows': 0,      //  The maximum number of rows allowed. Set to 0 for infinite
-    'col_width': 250,   //  The width of each column
-    'row_height': 250,  //  The height of each row
-    'cascade': 'up',    //  The direction to cascade grid items ('up', 'right', 'down', 'left')
-    'min_width': 100,   //  The minimum width of an item
-    'min_height': 100   //  The minimum height of an item
+    'margins': [10],        //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
+    'draggable': true,      //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
+    'resizeable': true,     //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
+    'max_cols': 0,          //  The maximum number of columns allowed. Set to 0 for infinite
+    'max_rows': 0,          //  The maximum number of rows allowed. Set to 0 for infinite
+    'col_width': 250,       //  The width of each column
+    'row_height': 250,      //  The height of each row
+    'cascade': 'up',        //  The direction to cascade grid items ('up', 'right', 'down', 'left')
+    'min_width': 100,       //  The minimum width of an item
+    'min_height': 100,      //  The minimum height of an item
+    'fix_to_grid': false    //  Fix all item movements to the grid
+    'auto_style': true      //  Automatically add required element styles at run-time
 }
 ```
 
@@ -55,6 +57,33 @@ The defaults for the grid item are:
                             //    15 pixels from the bottom for vertical, and the square in the corner bottom-right for both
 }
 ```
+
+#### Styling
+------------
+
+There are three elements that can be styled with angular2-grid, the grid itself `.grid`, the items `.grid-item` and the placeholder `.placeholder`. The demo includes some basic styling in NgGrid.css which you can include in you app `styleUrls` property. In order for correct functionality, the required styles are added by the classes themselves at run-time:
+
+```css
+.grid {
+	position: relative;
+}
+
+.grid-item {
+	position: absolute;
+}
+
+.grid-item.moving {
+	z-index: z-index + 1;
+}
+
+.placeholder {
+	position: absolute;
+}
+```
+
+You can prevent these styles being automatically added by setting the value of `'auto_size'` to be `false`. You will then need to ensure that they are correctly incorporated into your user styles instead.
+
+NOTE: The grid system sets the values `width, height, left, top` in CSS to move and resize the elements. This cannot be disabled.
 
 #### Example
 ------------

@@ -1,22 +1,15 @@
 .grid {
-	position: relative;
 	background-color: #efefef;
 }
 
 .grid-item {
-	position: absolute;
-	display: inline-block;
 	background-color: #ffffff;
-	z-index: 1;
 }
 
 .grid-item.moving {
-	z-index: 3;
+	z-index: 2;
 }
 
 .placeholder {
 	background-color: rgba(0, 0, 0, 0.3);
-	position: absolute;
-	display: inline-block;
-	z-index: 2;
 }

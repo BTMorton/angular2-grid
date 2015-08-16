@@ -18,6 +18,7 @@ export declare class NgGrid {
     marginLeft: number;
     isDragging: boolean;
     isResizing: boolean;
+    autoStyle: boolean;
     private _resizeEnable;
     private _dragEnable;
     private _items;
