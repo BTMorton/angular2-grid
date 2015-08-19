@@ -1,6 +1,7 @@
 /// <reference path="typings/angular2/angular2.d.ts" />
-import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader } from 'angular2/angular2';
+import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers } from 'angular2/angular2';
 export declare class NgGrid {
+    private _differs;
     private _ngEl;
     private _renderer;
     private _loader;
@@ -19,29 +20,33 @@ export declare class NgGrid {
     isDragging: boolean;
     isResizing: boolean;
     autoStyle: boolean;
-    private _resizeEnable;
-    private _dragEnable;
+    resizeEnable: boolean;
+    dragEnable: boolean;
     private _items;
     private _draggingItem;
     private _resizingItem;
     private _resizeDirection;
     private _itemGrid;
-    private _config;
     private _containerWidth;
     private _containerHeight;
     private _maxCols;
     private _maxRows;
     private _minWidth;
     private _minHeight;
+    private _setWidth;
+    private _setHeight;
     private _posOffset;
     private _adding;
     private _cascade;
     private _placeholderRef;
     private _fixToGrid;
+    private _differ;
     private static CONST_DEFAULT_CONFIG;
+    private _config;
     config: any;
-    constructor(_ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader);
+    constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader);
     setConfig(config: any): void;
+    onCheck(): void;
     setMargins(margins: any): void;
     enableDrag(): void;
     disableDrag(): void;
@@ -49,6 +54,7 @@ export declare class NgGrid {
     disableResize(): void;
     addItem(ngItem: NgGridItem): void;
     removeItem(ngItem: NgGridItem): void;
+    private _applyChanges(changes);
     private _onMouseDown(e);
     private _resizeStart(e);
     private _dragStart(e);
@@ -99,6 +105,7 @@ export declare class NgGridItem {
     canDrag(e: any): boolean;
     canResize(e: any): string;
     onMouseMove(e: any): void;
+    onDestroy(): void;
     getElement(): ElementRef;
     getDragHandle(): string;
     getResizeHandle(): string;
@@ -125,6 +132,7 @@ export declare class NgGridItem {
     setDimensions(w: number, h: number): void;
     startMoving(): void;
     stopMoving(): void;
+    recalculateSelf(): void;
     private _recalculatePosition();
     private _recalculateDimensions();
     private _getMousePosition(e);

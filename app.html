@@ -1,9 +1,82 @@
-<h1>Angular 2 Grid Demo</h1>
-<p>This is a simple demo used for creation/testing of <a href="https://github.com/BTMorton/angular2-grid">angular2-grid</a>, a grid-based drag/drop/resize plugin directive for <a href="http://angular.io">Angular 2</a>. It makes use of angular directives so that in order to include it, all you need to do is add an "[ng-grid]" attribute to your container and an "[ng-grid-item]" to each of your grid items. It even works with the For directive to add boxes on the fly!</p>
-<br />
-<a (click)="addBox()">Add Box</a>
-<br /><br />
-<div [ng-grid]="{'margins': [5]}" (on-drag-start)="eventThrown($event)">
+<div class="container">
+	<div class="col-sm-12" style="margin-bottom: 20px;">
+		<h1>Angular 2 Grid Demo</h1>
+		<p>This is a simple demo used for creation/testing of <a href="https://github.com/BTMorton/angular2-grid">angular2-grid</a>, a grid-based drag/drop/resize plugin directive for <a href="http://angular.io">Angular 2</a>. It makes use of angular directives so that in order to include it, all you need to do is add an "[ng-grid]" attribute to your container and an "[ng-grid-item]" to each of your grid items. It even works with the For directive to add boxes on the fly!</p>
+		<br />
+		<form>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Fix to Grid
+					</label>
+					<input type="checkbox" name="fix_to_grid" ng-control="fix_to_grid" [(ng-model)]="gridConfig.fix_to_grid" />
+				</div>
+				<div class="form-group">
+					<label>
+						Draggable
+					</label>
+					<input type="checkbox" name="draggable" ng-control="draggable" [(ng-model)]="gridConfig.draggable" />
+				</div>
+				<div class="form-group">
+					<label>
+						Resizable
+					</label>
+					<input type="checkbox" name="resizeable" ng-control="resizeable" [(ng-model)]="gridConfig.resizeable" />
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Column Width
+					</label>
+					<input type="number" class="form-control" name="col_width" ng-control="col_width" [(ng-model)]="gridConfig.col_width" />
+				</div>
+				<div class="form-group">
+					<label>
+						Row Height
+					</label>
+					<input type="number" class="form-control" name="row_height" ng-control="row_height" [(ng-model)]="gridConfig.row_height" />
+				</div>
+				<div class="form-group">
+					<label>
+						Margins
+					</label>
+					<input type="number" class="form-control" name="margins" ng-control="margins" [(ng-model)]="gridConfig.margins[0]" />
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Minimum Column Width
+					</label>
+					<input type="number" class="form-control" name="min_width" ng-control="min_width" [(ng-model)]="gridConfig.min_width" />
+				</div>
+				<div class="form-group">
+					<label>
+						Minimum Row Height
+					</label>
+					<input type="number" class="form-control" name="min_height" ng-control="min_height" [(ng-model)]="gridConfig.min_height" />
+				</div>
+			</div>
+			<!-- <div class="form-inline">
+				<div class="form-group">
+					<label>
+						Max Columns
+					</label>
+					<input type="number" class="form-control" name="max_cols" ng-control="max_cols" [(ng-model)]="gridConfig.max_cols" />
+				</div>
+				<div class="form-group">
+					<label>
+						Max Rows
+					</label>
+					<input type="number" class="form-control" name="max_rows" ng-control="max_rows" [(ng-model)]="gridConfig.max_rows" />
+				</div>
+			</div> -->
+		</form>
+		<a (click)="addBox()" class="btn btn-primary pull-right">Add Box</a>
+	</div>
+</div>
+<div [ng-grid]="gridConfig" (on-drag-start)="eventThrown($event)">
 	<div *ng-for="#box of boxes; #i = index" [ng-grid-item]="{'dragHandle': '.handle'}">
 		<div class="handle"></div>
 		{{box}}
