@@ -146,7 +146,10 @@ export class NgGrid {
 					this.colWidth = Math.max(this._setWidth, this._minWidth);
 					break;
 				case 'cascade':
-					this.cascade = val;
+					if (this.cascade != val) {
+						this.cascade = val;
+						this._cascadeGrid();
+					}
 					break;
 				case 'fix_to_grid':
 					this._fixToGrid = val ? true : false;
@@ -467,7 +470,7 @@ export class NgGrid {
 			
 			this._draggingItem.setGridPosition(itemPos.col, itemPos.row);
 			this._addToGrid(this._draggingItem);
-			
+			console.log("STOP", itemPos);
 			this._cascadeGrid();
 			
 			this._draggingItem.stopMoving();
@@ -641,6 +644,56 @@ export class NgGrid {
 					}
 				}
 				break;
+			case "left":
+			case "right":
+				var lowCol: Array<number> = [0];
+				
+				for (var i:number = 1; i <= this._getMaxRow(); i++)
+					lowCol[i] = 1;
+				
+				for (var r:number = 1; r <= this._getMaxRow(); r++) {
+					if (this._itemGrid[r] == undefined) continue;
+					
+					for (var c:number = 1; c <= this._getMaxCol(); c++) {
+						if (this._itemGrid[r] == undefined) break;
+						if (c < lowCol[r]) continue;
+							console.log(r, c, lowCol);
+						
+						if (this._itemGrid[r][c] != null) {
+							var item = this._itemGrid[r][c];
+							var itemDims = item.getSize();
+							var itemPos = item.getGridPosition();
+							
+							if (itemPos.col != c || itemPos.row != r) continue;	//	If this is not the element's start
+							
+							var lowest = lowCol[r];
+							
+							for (var i: number = 1; i < itemDims.y; i++) {
+								lowest = Math.max(lowCol[(r + i)], lowest);
+							}
+							
+							if (pos && (r + itemDims.y) > pos.row && r < (pos.row + dims.y)) {          //	If our element is in one of the item's rows
+								if ((c >= pos.col && c < (pos.col + dims.x)) ||                         //	If this col is occupied by our element
+										((itemDims.x > (pos.col - lowest)) &&                           //	Or the item can't fit above our element
+										(c >= (pos.col + dims.x) && lowest < (pos.col + dims.x)))) {    //		And this col is below our element, but we haven't caught it
+									lowest = Math.max(lowest, pos.col + dims.x);                        //	Set the lowest col to be below it
+								}
+							}
+							
+							if (lowest != itemPos.col) {	//	If the item is not already on this col move it up
+								this._removeFromGrid(item);
+								item.setGridPosition(lowest, r);
+								this._addToGrid(item);
+							}
+							
+							for (var i: number = 0; i < itemDims.y; i++) {
+								lowCol[r+i] = lowest + itemDims.x;	//	Update the lowest col to be below the item
+							}
+							
+						}
+					}
+				}
+				break;
 		}
 	}
 	
@@ -704,7 +757,7 @@ export class NgGrid {
 		var maxRow = Math.max(this._getMaxRow(), row);
 		var maxCol = Math.max(this._getMaxCol(), col);
 		
-		this._renderer.setElementStyle(this._ngEl, 'width', (maxCol * (this.colWidth + this.marginLeft + this.marginRight))+"px");
+		this._renderer.setElementStyle(this._ngEl, 'width', "100%");//(maxCol * (this.colWidth + this.marginLeft + this.marginRight))+"px");
 		this._renderer.setElementStyle(this._ngEl, 'height', (maxRow * (this.rowHeight + this.marginTop + this.marginBottom)) + "px");
 	}
 	
@@ -763,7 +816,7 @@ export class NgGrid {
 		var top = e.clientY - refPos.top;
 		
 		if (this.cascade == "down") top = refPos.top + refPos.height - e.clientY;
-		if (this.cascade == "right") top = refPos.left + refPos.width - e.clientX;
+		if (this.cascade == "right") left = refPos.left + refPos.width - e.clientX;
 		
 		return {
 			left: left,
