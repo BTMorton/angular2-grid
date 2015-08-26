@@ -14,7 +14,7 @@ import {isPresent, isBlank} from 'angular2/src/facade/lang';
 		'(^touchstart)': '_onMouseDown($event)',
 		'(^touchmove)': '_onMouseMove($event)',
 		'(^touchend)': '_onMouseUp($event)',
-		'(window:resize)': '_onReszie($event)'
+		'(window:resize)': '_onResize($event)'
 	},
 	lifecycle: [LifecycleEvent.onCheck],
 	events: ['onDragStart', 'onDrag', 'onDragStop', 'onResizeStart', 'onResize', 'onResizeStop']
@@ -273,8 +273,26 @@ export class NgGrid {
 	}
 	
 	//	Private methods
-	private _onReszie(e) {
-		console.log(e);
+	private _onResize(e) {
+		if (this._autoResize && this._maxCols > 0) {
+			var maxWidth = this._ngEl.nativeElement.parentElement.getBoundingClientRect().width;
+			
+			var colWidth = Math.floor(maxWidth / this._maxCols);
+			colWidth -= (this.marginLeft + this.marginRight);
+			this.colWidth = colWidth;
+		} else if (this._autoResize && this._maxRows > 0) {
+			var maxHeight = window.innerHeight;
+			
+			var rowHeight = Math.floor(maxHeight / this._maxRows);
+			rowHeight -= (this.marginTop + this.marginBottom);
+			this.rowHeight = rowHeight;
+		}
+		
+		for (var x in this._items) {
+			this._items[x].recalculateSelf();
+		}
+		
+		this._updateSize();
 	}
 	
 	private _applyChanges(changes: any): void {

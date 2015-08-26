@@ -55,7 +55,7 @@ export declare class NgGrid {
     disableResize(): void;
     addItem(ngItem: NgGridItem): void;
     removeItem(ngItem: NgGridItem): void;
-    private _onReszie(e);
+    private _onResize(e);
     private _applyChanges(changes);
     private _onMouseDown(e);
     private _resizeStart(e);
