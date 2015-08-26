@@ -22,6 +22,7 @@ export declare class NgGrid {
     autoStyle: boolean;
     resizeEnable: boolean;
     dragEnable: boolean;
+    cascade: string;
     private _items;
     private _draggingItem;
     private _resizingItem;
@@ -37,7 +38,6 @@ export declare class NgGrid {
     private _setHeight;
     private _posOffset;
     private _adding;
-    private _cascade;
     private _placeholderRef;
     private _fixToGrid;
     private _autoResize;

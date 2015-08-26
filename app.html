@@ -29,6 +29,17 @@
 					</label>
 					<input type="checkbox" name="auto_resize" ng-control="auto_resize" [(ng-model)]="gridConfig.auto_resize" />
 				</div>
+				<div class="form-group">
+					<label>
+						Cascade Direction
+					</label>
+					<select name="cascade" ng-control="cascade" [(ng-model)]="gridConfig.cascade">
+						<option value="up">Up</option>
+						<option value="down">Down</option>
+						<!-- <option value="left">Left</option>
+						<option value="right">Right</option> -->
+					</select>
+				</div>
 			</div>
 			<div class="form-inline">
 				<div class="form-group">

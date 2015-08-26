@@ -40,6 +40,7 @@ export class NgGrid {
 	public autoStyle: boolean = true;
 	public resizeEnable: boolean = true;
 	public dragEnable: boolean = true;
+	public cascade: string = 'up';
 	
 	//	Private variables
 	private _items: List<NgGridItem> = [];
@@ -57,7 +58,6 @@ export class NgGrid {
 	private _setHeight: number = 250;
 	private _posOffset:{left: number, top: number} = null;
 	private _adding: boolean = false;
-	private _cascade: string = 'up';
 	private _placeholderRef: ComponentRef = null;
 	private _fixToGrid: boolean = false;
 	private _autoResize: boolean = false;
@@ -146,7 +146,7 @@ export class NgGrid {
 					this.colWidth = Math.max(this._setWidth, this._minWidth);
 					break;
 				case 'cascade':
-					this._cascade = val;
+					this.cascade = val;
 					break;
 				case 'fix_to_grid':
 					this._fixToGrid = val ? true : false;
@@ -156,7 +156,7 @@ export class NgGrid {
 		
 		if (maxColRowChanged) {
 			if (this._maxCols > 0 && this._maxRows > 0) {	//	Can't have both, prioritise on cascade
-				switch (this._cascade) {
+				switch (this.cascade) {
 					case "left":
 					case "right":
 						this._maxCols = 0;
@@ -559,8 +559,9 @@ export class NgGrid {
 			var itemPos = collisions[0].getGridPosition();
 			var itemDims = collisions[0].getSize();
 			
-			switch (this._cascade) {
+			switch (this.cascade) {
 				case "up":
+				case "down":
 					if (this._maxRows > 0 && itemPos.row + (itemDims.y - 1) >= this._maxRows) {
 						itemPos.col++;
 					} else {
@@ -569,42 +570,14 @@ export class NgGrid {
 					
 					collisions[0].setGridPosition(itemPos.col, itemPos.row);
 					break;
-				case "down":	//	Needs to be fixed once cascade is done
-					// if (itemPos.row == 1) {
-					// 	if (itemPos.col + itemDims.x > this._maxCols) {
-					// 		itemPos.col = 1;
-					// 		itemPos.row = this._getMaxRow();
-					// 	} else {
-					// 		itemPos.col++;
-					// 	}
-					// } else {
-					// 	itemPos.row--;
-					// }
-					throw new Error("Not implemented");
-					collisions[0].setGridPosition(itemPos.col, itemPos.row);
-					break;
 				case "left":
+				case "right":
 					if (this._maxCols > 0 && itemPos.col + (itemDims.x - 1) >= this._maxCols) {
 						itemPos.row++;
 					} else {
 						itemPos.col++;
 					}
 					
-					collisions[0].setGridPosition(itemPos.col, itemPos.row);
-					break;
-				case "right":	//	Needs to be fixed once cascade is done
-					// if (itemPos.col == 1) {
-					// 	itemPos.row++;
-						
-					// 	if (this._maxRows > 0 && itemPos.row + itemDims.y >= this._maxRows) {
-					// 		itemPos.row = 1;
-					// 		itemPos.col = this._getMaxCol();
-					// 	}
-					// } else {
-					// 	itemPos.col--;
-					// }
-					
-					throw new Error("Not implemented");
 					collisions[0].setGridPosition(itemPos.col, itemPos.row);
 					break;
 			}
@@ -618,8 +591,9 @@ export class NgGrid {
 	private _cascadeGrid(pos?: {col: number, row: number}, dims?: {x: number, y: number}): void {
 		if (pos && !dims) throw new Error("Cannot cascade with only position and not dimensions");
 		
-		switch (this._cascade) {
+		switch (this.cascade) {
 			case "up":
+			case "down":
 				var lowRow: Array<number> = [0];
 				
 				for (var i:number = 1; i <= this._getMaxCol(); i++)
@@ -785,9 +759,15 @@ export class NgGrid {
 		
 		var refPos = this._ngEl.nativeElement.getBoundingClientRect();
 		
+		var left = e.clientX - refPos.left;
+		var top = e.clientY - refPos.top;
+		
+		if (this.cascade == "down") top = refPos.top + refPos.height - e.clientY;
+		if (this.cascade == "right") top = refPos.left + refPos.width - e.clientX;
+		
 		return {
-			left: e.clientX - refPos.left,
-			top: e.clientY - refPos.top
+			left: left,
+			top: top
 		};
 	}
 	
@@ -1032,8 +1012,28 @@ export class NgGridItem {
 	}
 	
 	public setPosition(x: number, y: number): void {
-		this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
-		this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
+		switch (this._ngGrid.cascade) {
+			case 'up':
+			case 'left':
+			default:
+				this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
+				this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
+				this._renderer.setElementStyle(this._ngEl, 'right', null);
+				this._renderer.setElementStyle(this._ngEl, 'bottom', null);
+				break;
+			case 'right':
+				this._renderer.setElementStyle(this._ngEl, 'right', x+"px");
+				this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
+				this._renderer.setElementStyle(this._ngEl, 'left', null);
+				this._renderer.setElementStyle(this._ngEl, 'bottom', null);
+				break;
+			case 'down':
+				this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
+				this._renderer.setElementStyle(this._ngEl, 'bottom', y+"px");
+				this._renderer.setElementStyle(this._ngEl, 'right', null);
+				this._renderer.setElementStyle(this._ngEl, 'top', null);
+				break;
+		}
 		this._elemLeft = x;
 		this._elemTop = y;
 	}
@@ -1123,8 +1123,28 @@ class NgGridPlaceholder {
 	}
 	
 	private _setPosition(x: number, y: number): void {
-		this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
-		this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
+		switch (this._ngGrid.cascade) {
+			case 'up':
+			case 'left':
+			default:
+				this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
+				this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
+				this._renderer.setElementStyle(this._ngEl, 'right', null);
+				this._renderer.setElementStyle(this._ngEl, 'bottom', null);
+				break;
+			case 'right':
+				this._renderer.setElementStyle(this._ngEl, 'right', x+"px");
+				this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
+				this._renderer.setElementStyle(this._ngEl, 'left', null);
+				this._renderer.setElementStyle(this._ngEl, 'bottom', null);
+				break;
+			case 'down':
+				this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
+				this._renderer.setElementStyle(this._ngEl, 'bottom', y+"px");
+				this._renderer.setElementStyle(this._ngEl, 'right', null);
+				this._renderer.setElementStyle(this._ngEl, 'top', null);
+				break;
+		}
 	}
 	
 	private _setDimensions(w: number, h: number): void {
