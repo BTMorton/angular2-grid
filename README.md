@@ -32,15 +32,16 @@ To configure the grid with your own options, it is as easy as adding them as the
     'margins': [10],        //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
     'draggable': true,      //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
     'resizeable': true,     //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
-    'max_cols': 0,          //  The maximum number of columns allowed. Set to 0 for infinite
-    'max_rows': 0,          //  The maximum number of rows allowed. Set to 0 for infinite
+    'max_cols': 0,          //  The maximum number of columns allowed. Set to 0 for infinite. Cannot be used with max_rows
+    'max_rows': 0,          //  The maximum number of rows allowed. Set to 0 for infinite. Cannot be used with max_rows
     'col_width': 250,       //  The width of each column
     'row_height': 250,      //  The height of each row
     'cascade': 'up',        //  The direction to cascade grid items ('up', 'right', 'down', 'left')
     'min_width': 100,       //  The minimum width of an item
     'min_height': 100,      //  The minimum height of an item
-    'fix_to_grid': false    //  Fix all item movements to the grid
-    'auto_style': true      //  Automatically add required element styles at run-time
+    'fix_to_grid': false,   //  Fix all item movements to the grid
+    'auto_style': true,     //  Automatically add required element styles at run-time
+    'auto_resize': false,   //  Automatically set col_width/row_height so that max_cols/max_rows fills the screen. Only has effect is max_cols or max_rows is set
 }
 ```
 

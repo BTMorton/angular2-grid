@@ -40,6 +40,7 @@ export declare class NgGrid {
     private _cascade;
     private _placeholderRef;
     private _fixToGrid;
+    private _autoResize;
     private _differ;
     private static CONST_DEFAULT_CONFIG;
     private _config;
@@ -54,6 +55,7 @@ export declare class NgGrid {
     disableResize(): void;
     addItem(ngItem: NgGridItem): void;
     removeItem(ngItem: NgGridItem): void;
+    private _onReszie(e);
     private _applyChanges(changes);
     private _onMouseDown(e);
     private _resizeStart(e);

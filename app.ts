@@ -21,7 +21,7 @@ class MyAppComponent {
 		'margins': [5],
 		'draggable': true,
 		'resizeable': true,
-		'max_cols': 0,
+		'max_cols': 6,
 		'max_rows': 0,
 		'col_width': 250,
 		'row_height': 250,
@@ -29,7 +29,8 @@ class MyAppComponent {
 		'min_width': 100,
 		'min_height': 100,
 		'fix_to_grid': false,
-		'auto_style': true
+		'auto_style': true,
+		'auto_resize': true
 	};
 	
 	addBox() {

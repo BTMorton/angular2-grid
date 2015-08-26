@@ -13,7 +13,8 @@ import {isPresent, isBlank} from 'angular2/src/facade/lang';
 		'(^mouseup)': '_onMouseUp($event)',
 		'(^touchstart)': '_onMouseDown($event)',
 		'(^touchmove)': '_onMouseMove($event)',
-		'(^touchend)': '_onMouseUp($event)'
+		'(^touchend)': '_onMouseUp($event)',
+		'(window:resize)': '_onReszie($event)'
 	},
 	lifecycle: [LifecycleEvent.onCheck],
 	events: ['onDragStart', 'onDrag', 'onDragStop', 'onResizeStart', 'onResize', 'onResizeStop']
@@ -59,6 +60,7 @@ export class NgGrid {
 	private _cascade: string = 'up';
 	private _placeholderRef: ComponentRef = null;
 	private _fixToGrid: boolean = false;
+	private _autoResize: boolean = false;
 	private _differ: KeyValueDiffer;
 	
 	//	Default config
@@ -74,7 +76,8 @@ export class NgGrid {
 		'min_width': 100,
 		'min_height': 100,
 		'fix_to_grid': false,
-		'auto_style': true
+		'auto_style': true,
+		'auto_resize': false
 	};
 	private _config = NgGrid.CONST_DEFAULT_CONFIG;
 	
@@ -117,6 +120,9 @@ export class NgGrid {
 				case 'auto_style':
 					this.autoStyle = val ? true : false;
 					break;
+				case 'auto_resize':
+					this._autoResize = val ? true : false;
+					break;
 				case 'draggable':
 					this.dragEnable = val ? true : false;
 					break;
@@ -147,7 +153,7 @@ export class NgGrid {
 					break;
 			}
 		}
-		console.log(maxColRowChanged);
+		
 		if (maxColRowChanged) {
 			if (this._maxCols > 0 && this._maxRows > 0) {	//	Can't have both, prioritise on cascade
 				switch (this._cascade) {
@@ -197,6 +203,21 @@ export class NgGrid {
 			}
 			
 			this._cascadeGrid();
+			
+		}
+		
+		if (this._autoResize && this._maxCols > 0) {
+			var maxWidth = this._ngEl.nativeElement.parentElement.getBoundingClientRect().width;
+			
+			var colWidth = Math.floor(maxWidth / this._maxCols);
+			colWidth -= (this.marginLeft + this.marginRight);
+			this.colWidth = colWidth;
+		} else if (this._autoResize && this._maxRows > 0) {
+			var maxHeight = window.innerHeight;
+			
+			var rowHeight = Math.floor(maxHeight / this._maxRows);
+			rowHeight -= (this.marginTop + this.marginBottom);
+			this.rowHeight = rowHeight;
 		}
 		
 		for (var x in this._items) {
@@ -252,6 +273,10 @@ export class NgGrid {
 	}
 	
 	//	Private methods
+	private _onReszie(e) {
+		console.log(e);
+	}
+	
 	private _applyChanges(changes: any): void {
 		changes.forEachAddedItem((record) => { this._config[record.key] = record.currentValue; });
 		changes.forEachChangedItem((record) => { this._config[record.key] = record.currentValue; });
@@ -518,7 +543,7 @@ export class NgGrid {
 			
 			switch (this._cascade) {
 				case "up":
-					if (this._maxRows > 0 && itemPos.row + itemDims.y >= this._maxRows) {
+					if (this._maxRows > 0 && itemPos.row + (itemDims.y - 1) >= this._maxRows) {
 						itemPos.col++;
 					} else {
 						itemPos.row++;
@@ -541,7 +566,7 @@ export class NgGrid {
 					collisions[0].setGridPosition(itemPos.col, itemPos.row);
 					break;
 				case "left":
-					if (this._maxCols > 0 && itemPos.col + itemDims.x >= this._maxCols) {
+					if (this._maxCols > 0 && itemPos.col + (itemDims.x - 1) >= this._maxCols) {
 						itemPos.row++;
 					} else {
 						itemPos.col++;
