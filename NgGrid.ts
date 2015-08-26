@@ -98,7 +98,7 @@ export class NgGrid {
 	
 	//	Public methods
 	public setConfig(config): void {
-		console.log(config);
+		var maxColRowChanged = false;
 		for (var x in config) {
 			var val = config[x];
 			
@@ -124,9 +124,11 @@ export class NgGrid {
 					this.resizeEnable = val ? true : false;
 					break;
 				case 'max_rows':
+					maxColRowChanged = maxColRowChanged || this._maxRows != parseInt(val);
 					this._maxRows = parseInt(val);
 					break;
 				case 'max_cols':
+					maxColRowChanged = maxColRowChanged || this._maxCols != parseInt(val);
 					this._maxCols = parseInt(val);
 					break;
 				case 'min_height':
@@ -144,6 +146,57 @@ export class NgGrid {
 					this._fixToGrid = val ? true : false;
 					break;
 			}
+		}
+		console.log(maxColRowChanged);
+		if (maxColRowChanged) {
+			if (this._maxCols > 0 && this._maxRows > 0) {	//	Can't have both, prioritise on cascade
+				switch (this._cascade) {
+					case "left":
+					case "right":
+						this._maxCols = 0;
+						break;
+					case "up":
+					case "down":
+					default:
+						this._maxRows = 0;
+						break;
+				}
+			}
+			
+			for (var r = 1; r <= this._getMaxRow(); r++) {
+				if (this._itemGrid[r] != null) {
+					for (var c = 1; c <= this._getMaxCol(); c++) {
+						if (this._itemGrid[r] != null && this._itemGrid[r][c] != null) {
+							var item = this._itemGrid[r][c];
+							var pos = item.getGridPosition();
+							var dims = item.getSize();
+							
+							if ((this._maxCols > 0 && (pos.col + dims.x - 1) > this._maxCols) || (this._maxRows > 0 && (pos.row + dims.y - 1) > this._maxRows)) {
+								this._removeFromGrid(item);
+								
+								if (this._maxRows > 0 && dims.y > this._maxRows)
+									dims.y = this._maxRows;
+								else if (this._maxCols > 0 && dims.x > this._maxCols)
+									dims.x = this._maxCols;
+								
+								item.setSize(dims.x, dims.y);
+								
+								if (this._maxRows > 0 && (pos.row + dims.y) > this._maxRows)
+									pos.row = (this._maxRows - (dims.y - 1));
+								else if (this._maxCols > 0 && (pos.col + dims.x) > this._maxCols)
+									pos.col = (this._maxCols - (dims.x - 1));
+								
+								item.setGridPosition(pos.col, pos.row);
+								
+								this._fixGridCollisions(pos, dims);
+								this._addToGrid(item);
+							}
+						}
+					}
+				}
+			}
+			
+			this._cascadeGrid();
 		}
 		
 		for (var x in this._items) {
@@ -167,7 +220,6 @@ export class NgGrid {
 		this.marginRight = margins.length >= 2 ? parseInt(margins[1]) : this.marginTop;
 		this.marginBottom = margins.length >= 3 ? parseInt(margins[2]) : this.marginTop;
 		this.marginLeft = margins.length >= 4 ? parseInt(margins[3]) : this.marginRight;
-		console.log(this.marginTop, this.marginLeft, this.marginRight, this.marginBottom);
 	}
 	
 	public enableDrag(): void {
@@ -413,14 +465,18 @@ export class NgGrid {
         height += this.marginTop + this.marginBottom;
         
 		var sizex = Math.max(1, Math.round(width / (this.colWidth + this.marginLeft + this.marginRight)));
+		if (this._maxCols > 0 && sizex > this._maxCols) sizex = this._maxCols;
 		var sizey = Math.max(1, Math.round(height / (this.rowHeight + this.marginTop + this.marginBottom)));
+		if (this._maxRows > 0 && sizey > this._maxRows) sizey = this._maxRows;
 		
 		return { 'x': sizex, 'y': sizey };
 	}
 	
 	private _calculateGridPosition(left: number, top: number): {col: number, row: number} {
 		var col = Math.max(1, Math.round(left / (this.colWidth + this.marginLeft + this.marginRight)) + 1);
+		if (this._maxCols > 0 && col > this._maxCols) col = this._maxCols;
 		var row = Math.max(1, Math.round(top / (this.rowHeight + this.marginTop + this.marginBottom)) + 1);
+		if (this._maxRows > 0 && row > this._maxRows) row = this._maxRows;
 		return { 'col': col, 'row': row };
 	}
 	
@@ -462,13 +518,8 @@ export class NgGrid {
 			
 			switch (this._cascade) {
 				case "up":
-					if (this._maxRows > 0 && itemPos.row + itemDims.y > this._maxRows) {
-						if (this._maxCols > 0 && itemPos.col + itemDims.x > this._maxCols) {
-							itemPos.col = 1;
-							itemPos.row = 1;
-						} else {
-							itemPos.col++;
-						}
+					if (this._maxRows > 0 && itemPos.row + itemDims.y >= this._maxRows) {
+						itemPos.col++;
 					} else {
 						itemPos.row++;
 					}
@@ -476,27 +527,22 @@ export class NgGrid {
 					collisions[0].setGridPosition(itemPos.col, itemPos.row);
 					break;
 				case "down":	//	Needs to be fixed once cascade is done
-					if (itemPos.row == 1) {
-						if (itemPos.col + itemDims.x > this._maxCols) {
-							itemPos.col = 1;
-							itemPos.row = this._getMaxRow();
-						} else {
-							itemPos.col++;
-						}
-					} else {
-						itemPos.row--;
-					}
-					
+					// if (itemPos.row == 1) {
+					// 	if (itemPos.col + itemDims.x > this._maxCols) {
+					// 		itemPos.col = 1;
+					// 		itemPos.row = this._getMaxRow();
+					// 	} else {
+					// 		itemPos.col++;
+					// 	}
+					// } else {
+					// 	itemPos.row--;
+					// }
+					throw new Error("Not implemented");
 					collisions[0].setGridPosition(itemPos.col, itemPos.row);
 					break;
 				case "left":
 					if (this._maxCols > 0 && itemPos.col + itemDims.x >= this._maxCols) {
 						itemPos.row++;
-						
-						if (this._maxRows > 0 && itemPos.row + itemDims.y >= this._maxRows) {
-							itemPos.row = 1;
-							itemPos.col = 1;
-						}
 					} else {
 						itemPos.col++;
 					}
@@ -504,17 +550,18 @@ export class NgGrid {
 					collisions[0].setGridPosition(itemPos.col, itemPos.row);
 					break;
 				case "right":	//	Needs to be fixed once cascade is done
-					if (itemPos.col == 1) {
-						itemPos.row++;
+					// if (itemPos.col == 1) {
+					// 	itemPos.row++;
 						
-						if (this._maxRows > 0 && itemPos.row + itemDims.y >= this._maxRows) {
-							itemPos.row = 1;
-							itemPos.col = this._getMaxCol();
-						}
-					} else {
-						itemPos.col--;
-					}
+					// 	if (this._maxRows > 0 && itemPos.row + itemDims.y >= this._maxRows) {
+					// 		itemPos.row = 1;
+					// 		itemPos.col = this._getMaxCol();
+					// 	}
+					// } else {
+					// 	itemPos.col--;
+					// }
 					
+					throw new Error("Not implemented");
 					collisions[0].setGridPosition(itemPos.col, itemPos.row);
 					break;
 			}
