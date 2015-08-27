@@ -5,12 +5,12 @@ export declare class NgGrid {
     private _ngEl;
     private _renderer;
     private _loader;
-    onDragStart: EventEmitter;
-    onDrag: EventEmitter;
-    onDragStop: EventEmitter;
-    onResizeStart: EventEmitter;
-    onResize: EventEmitter;
-    onResizeStop: EventEmitter;
+    dragStart: EventEmitter;
+    drag: EventEmitter;
+    dragStop: EventEmitter;
+    resizeStart: EventEmitter;
+    resize: EventEmitter;
+    resizeStop: EventEmitter;
     colWidth: number;
     rowHeight: number;
     marginTop: number;
@@ -47,6 +47,14 @@ export declare class NgGrid {
     config: any;
     constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader);
     setConfig(config: any): void;
+    getItemPosition(index: number): {
+        col: number;
+        row: number;
+    };
+    getItemSize(index: number): {
+        x: number;
+        y: number;
+    };
     onCheck(): void;
     setMargins(margins: any): void;
     enableDrag(): void;
@@ -90,6 +98,7 @@ export declare class NgGridItem {
     private _renderer;
     private _ngGrid;
     private static CONST_DEFAULT_CONFIG;
+    itemChange: EventEmitter;
     private _col;
     private _row;
     private _sizex;

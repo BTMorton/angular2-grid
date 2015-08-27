@@ -16,16 +16,16 @@ import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicC
 		'(window:resize)': '_onResize($event)'
 	},
 	lifecycle: [LifecycleEvent.onCheck],
-	events: ['onDragStart', 'onDrag', 'onDragStop', 'onResizeStart', 'onResize', 'onResizeStop']
+	events: ['dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop', ]
 })
 export class NgGrid {
 	//	Event Emitters
-	public onDragStart: EventEmitter = new EventEmitter();
-	public onDrag: EventEmitter = new EventEmitter();
-	public onDragStop: EventEmitter = new EventEmitter();
-	public onResizeStart: EventEmitter = new EventEmitter();
-	public onResize: EventEmitter = new EventEmitter();
-	public onResizeStop: EventEmitter = new EventEmitter();
+	public dragStart: EventEmitter = new EventEmitter();
+	public drag: EventEmitter = new EventEmitter();
+	public dragStop: EventEmitter = new EventEmitter();
+	public resizeStart: EventEmitter = new EventEmitter();
+	public resize: EventEmitter = new EventEmitter();
+	public resizeStop: EventEmitter = new EventEmitter();
 	
 	//	Public variables
 	public colWidth: number = 250;
@@ -229,6 +229,14 @@ export class NgGrid {
 		this._updateSize();
 	}
 	
+	public getItemPosition(index: number): {col: number, row: number} {
+		return this._items[index].getGridPosition();
+	}
+	
+	public getItemSize(index: number): {x: number, y: number} {
+		return this._items[index].getSize();
+	}
+	
 	public onCheck():void {
 		if (this._differ != null) {
 			var changes = this._differ.diff(this._config);
@@ -331,7 +339,7 @@ export class NgGrid {
 			this._createPlaceholder(item.getGridPosition(), item.getSize());
 			this.isResizing = true;
 			
-			this.onResizeStart.next(item);
+			this.resizeStart.next(item);
 		}
 	}
 	
@@ -349,7 +357,7 @@ export class NgGrid {
 			this._createPlaceholder(item.getGridPosition(), item.getSize());
 			this.isDragging = true;
 			
-			this.onDragStart.next(item);
+			this.dragStart.next(item);
 		}
 	}
 	
@@ -403,7 +411,7 @@ export class NgGrid {
 				this._draggingItem.setPosition(newL, newT);
 			}
 			
-			this.onDrag.next(this._draggingItem);
+			this.drag.next(this._draggingItem);
 		}
 	}
 	
@@ -447,7 +455,7 @@ export class NgGrid {
             if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
             
             this._updateSize(bigGrid.x, bigGrid.y);
-			this.onResize.next(this._resizingItem);
+			this.resize.next(this._resizingItem);
 		}
 	}
 	
@@ -476,7 +484,7 @@ export class NgGrid {
 			this._draggingItem = null;
 			this._posOffset = null;
             this._placeholderRef.dispose();
-			this.onDragStop.next(this._draggingItem);
+			this.dragStop.next(this._draggingItem);
 		}
 	}
 	
@@ -495,7 +503,7 @@ export class NgGrid {
             this._resizingItem = null;
             this._resizeDirection = null;
             this._placeholderRef.dispose();
-			this.onResizeStop.next(this._resizingItem);
+			this.resizeStop.next(this._resizingItem);
 		}
 	}
 	
@@ -863,7 +871,8 @@ export class NgGrid {
 
 @Directive({
 	selector: '[ng-grid-item]',
-	properties: [ 'config: ng-grid-item' ]
+	properties: [ 'config: ng-grid-item' ],
+	events: ['itemChange']
 })
 export class NgGridItem {
 	//	Default config
@@ -875,6 +884,9 @@ export class NgGridItem {
 		'dragHandle': null,
 		'resizeHandle': null
 	}
+	
+	//	Public  variables
+	public itemChange: EventEmitter = new EventEmitter();
 	
 	//	Private variables
 	private _col: number = 1;
@@ -1055,12 +1067,16 @@ export class NgGridItem {
 		this._sizex = x;
 		this._sizey = y;
 		this._recalculateDimensions();
+		
+		this.itemChange.next({'col': this._col, 'row': this._row, 'sizex': this._sizex, 'sizey': this._sizey});
 	}
 	
 	public setGridPosition(col: number, row: number): void {
 		this._col = col;
 		this._row = row;
 		this._recalculatePosition();
+		
+		this.itemChange.next({'col': this._col, 'row': this._row, 'sizex': this._sizex, 'sizey': this._sizey});
 	}
 	
 	public setPosition(x: number, y: number): void {
