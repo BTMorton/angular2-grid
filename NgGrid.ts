@@ -1,7 +1,6 @@
 /// <reference path="typings/angular2/angular2.d.ts" />
 
 import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, LifecycleEvent, KeyValueDiffer, KeyValueDiffers} from 'angular2/angular2';
-import {isPresent, isBlank} from 'angular2/src/facade/lang';
 
 @Directive({
 	selector: '[ng-grid]',
@@ -85,7 +84,7 @@ export class NgGrid {
 	set config(v) {
 		this._config = v;
 		
-		if (isBlank(this._differ) && isPresent(v)) {
+		if (this._differ == null && v != null) {
 			this._differ = this._differs.find(this._config).create(null);
 		}
 		
@@ -231,9 +230,9 @@ export class NgGrid {
 	}
 	
 	public onCheck():void {
-		if (isPresent(this._differ)) {
+		if (this._differ != null) {
 			var changes = this._differ.diff(this._config);
-			if (isPresent(changes)) {
+			if (changes != null) {
 				this._applyChanges(changes);
 			}
 		}
@@ -1147,10 +1146,7 @@ export class NgGridItem {
 	selector: 'div'
 })
 @View({
-	template: "",
-	styleUrls: ['NgGrid.css'],
-	directives: [NgGrid],
-	encapsulation: ViewEncapsulation.NONE
+	template: ""
 })
 class NgGridPlaceholder {
 	private _sizex: number;

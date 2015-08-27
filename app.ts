@@ -1,6 +1,6 @@
 /// <reference path="typings/angular2/angular2.d.ts" />
 
-import {Component, View, bootstrap, coreDirectives, NgStyle, formDirectives } from 'angular2/angular2';
+import {Component, View, bootstrap, CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES } from 'angular2/angular2';
 import {NgGrid, NgGridItem} from "./NgGrid";
 // import {NgTest} from "./NgTest";
 // Annotation section
@@ -10,7 +10,7 @@ import {NgGrid, NgGridItem} from "./NgGrid";
 @View({
 	templateUrl: 'app.html',
 	styleUrls: ['app.css', 'NgGrid.css'],
-	directives: [coreDirectives, NgStyle, NgGrid, NgGridItem, formDirectives]
+	directives: [CORE_DIRECTIVES, NgStyle, NgGrid, NgGridItem, FORM_DIRECTIVES]
 })
 // Component controller
 class MyAppComponent {
