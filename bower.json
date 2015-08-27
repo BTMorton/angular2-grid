@@ -1,0 +1,32 @@
+{
+  "name": "angular2-grid",
+  "version": "0.1.0",
+  "homepage": "https://github.com/BTMorton/angular2-grid",
+  "authors": [
+    "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)"
+  ],
+  "description": "Grid-based drag/drop/resize directive plugin for Angular 2",
+  "main": "NgGrid.ts",
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "angular",
+    "angular2",
+    "angularjs",
+    "grid",
+    "drag",
+    "drop",
+    "resize"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "*",
+    "!NgGrid.ts",
+    "!NgGrid.css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/BTMorton/angular2-grid.git"
+  }
+}
