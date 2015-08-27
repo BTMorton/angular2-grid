@@ -1,7 +1,7 @@
 [![GitHub version](http://img.shields.io/github/release/BTMorton%2Fangular2-grid.svg)](https://github.com/BTMorton/angular2-grid)
 [![npm version](http://img.shields.io/npm/v/angular2-grid.svg)](https://www.npmjs.com/package/angular2-grid)
 [![bower version](http://img.shields.io/bower/v/angular2-grid.svg)](https://github.com/BTMorton/angular2-grid)
-[![license](http://img.shields.io/github/license/BTMorton%2Fangular2-grid.svg)]
+[license](http://img.shields.io/github/license/BTMorton%2Fangular2-grid.svg)
 [![open issues](http://img.shields.io/github/issues/BTMorton%2Fangular2-grid.svg)](https://github.com/BTMorton/angular2-grid/issues)
 
 # Angular 2 Grid
