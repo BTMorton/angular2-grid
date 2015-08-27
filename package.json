@@ -1,6 +1,6 @@
 {
   "name": "angular2-grid",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
   "main": "NgGrid.js",
   "scripts": {
@@ -24,5 +24,8 @@
   "peerDependencies": {
     "angular2": "2.0.0-alpha.35"
   },
-  "files": [ "NgGrid.ts", "NgGrid.css" ]
+  "files": [
+    "NgGrid.ts",
+    "NgGrid.css"
+  ]
 }
