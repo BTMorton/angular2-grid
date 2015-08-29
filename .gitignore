@@ -1,4 +1,4 @@
-*.js
-*.js.map
 typings
 npm-debug.log
+dist/
+node_modules/

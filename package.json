@@ -22,10 +22,18 @@
   },
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "peerDependencies": {
-    "angular2": "2.0.0-alpha.35"
+    "angular2": "2.0.0-alpha.35",
+    "systemjs": "^0.18.17"
   },
   "files": [
-    "NgGrid.ts",
-    "NgGrid.css"
-  ]
+    "src/NgGrid.ts",
+    "src/NgGrid.css"
+  ],
+  "devDependencies": {
+    "del": "^1.2.1",
+    "gulp": "^3.9.0",
+    "gulp-typescript": "^2.8.1",
+    "merge2": "^0.3.6",
+    "typescript": "^1.5.3"
+  }
 }

@@ -1,5 +1,3 @@
-/// <reference path="typings/angular2/angular2.d.ts" />
-
 import {Component, View, bootstrap, CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES, Self, Query, QueryList } from 'angular2/angular2';
 import {NgGrid, NgGridItem} from "./NgGrid";
 // import {NgTest} from "./NgTest";
@@ -42,7 +40,7 @@ class MyAppComponent {
 	private itemPositions: Array<any> = [];
 	
 	get itemCheck() { return this.curItemCheck; }
-	set itemCheck(v) {
+	set itemCheck(v: number) {
 		this.curItem = this.itemPositions[v];
 		this.curItemCheck = v;
 	}
@@ -51,16 +49,16 @@ class MyAppComponent {
 		this.boxes.push(this.curNum++);
 	}
 	
-	updateItem(index, pos) {
+	updateItem(index: number, pos: { col: number, row: number, sizex: number, sizey: number }) {
 		this.itemPositions[index] = pos;
 		if (this.curItemCheck == index) this.curItem = pos;
 	}
 	
-	onDrag(index, pos) {
+	onDrag(index: number, pos: { left: number, top: number }) {
 		// Do something here
 	}
 	
-	onResize(index, dims) {
+	onResize(index: number, dims: { width: number, height: number }) {
 		// Do something here
 	}
 }

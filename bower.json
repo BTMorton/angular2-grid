@@ -22,8 +22,8 @@
   "license": "MIT",
   "ignore": [
     "*",
-    "!NgGrid.ts",
-    "!NgGrid.css"
+    "!src/NgGrid.ts",
+    "!src/NgGrid.css"
   ],
   "repository": {
     "type": "git",

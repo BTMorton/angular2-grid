@@ -11,20 +11,20 @@ The demo included in this repo follows the [Angular 2 quick start](https://angul
 #### Setup
 ----------
 
-First you'll need to install [Node](http://nodejs.org). Then run:
+To use the Angular 2 Grid system, simply run `npm install angular2-grid` and then include NgGrid.ts into your typescript compilation. No more work needed!
+
+If you want to help with development or try the demo, it's less simple, but not hard. First you'll need to install [Node](http://nodejs.org) and check out a copy of the repo. Then run:
 
 ```shell
-$ npm install -g tsd typescript
-$ tsd install angular2/
-$ tsc -m commonjs -t es5 -d --sourcemap --emitDecoratorMetadata --experimentalDecorators
+$ npm install --dev
+$ gulp build
 ```
 
-This will give you a fully compiled version of the demo that you can run using the HTTP server of your choice. Currently, it points to the following locations to get the required angular files:
-```
-- https://github.jspm.io/jmcriffey/bower-traceur-runtime@0.0.87/traceur-runtime.js
-- https://jspm.io/system@0.16.js
-- https://code.angularjs.org/2.0.0-alpha.34/angular2.dev.js
-```
+This will give you a fully compiled version of the demo that you can run using the HTTP server of your choice.
+
+You can also use `gulp watch` to compile the demo and have gulp watch for any changes.
+
+NOTE: By default Angular 2 and System.js are not listed as actual dependencies, but as peer dependencies, so that npm doesn't install them on systems that just require the install file. If they are not installed, this could cause gulp to break. To fix this, run `npm install angular2 systemjs` and rerun the build command.
 
 #### Config
 -----------

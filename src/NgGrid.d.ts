@@ -1,4 +1,3 @@
-/// <reference path="typings/angular2/angular2.d.ts" />
 import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers } from 'angular2/angular2';
 export declare class NgGrid {
     private _differs;
@@ -56,7 +55,7 @@ export declare class NgGrid {
         y: number;
     };
     onCheck(): void;
-    setMargins(margins: any): void;
+    setMargins(margins: Array<string>): void;
     enableDrag(): void;
     disableDrag(): void;
     enableResize(): void;

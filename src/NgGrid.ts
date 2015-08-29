@@ -1,5 +1,3 @@
-/// <reference path="typings/angular2/angular2.d.ts" />
-
 import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, LifecycleEvent, KeyValueDiffer, KeyValueDiffers} from 'angular2/angular2';
 
 @Directive({
@@ -46,7 +44,7 @@ export class NgGrid {
 	private _draggingItem: NgGridItem = null;
 	private _resizingItem: NgGridItem = null;
 	private _resizeDirection: string = null;
-	private _itemGrid = {1: {1: null}};
+	private _itemGrid: Map<number, Map<number, NgGridItem>> = {1: {1: null}};
 	private _containerWidth: number;
 	private _containerHeight: number;
 	private _maxCols:number = 0;
@@ -81,7 +79,7 @@ export class NgGrid {
 	private _config = NgGrid.CONST_DEFAULT_CONFIG;
 	
 	//	[ng-grid] attribute handler
-	set config(v) {
+	set config(v: any) {
 		this._config = v;
 		
 		if (this._differ == null && v != null) {
@@ -99,7 +97,7 @@ export class NgGrid {
 	}
 	
 	//	Public methods
-	public setConfig(config): void {
+	public setConfig(config: any): void {
 		var maxColRowChanged = false;
 		for (var x in config) {
 			var val = config[x];
@@ -171,13 +169,13 @@ export class NgGrid {
 				}
 			}
 			
-			for (var r = 1; r <= this._getMaxRow(); r++) {
+			for (var r: number = 1; r <= this._getMaxRow(); r++) {
 				if (this._itemGrid[r] != null) {
-					for (var c = 1; c <= this._getMaxCol(); c++) {
+					for (var c: number = 1; c <= this._getMaxCol(); c++) {
 						if (this._itemGrid[r] != null && this._itemGrid[r][c] != null) {
-							var item = this._itemGrid[r][c];
-							var pos = item.getGridPosition();
-							var dims = item.getSize();
+							var item: NgGridItem = this._itemGrid[r][c];
+							var pos: {'col': number, 'row': number} = item.getGridPosition();
+							var dims: {'x': number, 'y': number} = item.getSize();
 							
 							if ((this._maxCols > 0 && (pos.col + dims.x - 1) > this._maxCols) || (this._maxRows > 0 && (pos.row + dims.y - 1) > this._maxRows)) {
 								this._removeFromGrid(item);
@@ -209,15 +207,15 @@ export class NgGrid {
 		}
 		
 		if (this._autoResize && this._maxCols > 0) {
-			var maxWidth = this._ngEl.nativeElement.parentElement.getBoundingClientRect().width;
+			var maxWidth: number = this._ngEl.nativeElement.parentElement.getBoundingClientRect().width;
 			
-			var colWidth = Math.floor(maxWidth / this._maxCols);
+			var colWidth: number = Math.floor(maxWidth / this._maxCols);
 			colWidth -= (this.marginLeft + this.marginRight);
 			this.colWidth = colWidth;
 		} else if (this._autoResize && this._maxRows > 0) {
-			var maxHeight = window.innerHeight;
+			var maxHeight: number = window.innerHeight;
 			
-			var rowHeight = Math.floor(maxHeight / this._maxRows);
+			var rowHeight: number = Math.floor(maxHeight / this._maxRows);
 			rowHeight -= (this.marginTop + this.marginBottom);
 			this.rowHeight = rowHeight;
 		}
@@ -246,7 +244,7 @@ export class NgGrid {
 		}
 	}
 	
-	public setMargins(margins): void {
+	public setMargins(margins: Array<string>): void {
 		this.marginTop = parseInt(margins[0]);
 		this.marginRight = margins.length >= 2 ? parseInt(margins[1]) : this.marginTop;
 		this.marginBottom = margins.length >= 3 ? parseInt(margins[2]) : this.marginTop;
@@ -283,7 +281,7 @@ export class NgGrid {
 	}
 	
 	//	Private methods
-	private _onResize(e) {
+	private _onResize(e: any): void {
 		if (this._autoResize && this._maxCols > 0) {
 			var maxWidth = this._ngEl.nativeElement.parentElement.getBoundingClientRect().width;
 			
@@ -306,9 +304,9 @@ export class NgGrid {
 	}
 	
 	private _applyChanges(changes: any): void {
-		changes.forEachAddedItem((record) => { this._config[record.key] = record.currentValue; });
-		changes.forEachChangedItem((record) => { this._config[record.key] = record.currentValue; });
-		changes.forEachRemovedItem((record) => { delete this._config[record.key]; });
+		changes.forEachAddedItem((record: any) => { this._config[record.key] = record.currentValue; });
+		changes.forEachChangedItem((record: any) => { this._config[record.key] = record.currentValue; });
+		changes.forEachRemovedItem((record: any) => { delete this._config[record.key]; });
 		this.setConfig(this._config);
 	}
 	
@@ -481,7 +479,7 @@ export class NgGrid {
 			
 			this._draggingItem.setGridPosition(itemPos.col, itemPos.row);
 			this._addToGrid(this._draggingItem);
-			console.log("STOP", itemPos);
+			
 			this._cascadeGrid();
 			
 			this._draggingItem.stopMoving();
@@ -519,7 +517,7 @@ export class NgGrid {
 		return { 'x': sizex, 'y': sizey };
 	}
 	
-	private _calculateGridSize(width, height): {x: number, y: number} {
+	private _calculateGridSize(width: number, height: number): {x: number, y: number} {
         width += this.marginLeft + this.marginRight;
         height += this.marginTop + this.marginBottom;
         
@@ -670,7 +668,6 @@ export class NgGrid {
 					for (var c:number = 1; c <= this._getMaxCol(); c++) {
 						if (this._itemGrid[r] == undefined) break;
 						if (c < lowCol[r]) continue;
-							console.log(r, c, lowCol);
 						
 						if (this._itemGrid[r][c] != null) {
 							var item = this._itemGrid[r][c];
@@ -891,7 +888,7 @@ export class NgGridItem {
 	public resizeStop: EventEmitter = new EventEmitter();
 	
 	//	Default config
-	private static CONST_DEFAULT_CONFIG = {
+	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string } = {
 		'col': 1,
 		'row': 1,
 		'sizex': 1,
@@ -918,7 +915,7 @@ export class NgGridItem {
 	private _added: boolean = false;
 	
 	//	[ng-grid-item] handler
-	set config(v) {
+	set config(v: any) {
 		var defaults = NgGridItem.CONST_DEFAULT_CONFIG;
 		
 		for (var x in defaults)
@@ -947,11 +944,11 @@ export class NgGridItem {
 	//	Public methods
 	public canDrag(e: any): boolean {
 		if (this._dragHandle) {
-			var foundHandle;
-			var paths = e.path;
+			var foundHandle: boolean;
+			var paths: Array<any> = e.path;
 			paths.pop();    //    Get rid of #document
 			
-			var last = null;
+			var last: any = null;
 			
 			for (var x in paths) {
 				if (last !== null) {
@@ -972,11 +969,11 @@ export class NgGridItem {
 	
 	public canResize(e: any): string {
 		if (this._resizeHandle) {
-			var foundHandle;
-			var paths = e.path;
+			var foundHandle: boolean;
+			var paths: Array<any> = e.path;
 			paths.pop();    //    Get rid of #document
 			
-			var last = null;
+			var last: any = null;
 			
 			for (var x in paths) {
 				if (last !== null) {
@@ -1032,7 +1029,7 @@ export class NgGridItem {
 		}
 	}
 	
-	public onDestroy() {
+	public onDestroy(): void {
 		if (this._added) this._ngGrid.removeItem(this);
 	}
 	
@@ -1066,7 +1063,7 @@ export class NgGridItem {
 	}
 	
 	//	Setters
-	public setConfig(config): void {
+	public setConfig(config: any): void {
 		this._col = config.col;
 		this._row = config.row;
 		this._sizex = config.sizex;
@@ -1091,7 +1088,7 @@ export class NgGridItem {
 		this._col = col;
 		this._row = row;
 		this.gridPosition = {'col': this._col, 'row': this._row};
-		console.log(this.gridPosition);
+		
 		this._recalculatePosition();
 		
 		this.itemChange.next({'col': this._col, 'row': this._row, 'sizex': this._sizex, 'sizey': this._sizey});
