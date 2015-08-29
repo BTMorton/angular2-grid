@@ -103,8 +103,8 @@
 		<a (click)="addBox()" class="btn btn-primary pull-right">Add Box</a>
 	</div>
 </div>
-<div [ng-grid]="gridConfig" (drag-start)="eventThrown($event)">
-	<div *ng-for="#box of boxes; #i = index" [ng-grid-item]="{'dragHandle': '.handle'}" (item-change)="updateItem(i, $event)">
+<div [ng-grid]="gridConfig">
+	<div *ng-for="#box of boxes; #i = index" [ng-grid-item]="{'dragHandle': '.handle'}" (item-change)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		{{box}}
 	</div>

@@ -1,6 +1,6 @@
 /// <reference path="typings/angular2/angular2.d.ts" />
 
-import {Component, View, bootstrap, CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES, Self } from 'angular2/angular2';
+import {Component, View, bootstrap, CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES, Self, Query, QueryList } from 'angular2/angular2';
 import {NgGrid, NgGridItem} from "./NgGrid";
 // import {NgTest} from "./NgTest";
 // Annotation section
@@ -44,7 +44,6 @@ class MyAppComponent {
 	get itemCheck() { return this.curItemCheck; }
 	set itemCheck(v) {
 		this.curItem = this.itemPositions[v];
-		
 		this.curItemCheck = v;
 	}
 	
@@ -52,15 +51,17 @@ class MyAppComponent {
 		this.boxes.push(this.curNum++);
 	}
 	
-	eventThrown(e) {
-		console.log("NgGrid has thrown an event!", e);
-	}
-	
 	updateItem(index, pos) {
-		console.log("UPDATE");
-		console.log(index, pos);
 		this.itemPositions[index] = pos;
 		if (this.curItemCheck == index) this.curItem = pos;
+	}
+	
+	onDrag(index, pos) {
+		// Do something here
+	}
+	
+	onResize(index, dims) {
+		// Do something here
 	}
 }
 

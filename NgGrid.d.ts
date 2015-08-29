@@ -97,8 +97,22 @@ export declare class NgGridItem {
     private _ngEl;
     private _renderer;
     private _ngGrid;
-    private static CONST_DEFAULT_CONFIG;
     itemChange: EventEmitter;
+    dragStart: EventEmitter;
+    drag: EventEmitter;
+    dragStop: EventEmitter;
+    resizeStart: EventEmitter;
+    resize: EventEmitter;
+    resizeStop: EventEmitter;
+    private static CONST_DEFAULT_CONFIG;
+    gridPosition: {
+        'col': number;
+        'row': number;
+    };
+    gridSize: {
+        'x': number;
+        'y': number;
+    };
     private _col;
     private _row;
     private _sizex;
