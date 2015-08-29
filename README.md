@@ -65,6 +65,33 @@ The defaults for the grid item are:
 }
 ```
 
+#### Event Handling
+-------------------
+
+Both the `NgGrid` and `NgGridItem` throw events when an item is moved or resized. The grid has the following:
+
+```javascript
+dragStart(item)     //  When an item starts being dragged. Returns reference to corresponding NgGridItem
+drag(item)          //  When an item moves while dragging. Returns reference to corresponding NgGridItem
+dragStop(item)      //  When an item stops being dragged. Returns reference to corresponding NgGridItem
+resizeStart(item)   //  When an item starts being resized. Returns reference to corresponding NgGridItem
+resize(item)        //  When an item is resized. Returns reference to corresponding NgGridItem
+resizeStop(item)    //  When an item stops being resized. Returns reference to corresponding NgGridItem
+```
+
+The individual items will also throw the following events:
+
+```javascript
+dragStart({'left': number, 'top': number})              //  When the item starts being dragged. Returns object containing the item's raw left and top values
+drag({'left': number, 'top': number})                   //  When the item moves while dragging. Returns object containing the item's raw left and top values
+dragStop({'left': number, 'top': number})               //  When the item stops being dragged. Returns object containing the item's raw left and top values
+resizeStart({'width': number, 'height': number})        //  When the item starts being resized. Returns object containing the item's raw width and height values
+resize({'width': number, 'height': number})             //  When the item is resized. Returns object containing the item's raw width and height values
+resizeStop({'width': number, 'height': number})         //  When the item stops being resized. Returns object containing the item's raw width and height values
+itemChange({'col': number, 'row': number,               //  When the item's grid size or position is changed. Returns object containing the item's grid position and size
+            'sizex': number, 'sizey': number})          //      The difference between this event and the above is that the values correspond to the psuedo-grid and not the dom positioning
+```
+
 #### Styling
 ------------
 
