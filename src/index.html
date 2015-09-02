@@ -8,6 +8,14 @@
 	</head>
 	<body>
 		<my-app></my-app>
-		<script>System.import('app');</script>
+		<script>
+		System.config({
+			paths: {
+				'app': 'app.js',
+				'NgGrid': 'NgGrid.js'
+			}
+		});
+		System.import('app');
+		</script>
 	</body>
 </html>

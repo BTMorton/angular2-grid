@@ -1,5 +1,5 @@
 import {Component, View, bootstrap, CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES, Self, Query, QueryList } from 'angular2/angular2';
-import {NgGrid, NgGridItem} from "./NgGrid";
+import {NgGrid, NgGridItem} from "NgGrid";
 // import {NgTest} from "./NgTest";
 // Annotation section
 @Component({
