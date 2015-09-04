@@ -819,9 +819,8 @@ export class NgGrid {
 	}
 	
 	private _getMousePosition(e: any): {left: number, top: number} {
-		if (e.originalEvent && e.originalEvent.touches) {
-			var oe = e.originalEvent;
-			e = oe.touches.length ? oe.touches[0] : oe.changedTouches[0];
+		if (e instanceof TouchEvent) {
+			e = e.touches.length > 0 ? e.touches[0] : e.changedTouches[0];
 		}
 		
 		var refPos = this._ngEl.nativeElement.getBoundingClientRect();
