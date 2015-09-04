@@ -275,9 +275,13 @@ export class NgGrid {
 	}
 	
 	public removeItem(ngItem: NgGridItem): void {
+		this._removeFromGrid(ngItem);
 		for (var x in this._items)
 			if (this._items[x] == ngItem)
-				this._items = this._items.splice(x, 1);
+				this._items.splice(x, 1);
+
+		// Update position of all items
+		this._items.forEach((item) => item.recalculateSelf());
 	}
 	
 	//	Private methods
