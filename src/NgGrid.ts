@@ -6,12 +6,13 @@ import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicC
 	host: {
 		'(^mousedown)': '_onMouseDown($event)',
 		'(^mousemove)': '_onMouseMove($event)',
-		// '(^document:mousemove)': '_onMouseMove($event)',
 		'(^mouseup)': '_onMouseUp($event)',
 		'(^touchstart)': '_onMouseDown($event)',
 		'(^touchmove)': '_onMouseMove($event)',
 		'(^touchend)': '_onMouseUp($event)',
-		'(window:resize)': '_onResize($event)'
+		'(window:resize)': '_onResize($event)',
+		'(document:^mousemove)': '_onMouseMove($event)',
+		'(document:^mouseup)': '_onMouseUp($event)'
 	},
 	lifecycle: [LifecycleEvent.onCheck],
 	events: ['dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
@@ -203,11 +204,10 @@ export class NgGrid {
 			}
 			
 			this._cascadeGrid();
-			
 		}
 		
 		if (this._autoResize && this._maxCols > 0) {
-			var maxWidth: number = this._ngEl.nativeElement.parentElement.getBoundingClientRect().width;
+			var maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
 			
 			var colWidth: number = Math.floor(maxWidth / this._maxCols);
 			colWidth -= (this.marginLeft + this.marginRight);
@@ -287,7 +287,7 @@ export class NgGrid {
 	//	Private methods
 	private _onResize(e: any): void {
 		if (this._autoResize && this._maxCols > 0) {
-			var maxWidth = this._ngEl.nativeElement.parentElement.getBoundingClientRect().width;
+			var maxWidth = this._ngEl.nativeElement.getBoundingClientRect().width;
 			
 			var colWidth = Math.floor(maxWidth / this._maxCols);
 			colWidth -= (this.marginLeft + this.marginRight);
@@ -819,7 +819,7 @@ export class NgGrid {
 	}
 	
 	private _getMousePosition(e: any): {left: number, top: number} {
-		if (e instanceof TouchEvent) {
+		if (((<any>window).TouchEvent && e instanceof TouchEvent) || (e.touches || e.changedTouches)) {
 			e = e.touches.length > 0 ? e.touches[0] : e.changedTouches[0];
 		}
 		
@@ -838,9 +838,8 @@ export class NgGrid {
 	}
 	
 	private _getAbsoluteMousePosition(e: any): {left: number, top: number} {
-		if (e.originalEvent && e.originalEvent.touches) {
-			var oe = e.originalEvent;
-			e = oe.touches.length ? oe.touches[0] : oe.changedTouches[0];
+		if (((<any>window).TouchEvent && e instanceof TouchEvent) || (e.touches || e.changedTouches)) {
+			e = e.touches.length > 0 ? e.touches[0] : e.changedTouches[0];
 		}
 
 		return {
@@ -865,7 +864,9 @@ export class NgGrid {
 	
 	private _createPlaceholder(pos: {col: number, row:number}, dims: {x: number, y: number}) {
 		var me = this;
+		console.log(pos, dims);
 		this._loader.loadNextToLocation((<Type>NgGridPlaceholder), this._items[0].getElement()).then(componentRef => {
+			console.log(componentRef);
 			me._placeholderRef = componentRef;
 			var placeholder = componentRef.instance;
 			// me._placeholder.setGrid(me);
@@ -948,20 +949,18 @@ export class NgGridItem {
 	public canDrag(e: any): boolean {
 		if (this._dragHandle) {
 			var foundHandle: boolean;
-			var paths: Array<any> = e.path;
-			paths.pop();    //    Get rid of #document
+			var parent = e.target.parentElement;
 			
-			var last: any = null;
+			var last: any = e.target;
 			
-			for (var x in paths) {
-				if (last !== null) {
-					if (paths[x].querySelector(this._dragHandle) == last) {
-						foundHandle = true;
-						break;
-					}
+			while (parent) {
+				if (parent.querySelector(this._dragHandle) == last) {
+					foundHandle = true;
+					break;
 				}
 				
-				last = paths[x];
+				last = parent;
+				parent = parent.parentElement;
 			}
 			
 			return foundHandle;

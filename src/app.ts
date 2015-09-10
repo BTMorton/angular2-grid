@@ -1,4 +1,4 @@
-import {Component, View, bootstrap, CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES, Self, Query, QueryList } from 'angular2/angular2';
+import {Component, View, bootstrap, CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES, Self, Query, QueryList, ViewEncapsulation } from 'angular2/angular2';
 import {NgGrid, NgGridItem} from "NgGrid";
 // import {NgTest} from "./NgTest";
 // Annotation section
@@ -8,7 +8,8 @@ import {NgGrid, NgGridItem} from "NgGrid";
 @View({
 	templateUrl: 'app.html',
 	styleUrls: ['app.css', 'NgGrid.css'],
-	directives: [CORE_DIRECTIVES, NgStyle, NgGrid, NgGridItem, FORM_DIRECTIVES]
+	directives: [CORE_DIRECTIVES, NgStyle, NgGrid, NgGridItem, FORM_DIRECTIVES],
+	encapsulation: ViewEncapsulation.NONE
 })
 // Component controller
 class MyAppComponent {
