@@ -1,5 +1,7 @@
 var gulp = require('gulp');
 var typescript = require('gulp-typescript');
+var uglify = require('gulp-uglify');
+var sourcemaps = require('gulp-sourcemaps');
 var merge = require('merge2');
 
 var tsProject = typescript.createProject({
@@ -17,6 +19,8 @@ var PATHS = {
 		css: 'src/*.css',
 	},
 	lib: [
+		'bower_components/bootstrap/dist/css/bootstrap.min.css',
+		'bower_components/bootstrap/dist/css/bootstrap-theme.min.css',
 		'node_modules/angular2/node_modules/traceur/bin/traceur-runtime.js',
 		'node_modules/angular2/bundles/angular2.min.js',
 		'node_modules/angular2/bundles/http.min.js',
@@ -34,10 +38,11 @@ gulp.task('clean', function (done) {
 gulp.task('ts', function () {
 	
 	var tsResult = gulp.src([PATHS.src.ts, PATHS.typings])
+		.pipe(sourcemaps.init())
 		.pipe(typescript(tsProject));
 
 	return merge([
-		tsResult.js.pipe(gulp.dest('dist')),
+		tsResult.js.pipe(uglify()).pipe(sourcemaps.write()).pipe(gulp.dest('dist')),
 		tsResult.dts.pipe(gulp.dest('src'))
 	]);
 });
