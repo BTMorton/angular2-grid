@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "peerDependencies": {
-    "angular2": "2.0.0-alpha.35",
+    "angular2": "2.0.0-alpha.36",
     "systemjs": "^0.18.17"
   },
   "files": [
@@ -35,5 +35,8 @@
     "gulp-typescript": "^2.8.1",
     "merge2": "^0.3.6",
     "typescript": "^1.5.3"
+  },
+  "dependencies": {
+    "angular2": "^2.0.0-alpha.36"
   }
 }
