@@ -10,7 +10,7 @@
 	transition: width 0.25s, height 0.25s, left 0.25s, top 0.25s, right 0.25s, bottom 0.25s;
 }
 
-.grid-item:active {
+.grid-item:active, .grid-item.moving {
 	z-index: 2;
 	-webkit-transition: none;
 	-moz-transition: none;
