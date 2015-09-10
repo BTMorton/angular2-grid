@@ -1,21 +1,25 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>Angular 2 Grid Demo</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
 		<script src="lib/traceur-runtime.js"></script>
 		<script src="lib/system-csp-production.js"></script>
-		<script src="lib/angular2.js"></script>
+		<script src="lib/angular2.min.js"></script>
+		<script src="lib/http.min.js"></script>
 	</head>
 	<body>
 		<my-app></my-app>
 		<script>
-		System.config({
-			paths: {
-				'app': 'app.js',
-				'NgGrid': 'NgGrid.js'
-			}
-		});
-		System.import('app');
+		(function() {
+			System.config({
+				paths: {
+					'app': 'app.js',
+					'NgGrid': 'NgGrid.js'
+				}
+			});
+			System.import('app');
+		})();
 		</script>
 	</body>
 </html>
