@@ -37,7 +37,7 @@ class MyAppComponent {
 		'sizex': 0,
 		'sizey': 0
 	}
-	private curItemCheck:number = 1;
+	private curItemCheck:number = 0;
 	private itemPositions: Array<any> = [];
 	
 	get itemCheck() { return this.curItemCheck; }
@@ -51,7 +51,7 @@ class MyAppComponent {
 	}
 	
 	removeBox() {
-		this.boxes.splice(this.curItemCheck, 1);
+		if (this.boxes[this.curItemCheck]) this.boxes.splice(this.curItemCheck, 1);
 	}
 	
 	updateItem(index: number, pos: { col: number, row: number, sizex: number, sizey: number }) {

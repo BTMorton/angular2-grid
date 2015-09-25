@@ -91,13 +91,15 @@ export class NgGrid {
 	}
 	
 	//	Constructor
-	constructor(private _differs: KeyValueDiffers, private _ngEl: ElementRef, private _renderer: Renderer, private _loader: DynamicComponentLoader) {
+	constructor(private _differs: KeyValueDiffers, private _ngEl: ElementRef, private _renderer: Renderer, private _loader: DynamicComponentLoader) {}
+	
+	//	Public methods
+	public onInit() {
 		this._renderer.setElementClass(this._ngEl, 'grid', true);
 		if (this.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'relative');
 		this.setConfig(NgGrid.CONST_DEFAULT_CONFIG);
 	}
 	
-	//	Public methods
 	public setConfig(config: any): void {
 		var maxColRowChanged = false;
 		for (var x in config) {
@@ -211,13 +213,13 @@ export class NgGrid {
 			
 			var colWidth: number = Math.floor(maxWidth / this._maxCols);
 			colWidth -= (this.marginLeft + this.marginRight);
-			this.colWidth = colWidth;
+			if (colWidth > 0) this.colWidth = colWidth;
 		} else if (this._autoResize && this._maxRows > 0) {
 			var maxHeight: number = window.innerHeight;
 			
 			var rowHeight: number = Math.floor(maxHeight / this._maxRows);
 			rowHeight -= (this.marginTop + this.marginBottom);
-			this.rowHeight = rowHeight;
+			if (rowHeight > 0) this.rowHeight = rowHeight;
 		}
 		
 		for (var x in this._items) {
@@ -277,13 +279,14 @@ export class NgGrid {
 	
 	public removeItem(ngItem: NgGridItem): void {
 		this._removeFromGrid(ngItem);
+		
 		for (var x in this._items)
 			if (this._items[x] == ngItem)
 				this._items.splice(x, 1);
 
 		// Update position of all items
-		this._updateSize();
 		this._cascadeGrid();
+		this._updateSize();
 		this._items.forEach((item) => item.recalculateSelf());
 	}
 	
@@ -870,7 +873,7 @@ export class NgGrid {
 	private _createPlaceholder(pos: {col: number, row:number}, dims: {x: number, y: number}) {
 		var me = this;
 		
-		this._loader.loadNextToLocation((<Type>NgGridPlaceholder), this._items[0].getElement()).then(componentRef => {
+		this._loader.loadNextToLocation((<Type>NgGridPlaceholder), (<any>this._ngEl.parentView)._view.elementRefs[this._ngEl.boundElementIndex + 1]).then(componentRef => {
 			me._placeholderRef = componentRef;
 			var placeholder = componentRef.instance;
 			// me._placeholder.setGrid(me);
@@ -1165,7 +1168,9 @@ class NgGridPlaceholder {
 	private _col: number;
 	private _row: number;
 	
-	constructor (private _renderer: Renderer, private _ngEl: ElementRef, private _ngGrid: NgGrid) {
+	constructor (private _renderer: Renderer, private _ngEl: ElementRef, private _ngGrid: NgGrid) {}
+	
+	public onInit() {
 		this._renderer.setElementClass(this._ngEl, 'grid-placeholder', true);
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 	}
