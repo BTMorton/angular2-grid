@@ -126,6 +126,7 @@ export declare class NgGridItem {
     private _added;
     config: any;
     constructor(_ngEl: ElementRef, _renderer: Renderer, _ngGrid: NgGrid);
+    onInit(): void;
     canDrag(e: any): boolean;
     canResize(e: any): string;
     onMouseMove(e: any): void;

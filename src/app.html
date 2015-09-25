@@ -99,6 +99,7 @@
 				</label>
 				
 				Col: {{ curItem.col }}, Row: {{ curItem.row }}, Size X: {{ curItem.sizex }}, Size Y: {{ curItem.sizey }}
+				<a (click)="removeBox()" class="btn btn-primary">Remove Box</a>
 			</div>
 		</form>
 		<a (click)="addBox()" class="btn btn-primary pull-right">Add Box</a>

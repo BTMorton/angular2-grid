@@ -50,6 +50,10 @@ class MyAppComponent {
 		this.boxes.push(this.curNum++);
 	}
 	
+	removeBox() {
+		this.boxes.splice(this.curItemCheck, 1);
+	}
+	
 	updateItem(index: number, pos: { col: number, row: number, sizex: number, sizey: number }) {
 		this.itemPositions[index] = pos;
 		if (this.curItemCheck == index) this.curItem = pos;

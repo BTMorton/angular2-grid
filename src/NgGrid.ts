@@ -272,6 +272,7 @@ export class NgGrid {
 		ngItem.setGridPosition(newPos.col, newPos.row);
 		this._items.push(ngItem);
 		this._addToGrid(ngItem);
+		ngItem.recalculateSelf();
 	}
 	
 	public removeItem(ngItem: NgGridItem): void {
@@ -281,6 +282,8 @@ export class NgGrid {
 				this._items.splice(x, 1);
 
 		// Update position of all items
+		this._updateSize();
+		this._cascadeGrid();
 		this._items.forEach((item) => item.recalculateSelf());
 	}
 	
@@ -321,12 +324,14 @@ export class NgGrid {
 		if (item != null) {
 			if (this.resizeEnable && item.canResize(e) != null) {
 				this._resizeStart(e);
+				return false;
 			} else if (this.dragEnable && item.canDrag(e)) {
 				this._dragStart(e);
+				return false;
 			}
 		}
 		
-		return false;
+		return true;
 	}
 	
 	private _resizeStart(e: any): void {
@@ -365,7 +370,7 @@ export class NgGrid {
 		}
 	}
 	
-	private _onMouseMove(e: any): boolean {
+	private _onMouseMove(e: any): void {
 		if (e.buttons == 0 && this.isDragging) {
 			this._dragStop(e);
 		} else if (e.buttons == 0 && this.isResizing) {
@@ -382,8 +387,6 @@ export class NgGrid {
 				item.onMouseMove(e);
 			}
 		}
-		
-		return false;
 	}
 	
 	private _drag(e: any): void {
@@ -468,11 +471,13 @@ export class NgGrid {
 	private _onMouseUp(e: any): boolean {
 		if (this.isDragging) {
 			this._dragStop(e);
+			return false;
 		} else if (this.isResizing) {
 			this._resizeStop(e);
+			return false;
 		}
 		
-		return false;
+		return true;
 	}
 	
 	private _dragStop(e: any): void {
@@ -864,9 +869,8 @@ export class NgGrid {
 	
 	private _createPlaceholder(pos: {col: number, row:number}, dims: {x: number, y: number}) {
 		var me = this;
-		console.log(pos, dims);
+		
 		this._loader.loadNextToLocation((<Type>NgGridPlaceholder), this._items[0].getElement()).then(componentRef => {
-			console.log(componentRef);
 			me._placeholderRef = componentRef;
 			var placeholder = componentRef.instance;
 			// me._placeholder.setGrid(me);
@@ -929,8 +933,8 @@ export class NgGridItem {
 		this.setConfig(v);
 		
 		if (!this._added) {
-			this._ngGrid.addItem(this);
 			this._added = true;
+			this._ngGrid.addItem(this);
 		}
 		
 		this._recalculateDimensions();
@@ -938,32 +942,21 @@ export class NgGridItem {
 	}
 	
 	//	Constructor
-	constructor(private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid:NgGrid) {//@Host()
+	constructor(private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid:NgGrid) {}
+	
+	//	Public methods
+	public onInit() {
 		this._renderer.setElementClass(this._ngEl, 'grid-item', true);
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 		this._recalculateDimensions();
 		this._recalculatePosition();
 	}
 	
-	//	Public methods
 	public canDrag(e: any): boolean {
 		if (this._dragHandle) {
-			var foundHandle: boolean;
 			var parent = e.target.parentElement;
 			
-			var last: any = e.target;
-			
-			while (parent) {
-				if (parent.querySelector(this._dragHandle) == last) {
-					foundHandle = true;
-					break;
-				}
-				
-				last = parent;
-				parent = parent.parentElement;
-			}
-			
-			return foundHandle;
+			return parent.querySelector(this._dragHandle) == e.target;
 		}
 		
 		return true;
@@ -971,24 +964,9 @@ export class NgGridItem {
 	
 	public canResize(e: any): string {
 		if (this._resizeHandle) {
-			var foundHandle: boolean;
-			var paths: Array<any> = e.path;
-			paths.pop();    //    Get rid of #document
-			
-			var last: any = null;
-			
-			for (var x in paths) {
-				if (last !== null) {
-					if (paths[x].querySelector(this._resizeHandle) == last) {
-						foundHandle = true;
-						break;
-					}
-				}
-				
-				last = paths[x];
-			}
-			
-			return foundHandle ? 'both' : null;
+			var parent = e.target.parentElement;
+
+			return parent.querySelector(this._resizeHandle) == e.target ? 'both' : null;
 		} else {
 			var mousePos = this._getMousePosition(e);
 			
@@ -1187,8 +1165,8 @@ class NgGridPlaceholder {
 	private _col: number;
 	private _row: number;
 	
-	constructor (private _renderer: Renderer, private _ngEl: ElementRef, @Host() private _ngGrid: NgGrid) {
-		this._renderer.setElementClass(this._ngEl, 'placeholder', true);
+	constructor (private _renderer: Renderer, private _ngEl: ElementRef, private _ngGrid: NgGrid) {
+		this._renderer.setElementClass(this._ngEl, 'grid-placeholder', true);
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 	}
 	
