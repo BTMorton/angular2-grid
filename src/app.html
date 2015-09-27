@@ -80,13 +80,13 @@
 				<div class="form-group">
 					<label>
 						Max Columns
-						<input type="number" class="form-control" name="max_cols" ng-control="max_cols" [(ng-model)]="gridConfig.max_cols" [attr.disabled]="gridConfig.max_rows > 0 ? 'disabled' : null" />
+						<input type="number" class="form-control" name="max_cols" ng-control="max_cols" [(ng-model)]="gridConfig.max_cols" [disabled]="gridConfig.max_rows > 0" />
 					</label>
 				</div>
 				<div class="form-group">
 					<label>
 						Max Rows
-						<input type="number" class="form-control" name="max_rows" ng-control="max_rows" [(ng-model)]="gridConfig.max_rows"  [attr.disabled]="gridConfig.max_cols > 0 ? 'disabled' : null" />
+						<input type="number" class="form-control" name="max_rows" ng-control="max_rows" [(ng-model)]="gridConfig.max_rows"  [disabled]="gridConfig.max_cols > 0" />
 					</label>
 				</div>
 			</div>

@@ -175,40 +175,39 @@ export class NgGrid implements OnInit, DoCheck {
 				}
 			}
 			
-			for (var r: number = 1; r <= this._getMaxRow(); r++) {
-				if (this._itemGrid[r] != null) {
-					for (var c: number = 1; c <= this._getMaxCol(); c++) {
-						if (this._itemGrid[r] != null && this._itemGrid[r][c] != null) {
-							var item: NgGridItem = this._itemGrid[r][c];
-							var pos: {'col': number, 'row': number} = item.getGridPosition();
-							var dims: {'x': number, 'y': number} = item.getSize();
+			//	TODO: Put this somewhere else...
+			// for (var r: number = 1; r <= this._getMaxRow(); r++) {
+			// 	if (this._itemGrid[r] != null) {
+			// 		for (var c: number = 1; c <= this._getMaxCol(); c++) {
+			// 			if (this._itemGrid[r] != null && this._itemGrid[r][c] != null) {
+			// 				var item: NgGridItem = this._itemGrid[r][c];
+			// 				var pos: {'col': number, 'row': number} = item.getGridPosition();
+			// 				var dims: {'x': number, 'y': number} = item.getSize();
 							
-							if ((this._maxCols > 0 && (pos.col + dims.x - 1) > this._maxCols) || (this._maxRows > 0 && (pos.row + dims.y - 1) > this._maxRows)) {
-								this._removeFromGrid(item);
+			// 				if ((this._maxCols > 0 && (pos.col + dims.x - 1) > this._maxCols) || (this._maxRows > 0 && (pos.row + dims.y - 1) > this._maxRows)) {
+			// 					this._removeFromGrid(item);
 								
-								if (this._maxRows > 0 && dims.y > this._maxRows)
-									dims.y = this._maxRows;
-								else if (this._maxCols > 0 && dims.x > this._maxCols)
-									dims.x = this._maxCols;
+			// 					if (this._maxRows > 0 && dims.y > this._maxRows)
+			// 						dims.y = this._maxRows;
+			// 					else if (this._maxCols > 0 && dims.x > this._maxCols)
+			// 						dims.x = this._maxCols;
 								
-								item.setSize(dims.x, dims.y);
+			// 					item.setSize(dims.x, dims.y);
 								
-								if (this._maxRows > 0 && (pos.row + dims.y) > this._maxRows)
-									pos.row = (this._maxRows - (dims.y - 1));
-								else if (this._maxCols > 0 && (pos.col + dims.x) > this._maxCols)
-									pos.col = (this._maxCols - (dims.x - 1));
+			// 					if (this._maxRows > 0 && (pos.row + dims.y) > this._maxRows)
+			// 						pos.row = (this._maxRows - (dims.y - 1));
+			// 					else if (this._maxCols > 0 && (pos.col + dims.x) > this._maxCols)
+			// 						pos.col = (this._maxCols - (dims.x - 1));
 								
-								item.setGridPosition(pos.col, pos.row);
+			// 					item.setGridPosition(pos.col, pos.row);
 								
-								this._fixGridCollisions(pos, dims);
-								this._addToGrid(item);
-							}
-						}
-					}
-				}
-			}
-			
-			this._cascadeGrid();
+			// 					this._fixGridCollisions(pos, dims);
+			// 					this._addToGrid(item);
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 		
 		if (this._autoResize && this._maxCols > 0) {
@@ -337,13 +336,11 @@ export class NgGrid implements OnInit, DoCheck {
 	}
 	
 	private _applyChanges(changes: any): void {
-		var changedConf: any = {};
+		changes.forEachAddedItem((record: any) => { this._config[record.key] = record.currentValue; });
+		changes.forEachChangedItem((record: any) => { this._config[record.key] = record.currentValue; });
+		changes.forEachRemovedItem((record: any) => { delete this._config[record.key]; });
 		
-		changes.forEachAddedItem((record: any) => { changedConf[record.key] = record.currentValue; this._config[record.key] = record.currentValue; });
-		changes.forEachChangedItem((record: any) => { changedConf[record.key] = record.currentValue; this._config[record.key] = record.currentValue; });
-		changes.forEachRemovedItem((record: any) => { changedConf[record.key] = NgGrid.CONST_DEFAULT_CONFIG[record.key]; delete this._config[record.key]; });
-		
-		this.setConfig(changedConf);
+		this.setConfig(this._config);
 	}
 	
 	private _onMouseDown(e: any): boolean {
