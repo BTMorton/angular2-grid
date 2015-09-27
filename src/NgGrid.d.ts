@@ -1,5 +1,5 @@
-import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers } from 'angular2/angular2';
-export declare class NgGrid {
+import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, DoCheck } from 'angular2/angular2';
+export declare class NgGrid implements OnInit, DoCheck {
     private _differs;
     private _ngEl;
     private _renderer;
@@ -12,6 +12,8 @@ export declare class NgGrid {
     resizeStop: EventEmitter;
     colWidth: number;
     rowHeight: number;
+    minCols: number;
+    minRows: number;
     marginTop: number;
     marginRight: number;
     marginBottom: number;
@@ -45,6 +47,7 @@ export declare class NgGrid {
     private _config;
     config: any;
     constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader);
+    onInit(): void;
     setConfig(config: any): void;
     getItemPosition(index: number): {
         col: number;
@@ -54,7 +57,7 @@ export declare class NgGrid {
         x: number;
         y: number;
     };
-    onCheck(): void;
+    doCheck(): boolean;
     setMargins(margins: Array<string>): void;
     enableDrag(): void;
     disableDrag(): void;
@@ -92,7 +95,7 @@ export declare class NgGrid {
     private _getItemFromPosition(position);
     private _createPlaceholder(pos, dims);
 }
-export declare class NgGridItem {
+export declare class NgGridItem implements OnInit {
     private _ngEl;
     private _renderer;
     private _ngGrid;

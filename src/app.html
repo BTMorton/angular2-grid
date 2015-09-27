@@ -91,6 +91,20 @@
 				</div>
 			</div>
 			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Min Columns
+						<input type="number" class="form-control" name="min_cols" ng-control="min_cols" [(ng-model)]="gridConfig.min_cols" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Min Rows
+						<input type="number" class="form-control" name="min_rows" ng-control="min_rows" [(ng-model)]="gridConfig.min_rows"  />
+					</label>
+				</div>
+			</div>
+			<div class="form-inline">
 				<label>
 					Get Item Position &amp; Size
 					<select name="itemCheck" class="form-control" ng-control="item_check" [(ng-model)]="itemCheck">

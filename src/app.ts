@@ -1,6 +1,6 @@
 import {Component, View, bootstrap, CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES, Self, Query, QueryList, ViewEncapsulation } from 'angular2/angular2';
 import {NgGrid, NgGridItem} from "NgGrid";
-// import {NgTest} from "./NgTest";
+
 // Annotation section
 @Component({
 	selector: 'my-app'
@@ -9,7 +9,7 @@ import {NgGrid, NgGridItem} from "NgGrid";
 	templateUrl: 'app.html',
 	styleUrls: ['app.css', 'NgGrid.css'],
 	directives: [CORE_DIRECTIVES, NgStyle, NgGrid, NgGridItem, FORM_DIRECTIVES],
-	encapsulation: ViewEncapsulation.NONE
+	encapsulation: ViewEncapsulation.None
 })
 // Component controller
 class MyAppComponent {
@@ -22,6 +22,8 @@ class MyAppComponent {
 		'resizeable': true,
 		'max_cols': 6,
 		'max_rows': 0,
+		'min_cols': 1,
+		'min_rows': 1,
 		'col_width': 250,
 		'row_height': 250,
 		'cascade': 'up',

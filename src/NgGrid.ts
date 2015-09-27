@@ -1,23 +1,22 @@
-import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, LifecycleEvent, KeyValueDiffer, KeyValueDiffers} from 'angular2/angular2';
+import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, DoCheck} from 'angular2/angular2';
 
 @Directive({
 	selector: '[ng-grid]',
 	properties: ['config: ng-grid'],
 	host: {
-		'(^mousedown)': '_onMouseDown($event)',
-		'(^mousemove)': '_onMouseMove($event)',
-		'(^mouseup)': '_onMouseUp($event)',
-		'(^touchstart)': '_onMouseDown($event)',
-		'(^touchmove)': '_onMouseMove($event)',
-		'(^touchend)': '_onMouseUp($event)',
+		'(mousedown)': '_onMouseDown($event)',
+		'(mousemove)': '_onMouseMove($event)',
+		'(mouseup)': '_onMouseUp($event)',
+		'(touchstart)': '_onMouseDown($event)',
+		'(touchmove)': '_onMouseMove($event)',
+		'(touchend)': '_onMouseUp($event)',
 		'(window:resize)': '_onResize($event)',
-		'(document:^mousemove)': '_onMouseMove($event)',
-		'(document:^mouseup)': '_onMouseUp($event)'
+		'(document:mousemove)': '_onMouseMove($event)',
+		'(document:mouseup)': '_onMouseUp($event)'
 	},
-	lifecycle: [LifecycleEvent.onCheck],
 	events: ['dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
 })
-export class NgGrid {
+export class NgGrid implements OnInit, DoCheck {
 	//	Event Emitters
 	public dragStart: EventEmitter = new EventEmitter();
 	public drag: EventEmitter = new EventEmitter();
@@ -29,6 +28,8 @@ export class NgGrid {
 	//	Public variables
 	public colWidth: number = 250;
 	public rowHeight: number = 250;
+	public minCols: number = 1;
+	public minRows: number = 1;
 	public marginTop: number = 10;
 	public marginRight: number = 10;
 	public marginBottom: number = 10;
@@ -41,7 +42,7 @@ export class NgGrid {
 	public cascade: string = 'up';
 	
 	//	Private variables
-	private _items: List<NgGridItem> = [];
+	private _items: Array<NgGridItem> = [];
 	private _draggingItem: NgGridItem = null;
 	private _resizingItem: NgGridItem = null;
 	private _resizeDirection: string = null;
@@ -94,10 +95,10 @@ export class NgGrid {
 	constructor(private _differs: KeyValueDiffers, private _ngEl: ElementRef, private _renderer: Renderer, private _loader: DynamicComponentLoader) {}
 	
 	//	Public methods
-	public onInit() {
+	public onInit(): void {
 		this._renderer.setElementClass(this._ngEl, 'grid', true);
 		if (this.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'relative');
-		this.setConfig(NgGrid.CONST_DEFAULT_CONFIG);
+		this.setConfig(this._config);
 	}
 	
 	public setConfig(config: any): void {
@@ -110,12 +111,10 @@ export class NgGrid {
 					this.setMargins(val);
 					break;
 				case 'col_width':
-					this._setWidth = parseInt(val);
-					this.colWidth = Math.max(this._setWidth, this._minWidth);
+					this.colWidth = parseInt(val);
 					break;
 				case 'row_height':
-					this._setHeight = parseInt(val);
-					this.rowHeight = Math.max(this._setHeight, this._minHeight);
+					this.rowHeight = parseInt(val);
 					break;
 				case 'auto_style':
 					this.autoStyle = val ? true : false;
@@ -137,13 +136,17 @@ export class NgGrid {
 					maxColRowChanged = maxColRowChanged || this._maxCols != parseInt(val);
 					this._maxCols = parseInt(val);
 					break;
+				case 'min_rows':
+					this.minRows = Math.max(parseInt(val), 1);
+					break;
+				case 'min_cols':
+					this.minCols = Math.max(parseInt(val), 1);
+					break;
 				case 'min_height':
 					this._minHeight = parseInt(val);
-					this.rowHeight = Math.max(this._setHeight, this._minHeight);
 					break;
 				case 'min_width':
 					this._minWidth = parseInt(val);
-					this.colWidth = Math.max(this._setWidth, this._minWidth);
 					break;
 				case 'cascade':
 					if (this.cascade != val) {
@@ -221,11 +224,26 @@ export class NgGrid {
 			rowHeight -= (this.marginTop + this.marginBottom);
 			if (rowHeight > 0) this.rowHeight = rowHeight;
 		}
+
+		var maxWidth = this._maxCols * this.colWidth;
+		var maxHeight = this._maxRows * this.rowHeight;
+
+		if (maxWidth > 0 && this._minWidth > maxWidth) this._minWidth = 0.75 * this.colWidth;
+		if (maxHeight > 0 && this._minHeight > maxHeight) this._minHeight = 0.75 * this.rowHeight;
+
+		if (this._minWidth > this.colWidth) this.minCols = Math.max(this.minCols, Math.ceil(this._minWidth / this.colWidth));
+		if (this._minHeight > this.rowHeight) this.minRows = Math.max(this.minRows, Math.ceil(this._minHeight / this.rowHeight));
+
+		if (this._maxCols > 0 && this.minCols > this._maxCols) this.minCols = 1;
+		if (this._maxRows > 0 && this.minRows > this._maxRows) this.minRows = 1;
 		
 		for (var x in this._items) {
+			this._removeFromGrid(this._items[x]);
 			this._items[x].recalculateSelf();
+			this._addToGrid(this._items[x]);
 		}
 		
+		this._cascadeGrid();
 		this._updateSize();
 	}
 	
@@ -237,13 +255,18 @@ export class NgGrid {
 		return this._items[index].getSize();
 	}
 	
-	public onCheck():void {
+	public doCheck(): boolean {
 		if (this._differ != null) {
 			var changes = this._differ.diff(this._config);
+			
 			if (changes != null) {
 				this._applyChanges(changes);
+				
+				return true;
 			}
 		}
+		
+		return false;
 	}
 	
 	public setMargins(margins: Array<string>): void {
@@ -314,10 +337,13 @@ export class NgGrid {
 	}
 	
 	private _applyChanges(changes: any): void {
-		changes.forEachAddedItem((record: any) => { this._config[record.key] = record.currentValue; });
-		changes.forEachChangedItem((record: any) => { this._config[record.key] = record.currentValue; });
-		changes.forEachRemovedItem((record: any) => { delete this._config[record.key]; });
-		this.setConfig(this._config);
+		var changedConf: any = {};
+		
+		changes.forEachAddedItem((record: any) => { changedConf[record.key] = record.currentValue; this._config[record.key] = record.currentValue; });
+		changes.forEachChangedItem((record: any) => { changedConf[record.key] = record.currentValue; this._config[record.key] = record.currentValue; });
+		changes.forEachRemovedItem((record: any) => { changedConf[record.key] = NgGrid.CONST_DEFAULT_CONFIG[record.key]; delete this._config[record.key]; });
+		
+		this.setConfig(changedConf);
 	}
 	
 	private _onMouseDown(e: any): boolean {
@@ -533,9 +559,9 @@ export class NgGrid {
         width += this.marginLeft + this.marginRight;
         height += this.marginTop + this.marginBottom;
         
-		var sizex = Math.max(1, Math.round(width / (this.colWidth + this.marginLeft + this.marginRight)));
+		var sizex = Math.max(this.minCols, Math.round(width / (this.colWidth + this.marginLeft + this.marginRight)));
 		if (this._maxCols > 0 && sizex > this._maxCols) sizex = this._maxCols;
-		var sizey = Math.max(1, Math.round(height / (this.rowHeight + this.marginTop + this.marginBottom)));
+		var sizey = Math.max(this.minRows, Math.round(height / (this.rowHeight + this.marginTop + this.marginBottom)));
 		if (this._maxRows > 0 && sizey > this._maxRows) sizey = this._maxRows;
 		
 		return { 'x': sizex, 'y': sizey };
@@ -888,7 +914,7 @@ export class NgGrid {
 	properties: [ 'config: ng-grid-item', 'gridPosition: ng-grid-position', 'gridSize: ng-grid-size' ],
 	events: ['itemChange', 'dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
 })
-export class NgGridItem {
+export class NgGridItem implements OnInit {
 	//	Event Emitters
 	public itemChange: EventEmitter = new EventEmitter();
 	public dragStart: EventEmitter = new EventEmitter();
@@ -947,14 +973,14 @@ export class NgGridItem {
 	//	Constructor
 	constructor(private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid:NgGrid) {}
 	
-	//	Public methods
-	public onInit() {
+	public onInit(): void {
 		this._renderer.setElementClass(this._ngEl, 'grid-item', true);
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 		this._recalculateDimensions();
 		this._recalculatePosition();
 	}
 	
+	//	Public methods
 	public canDrag(e: any): boolean {
 		if (this._dragHandle) {
 			var parent = e.target.parentElement;
@@ -1132,12 +1158,17 @@ export class NgGridItem {
 	private _recalculatePosition(): void {
 		var x = (this._ngGrid.colWidth + this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._col - 1) + this._ngGrid.marginLeft;
 		var y = (this._ngGrid.rowHeight + this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._row - 1) + this._ngGrid.marginRight;
+		
 		this.setPosition(x, y);
 	}
 	
 	private _recalculateDimensions(): void {
+		if (this._sizex < this._ngGrid.minCols) this._sizex = this._ngGrid.minCols;
+		if (this._sizey < this._ngGrid.minRows) this._sizey = this._ngGrid.minRows;
+		
 		var w = (this._ngGrid.colWidth * this._sizex) + ((this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._sizex - 1));
 		var h = (this._ngGrid.rowHeight * this._sizey) + ((this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._sizey - 1));
+		
 		this.setDimensions(w, h);
 	}
 	
@@ -1162,7 +1193,7 @@ export class NgGridItem {
 @View({
 	template: ""
 })
-class NgGridPlaceholder {
+export class NgGridPlaceholder implements OnInit {
 	private _sizex: number;
 	private _sizey: number;
 	private _col: number;
@@ -1170,7 +1201,7 @@ class NgGridPlaceholder {
 	
 	constructor (private _renderer: Renderer, private _ngEl: ElementRef, private _ngGrid: NgGrid) {}
 	
-	public onInit() {
+	public onInit(): void {
 		this._renderer.setElementClass(this._ngEl, 'grid-placeholder', true);
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 	}
