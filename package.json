@@ -16,7 +16,7 @@
     "grid"
   ],
   "author": "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
-  "contributors": ["Martin Sikora (https://github.com/martinsik)"]
+  "contributors": ["Martin Sikora (https://github.com/martinsik)"],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/BTMorton/angular2-grid/issues"

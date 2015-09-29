@@ -1248,7 +1248,7 @@ export class NgGridPlaceholder implements OnInit {
 	//	Private methods
 	private _recalculatePosition(): void {
 		var x = (this._ngGrid.colWidth + this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._col - 1) + this._ngGrid.marginLeft;
-		var y = (this._ngGrid.rowHeight + this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._row - 1) + this._ngGrid.marginRight;
+		var y = (this._ngGrid.rowHeight + this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._row - 1) + this._ngGrid.marginTop;
 		this._setPosition(x, y);
 	}
 	
