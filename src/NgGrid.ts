@@ -1196,7 +1196,7 @@ export class NgGridPlaceholder implements OnInit {
 	private _col: number;
 	private _row: number;
 	
-	constructor (private _renderer: Renderer, private _ngEl: ElementRef, private _ngGrid: NgGrid) {}
+	constructor (private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid: NgGrid) {}
 	
 	public onInit(): void {
 		this._renderer.setElementClass(this._ngEl, 'grid-placeholder', true);

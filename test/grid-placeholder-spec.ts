@@ -10,9 +10,9 @@ export function main() {
 			var renderSpy = jasmine.createSpyObj('renderSpy', ['setElementClass', 'setElementStyle']);
 			var ngEl: any = {};
 			var ngGrid: any = {
-				autoStyle: false;
+				autoStyle: false
 			};
-			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(renderSpy, ngEl, ngGrid);
+			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(ngEl, renderSpy, ngGrid);
 			ngGridPlaceholder.onInit();
 			expect(renderSpy.setElementClass).toHaveBeenCalledWith(ngEl, 'grid-placeholder', true);
 			expect(renderSpy.setElementStyle).not.toHaveBeenCalled();
@@ -22,9 +22,9 @@ export function main() {
 			var renderSpy = jasmine.createSpyObj('renderSpy', ['setElementClass', 'setElementStyle']);
 			var ngEl: any = {};
 			var ngGrid: any = {
-				autoStyle: true;
+				autoStyle: true
 			};
-			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(renderSpy, ngEl, ngGrid);
+			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(ngEl, renderSpy, ngGrid);
 			ngGridPlaceholder.onInit();
 			expect(renderSpy.setElementClass).toHaveBeenCalledWith(ngEl, 'grid-placeholder', true);
 			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl,'position', 'absolute');
@@ -56,7 +56,7 @@ export function main() {
 			var renderSpy = jasmine.createSpyObj('renderSpy', ['setElementStyle']);
 			var ngEl: any = {};
 			var ngGrid: any = {};
-			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(renderSpy, ngEl, ngGrid);
+			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(ngEl, renderSpy, ngGrid);
 			var newX = 31;
 			var newY = 27;
 
@@ -103,10 +103,10 @@ export function main() {
 		it("should set the dimensions", () => {
 			var renderSpy = jasmine.createSpyObj('renderSpy', ['setElementStyle']);
 			var ngEl: any = {};
-			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(renderSpy, ngEl, null);
+			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(ngEl, renderSpy, null);
 			var newWidth = 31;
 			var newHeight = 27;
-			(<any>)ngGridPlaceholder._setDimensions(newWidth, newHeight);
+			(<any>ngGridPlaceholder)._setDimensions(newWidth, newHeight);
 			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'width', "31px");
 			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'height', "27px");
 		});
@@ -125,7 +125,7 @@ export function main() {
 			ngGridPlaceholder._col = 7;
 			ngGridPlaceholder._row = 8;
 
-			(<any>)ngGridPlaceholder._recalculatePosition();
+			(<any>ngGridPlaceholder)._recalculatePosition();
 			expect(ngGridPlaceholder._setPosition).toHaveBeenCalledWith(37, 109);
 		});
 
@@ -143,7 +143,7 @@ export function main() {
 			ngGridPlaceholder._sizex = 7;
 			ngGridPlaceholder._sizey = 8;
 
-			(<any>)ngGridPlaceholder._recalculateDimensions();
+			(<any>ngGridPlaceholder)._recalculateDimensions();
 			expect(ngGridPlaceholder._setDimensions).toHaveBeenCalledWith(39, 111);
 		});
 	});
