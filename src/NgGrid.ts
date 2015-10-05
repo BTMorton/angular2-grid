@@ -993,20 +993,20 @@ export class NgGridItem implements OnInit {
 			var parent = e.target.parentElement;
 
 			return parent.querySelector(this._resizeHandle) == e.target ? 'both' : null;
-		} else {
-			var mousePos = this._getMousePosition(e);
-			
-			if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
-				&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
-				return 'both';
-			} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15) {
-				return 'width';
-			} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
-				return 'height';
-			}
-			
-			return null;
 		}
+		
+		var mousePos = this._getMousePosition(e);
+		
+		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
+			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+			return 'both';
+		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15) {
+			return 'width';
+		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+			return 'height';
+		}
+		
+		return null;
 	}
 	
 	public onMouseMove(e: any): void {
