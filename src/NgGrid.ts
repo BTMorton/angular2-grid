@@ -1015,7 +1015,6 @@ export class NgGridItem implements OnInit {
 				this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
 			} else if (this._ngGrid.resizeEnable && !this._resizeHandle) {
 				var mousePos = this._getMousePosition(e);
-				var dims = this.getDimensions();
 
 				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
 					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {

@@ -146,5 +146,128 @@ export function main() {
 			target.parentElement.querySelector.and.returnValue({});
 			expect(ngGridItem.canResize(e)).toBe(null);
 		});
+		
+		it("should update the cursor", () => {
+			var e: any = {};
+			var ngEl: any = {};
+			var renderSpy = jasmine.createSpyObj('renderSpy', ['setElementStyle']);
+			var ngGrid: any = {
+				autoStyle: false,
+				dragEnable: false,
+				resizeEnable: false,
+			};
+			var ngGridItem: NgGridItem = new NgGridItem(ngEl, renderSpy, ngGrid);
+			spyOn(ngGridItem, 'canDrag');
+			spyOn(ngGridItem, 'canResize');
+			spyOn(ngGridItem, '_getMousePosition');
+
+			ngGridItem.onMouseMove(e);
+			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
+			expect(ngGridItem.canResize).not.toHaveBeenCalled();
+			expect(ngGridItem._getMousePosition).not.toHaveBeenCalled();
+			expect(renderSpy.setElementStyle).not.toHaveBeenCalled();
+			ngGridItem.canDrag.calls.reset();
+			ngGridItem.canResize.calls.reset();
+			ngGridItem._getMousePosition.calls.reset();
+			renderSpy.setElementStyle.calls.reset();
+
+			ngGrid.autoStyle = true;
+			ngGridItem.onMouseMove(e);
+			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
+			expect(ngGridItem.canResize).not.toHaveBeenCalled();
+			expect(ngGridItem._getMousePosition).not.toHaveBeenCalled();
+			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'cursor', 'default');
+			ngGridItem.canDrag.calls.reset();
+			ngGridItem.canResize.calls.reset();
+			ngGridItem._getMousePosition.calls.reset();
+			renderSpy.setElementStyle.calls.reset();
+
+			ngGridItem._resizeHandle = true;
+			ngGrid.resizeEnable = true;
+			ngGridItem.canResize.and.returnValue(true);
+			ngGridItem.onMouseMove(e);
+			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
+			expect(ngGridItem.canResize).toHaveBeenCalled();
+			expect(ngGridItem._getMousePosition).not.toHaveBeenCalled();
+			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'cursor', 'nwse-resize');
+			ngGridItem.canDrag.calls.reset();
+			ngGridItem.canResize.calls.reset();
+			ngGridItem._getMousePosition.calls.reset();
+			renderSpy.setElementStyle.calls.reset();
+
+			ngGridItem._resizeHandle = false;
+			ngGridItem._elemWidth = 0;
+			ngGridItem._elemHeight = 0;
+			ngGrid.resizeEnable = true;
+			ngGridItem._getMousePosition.and.returnValue({});
+			ngGridItem.onMouseMove(e);
+			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
+			expect(ngGridItem.canResize).not.toHaveBeenCalled();
+			expect(ngGridItem._getMousePosition).toHaveBeenCalled();
+			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'cursor', 'default');
+			ngGridItem.canDrag.calls.reset();
+			ngGridItem.canResize.calls.reset();
+			ngGridItem._getMousePosition.calls.reset();
+			renderSpy.setElementStyle.calls.reset();
+
+			ngGridItem._resizeHandle = false;
+			ngGridItem._elemWidth = 0;
+			ngGridItem._elemHeight = 10;
+			ngGrid.resizeEnable = true;
+			ngGridItem._getMousePosition.and.returnValue({left: 0, top: 0});
+			ngGridItem.onMouseMove(e);
+			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
+			expect(ngGridItem.canResize).not.toHaveBeenCalled();
+			expect(ngGridItem._getMousePosition).toHaveBeenCalled();
+			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'cursor', 'ns-resize');
+			ngGridItem.canDrag.calls.reset();
+			ngGridItem.canResize.calls.reset();
+			ngGridItem._getMousePosition.calls.reset();
+			renderSpy.setElementStyle.calls.reset();
+
+			ngGridItem._resizeHandle = false;
+			ngGridItem._elemWidth = 10;
+			ngGridItem._elemHeight = 0;
+			ngGrid.resizeEnable = true;
+			ngGridItem._getMousePosition.and.returnValue({left: 0, top: 0});
+			ngGridItem.onMouseMove(e);
+			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
+			expect(ngGridItem.canResize).not.toHaveBeenCalled();
+			expect(ngGridItem._getMousePosition).toHaveBeenCalled();
+			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'cursor', 'ew-resize');
+			ngGridItem.canDrag.calls.reset();
+			ngGridItem.canResize.calls.reset();
+			ngGridItem._getMousePosition.calls.reset();
+			renderSpy.setElementStyle.calls.reset();
+
+			ngGridItem._resizeHandle = false;
+			ngGridItem._elemWidth = 10;
+			ngGridItem._elemHeight = 10;
+			ngGrid.resizeEnable = true;
+			ngGridItem._getMousePosition.and.returnValue({left: 0, top: 0});
+			ngGridItem.onMouseMove(e);
+			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
+			expect(ngGridItem.canResize).not.toHaveBeenCalled();
+			expect(ngGridItem._getMousePosition).toHaveBeenCalled();
+			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'cursor', 'nwse-resize');
+			ngGridItem.canDrag.calls.reset();
+			ngGridItem.canResize.calls.reset();
+			ngGridItem._getMousePosition.calls.reset();
+			renderSpy.setElementStyle.calls.reset();
+
+
+			ngGridItem._resizeHandle = false;
+			ngGrid.dragEnable = true;
+			ngGridItem.canDrag.and.returnValue(true);
+			ngGridItem.onMouseMove(e);
+			expect(ngGridItem.canDrag).toHaveBeenCalled();
+			expect(ngGridItem.canResize).not.toHaveBeenCalled();
+			expect(ngGridItem._getMousePosition).not.toHaveBeenCalled();
+			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'cursor', 'move');
+			ngGridItem.canDrag.calls.reset();
+			ngGridItem.canResize.calls.reset();
+			ngGridItem._getMousePosition.calls.reset();
+			renderSpy.setElementStyle.calls.reset();
+		});
 	});
 }
