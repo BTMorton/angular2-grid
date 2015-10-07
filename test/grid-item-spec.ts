@@ -269,5 +269,117 @@ export function main() {
 			ngGridItem._getMousePosition.calls.reset();
 			renderSpy.setElementStyle.calls.reset();
 		});
+
+		it("should remove the item", () => {
+			var ngGridSpy: any = jasmine.createSpyObj('ngGridSpy', ['removeItem'])
+			var ngGridItem: NgGridItem = new NgGridItem(null, null, ngGridSpy);
+			(<any>ngGridItem)._added = false;
+			ngGridItem.onDestroy();
+			expect(ngGridSpy.removeItem).not.toHaveBeenCalled();
+
+			(<any>ngGridItem)._added = true;
+			ngGridItem.onDestroy();
+			expect(ngGridSpy.removeItem).toHaveBeenCalledWith(ngGridItem);
+		});
+
+		it("should get element", () => {
+			var ngGridItem: NgGridItem = new NgGridItem(null, null, null);
+			var ngEl: any = {};
+			ngGridItem._ngEl = ngEl;
+			expect(ngGridItem.getElement()).toBe(ngEl);
+			ngGridItem._ngEl = null;
+			expect(ngGridItem.getElement()).toBe(null);
+		});
+
+		it("should get the drag handle", () => {
+			var ngGridItem: NgGridItem = new NgGridItem(null, null, null);
+			var dragHandle: string = "dragHandle";
+			ngGridItem._dragHandle = dragHandle;
+			expect(ngGridItem.getDragHandle()).toBe(dragHandle);
+			ngGridItem._dragHandle = null;
+			expect(ngGridItem.getDragHandle()).toBe(null);
+		});
+
+		it("should get the resize handle", () => {
+			var ngGridItem: NgGridItem = new NgGridItem(null, null, null);
+			var resizeHandle: string = "resizeHandle";
+			ngGridItem._resizeHandle = resizeHandle;
+			expect(ngGridItem.getResizeHandle()).toBe(resizeHandle);
+			ngGridItem._resizeHandle = null;
+			expect(ngGridItem.getResizeHandle()).toBe(null);
+		});
+
+		it("should get the dimensions", () => {
+			var ngGridItem: NgGridItem = new NgGridItem(null, null, null);
+			ngGridItem._elemWidth = 100;
+			ngGridItem._elemHeight = 200;
+			expect(ngGridItem.getDimensions().width).toBe(100);
+			expect(ngGridItem.getDimensions().height).toBe(200);
+			ngGridItem._elemWidth = null;
+			ngGridItem._elemHeight = null;
+			expect(ngGridItem.getDimensions().width).toBe(null);
+			expect(ngGridItem.getDimensions().height).toBe(null);
+		});
+
+		it("should get the size", () => {
+			var ngGridItem: NgGridItem = new NgGridItem(null, null, null);
+			ngGridItem._sizex = 100;
+			ngGridItem._sizey = 200;
+			expect(ngGridItem.getSize().x).toBe(100);
+			expect(ngGridItem.getSize().y).toBe(200);
+			ngGridItem._sizex = null;
+			ngGridItem._sizey = null;
+			expect(ngGridItem.getSize().x).toBe(null);
+			expect(ngGridItem.getSize().y).toBe(null);
+		});
+
+		it("should get the position", () => {
+			var ngGridItem: NgGridItem = new NgGridItem(null, null, null);
+			ngGridItem._elemLeft = 100;
+			ngGridItem._elemTop = 200;
+			expect(ngGridItem.getPosition().left).toBe(100);
+			expect(ngGridItem.getPosition().top).toBe(200);
+			ngGridItem._elemLeft = null;
+			ngGridItem._elemTop = null;
+			expect(ngGridItem.getPosition().left).toBe(null);
+			expect(ngGridItem.getPosition().top).toBe(null);
+		});
+
+		it("should get the grid position", () => {
+			var ngGridItem: NgGridItem = new NgGridItem(null, null, null);
+			ngGridItem._col = 100;
+			ngGridItem._row = 200;
+			expect(ngGridItem.getGridPosition().col).toBe(100);
+			expect(ngGridItem.getGridPosition().row).toBe(200);
+			ngGridItem._col = null;
+			ngGridItem._row = null;
+			expect(ngGridItem.getGridPosition().col).toBe(null);
+			expect(ngGridItem.getGridPosition().row).toBe(null);
+		});
+
+		it("should set the config", () => {
+			var ngGridItem: NgGridItem = new NgGridItem(null, null, null);
+			spyOn(ngGridItem, '_recalculatePosition');
+			spyOn(ngGridItem, '_recalculateDimensions');
+			var config: any = {
+				col: 1,
+				row: 2,
+				sizex: 3,
+				sizey: 4,
+				dragHandle: '5',
+				resizeHandle: '6'
+			};
+			ngGridItem.setConfig(config);
+			expect((<any>ngGridItem)._col).toBe(1);
+			expect((<any>ngGridItem)._row).toBe(2);
+			expect((<any>ngGridItem)._sizex).toBe(3);
+			expect((<any>ngGridItem)._sizey).toBe(4);
+			expect((<any>ngGridItem)._dragHandle).toBe('5');
+			expect((<any>ngGridItem)._resizeHandle).toBe('6');
+			expect((<any>ngGridItem)._recalculatePosition).toHaveBeenCalled();
+			expect((<any>ngGridItem)._recalculateDimensions).toHaveBeenCalled();
+		});
+
+
 	});
 }
