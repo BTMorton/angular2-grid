@@ -16,14 +16,17 @@
     "grid"
   ],
   "author": "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
-  "contributors": ["Martin Sikora (https://github.com/martinsik)"]
+  "contributors": [
+    "Martin Sikora (https://github.com/martinsik)",
+    "Daniel Pastor de la Fuenta (https://github.com/aesubius)"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/BTMorton/angular2-grid/issues"
   },
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "peerDependencies": {
-    "angular2": "2.0.0-alpha.37",
+    "angular2": "2.0.0-alpha.40",
     "systemjs": "^0.18.17"
   },
   "files": [
@@ -46,5 +49,8 @@
     "merge2": "^0.3.6",
     "phantomjs": "^1.9.18",
     "typescript": "^1.5.3"
+  },
+  "dependencies": {
+    "traceur": "0.0.91"
   }
 }

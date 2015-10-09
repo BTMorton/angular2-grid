@@ -28,7 +28,7 @@ var PATHS = {
 		'node_modules/angular2/bundles/angular2.min.js',
 		'node_modules/systemjs/dist/system.js',
 		'node_modules/systemjs/dist/system-polyfills.js',
-		'node_modules/angular2/node_modules/traceur/bin/traceur-runtime.js'
+		'node_modules/traceur/bin/traceur-runtime.js'
 	],
 	typings: ['node_modules/angular2/bundles/typings/angular2/angular2.d.ts'],
 	testTypings: [
