@@ -993,20 +993,20 @@ export class NgGridItem implements OnInit {
 			var parent = e.target.parentElement;
 
 			return parent.querySelector(this._resizeHandle) == e.target ? 'both' : null;
-		} else {
-			var mousePos = this._getMousePosition(e);
-			
-			if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
-				&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
-				return 'both';
-			} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15) {
-				return 'width';
-			} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
-				return 'height';
-			}
-			
-			return null;
 		}
+		
+		var mousePos = this._getMousePosition(e);
+		
+		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
+			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+			return 'both';
+		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15) {
+			return 'width';
+		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+			return 'height';
+		}
+		
+		return null;
 	}
 	
 	public onMouseMove(e: any): void {
@@ -1015,7 +1015,6 @@ export class NgGridItem implements OnInit {
 				this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
 			} else if (this._ngGrid.resizeEnable && !this._resizeHandle) {
 				var mousePos = this._getMousePosition(e);
-				var dims = this.getDimensions();
 
 				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
 					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
@@ -1196,7 +1195,7 @@ export class NgGridPlaceholder implements OnInit {
 	private _col: number;
 	private _row: number;
 	
-	constructor (private _renderer: Renderer, private _ngEl: ElementRef, private _ngGrid: NgGrid) {}
+	constructor (private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid: NgGrid) {}
 	
 	public onInit(): void {
 		this._renderer.setElementClass(this._ngEl, 'grid-placeholder', true);
@@ -1248,7 +1247,7 @@ export class NgGridPlaceholder implements OnInit {
 	//	Private methods
 	private _recalculatePosition(): void {
 		var x = (this._ngGrid.colWidth + this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._col - 1) + this._ngGrid.marginLeft;
-		var y = (this._ngGrid.rowHeight + this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._row - 1) + this._ngGrid.marginRight;
+		var y = (this._ngGrid.rowHeight + this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._row - 1) + this._ngGrid.marginTop;
 		this._setPosition(x, y);
 	}
 	

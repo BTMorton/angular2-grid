@@ -166,14 +166,14 @@ export declare class NgGridItem implements OnInit {
     private _getMousePosition(e);
 }
 export declare class NgGridPlaceholder implements OnInit {
-    private _renderer;
     private _ngEl;
+    private _renderer;
     private _ngGrid;
     private _sizex;
     private _sizey;
     private _col;
     private _row;
-    constructor(_renderer: Renderer, _ngEl: ElementRef, _ngGrid: NgGrid);
+    constructor(_ngEl: ElementRef, _renderer: Renderer, _ngGrid: NgGrid);
     onInit(): void;
     setSize(x: number, y: number): void;
     setGridPosition(col: number, row: number): void;
