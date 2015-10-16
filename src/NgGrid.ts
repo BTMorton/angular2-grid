@@ -2,7 +2,7 @@ import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicC
 
 @Directive({
 	selector: '[ng-grid]',
-	properties: ['config: ng-grid'],
+	inputs: ['config: ng-grid'],
 	host: {
 		'(mousedown)': '_onMouseDown($event)',
 		'(mousemove)': '_onMouseMove($event)',
@@ -14,7 +14,7 @@ import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicC
 		'(document:mousemove)': '_onMouseMove($event)',
 		'(document:mouseup)': '_onMouseUp($event)'
 	},
-	events: ['dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
+	outputs: ['dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
 })
 export class NgGrid implements OnInit, DoCheck {
 	//	Event Emitters
@@ -46,7 +46,7 @@ export class NgGrid implements OnInit, DoCheck {
 	private _draggingItem: NgGridItem = null;
 	private _resizingItem: NgGridItem = null;
 	private _resizeDirection: string = null;
-	private _itemGrid: Map<number, Map<number, NgGridItem>> = {1: {1: null}};
+	private _itemGrid: { [key: number]: { [key: number]: NgGridItem } } = {1: {1: null}};
 	private _containerWidth: number;
 	private _containerHeight: number;
 	private _maxCols:number = 0;
@@ -896,7 +896,7 @@ export class NgGrid implements OnInit, DoCheck {
 	private _createPlaceholder(pos: {col: number, row:number}, dims: {x: number, y: number}) {
 		var me = this;
 		
-		this._loader.loadNextToLocation((<Type>NgGridPlaceholder), (<any>this._ngEl.parentView)._view.elementRefs[this._ngEl.boundElementIndex + 1]).then(componentRef => {
+		this._loader.loadNextToLocation((<Type>NgGridPlaceholder), (<any>this._ngEl).parentView._view.elementRefs[(<any>this._ngEl).boundElementIndex + 1]).then(componentRef => {
 			me._placeholderRef = componentRef;
 			var placeholder = componentRef.instance;
 			// me._placeholder.setGrid(me);
@@ -908,8 +908,8 @@ export class NgGrid implements OnInit, DoCheck {
 
 @Directive({
 	selector: '[ng-grid-item]',
-	properties: [ 'config: ng-grid-item', 'gridPosition: ng-grid-position', 'gridSize: ng-grid-size' ],
-	events: ['itemChange', 'dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
+	inputs: [ 'config: ng-grid-item', 'gridPosition: ng-grid-position', 'gridSize: ng-grid-size' ],
+	outputs: ['itemChange', 'dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
 })
 export class NgGridItem implements OnInit {
 	//	Event Emitters

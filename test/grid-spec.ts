@@ -41,5 +41,52 @@ export function main() {
 			
 			expect(ngGrid.dragEnable).toBe(false);
 		});
+		
+		it("should set resizeEnable to the relevant value on enable/disable resize", () => {
+			var ngGrid = new NgGrid(null, null, null, null);
+			
+			ngGrid.resizeEnable = false;
+			ngGrid.enableResize();
+			
+			expect(ngGrid.resizeEnable).toBe(true);
+			
+			ngGrid.disableResize();
+			
+			expect(ngGrid.resizeEnable).toBe(false);
+		});
+		
+		it("should set the margins when calling setMargins", () => {
+			var ngGrid = new NgGrid(null, null, null, null);
+			
+			ngGrid.setMargins([5]);
+			
+			expect(ngGrid.marginTop).toBe(5);
+			expect(ngGrid.marginRight).toBe(5);
+			expect(ngGrid.marginBottom).toBe(5);
+			expect(ngGrid.marginLeft).toBe(5);
+			
+			ngGrid.setMargins([5, 10]);
+			
+			expect(ngGrid.marginTop).toBe(5);
+			expect(ngGrid.marginRight).toBe(10);
+			expect(ngGrid.marginBottom).toBe(5);
+			expect(ngGrid.marginLeft).toBe(10);
+			
+			ngGrid.setMargins([5, 10, 7]);
+			
+			expect(ngGrid.marginTop).toBe(5);
+			expect(ngGrid.marginRight).toBe(10);
+			expect(ngGrid.marginBottom).toBe(7);
+			expect(ngGrid.marginLeft).toBe(10);
+			
+			ngGrid.setMargins([5, 10, 7, 12]);
+			
+			expect(ngGrid.marginTop).toBe(5);
+			expect(ngGrid.marginRight).toBe(10);
+			expect(ngGrid.marginBottom).toBe(7);
+			expect(ngGrid.marginLeft).toBe(12);
+		});
+		
+		
 	});
 }

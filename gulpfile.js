@@ -30,6 +30,7 @@ var PATHS = {
 		'node_modules/systemjs/dist/system-polyfills.js',
 		'node_modules/traceur/bin/traceur-runtime.js'
 	],
+	rx: 'node_modules/\@reactivex/rxjs/dist/**/*.js',
 	typings: ['node_modules/angular2/bundles/typings/angular2/angular2.d.ts'],
 	testTypings: [
 		'node_modules/angular2/bundles/typings/angular2/angular2.d.ts',
@@ -90,7 +91,11 @@ gulp.task('css', function () {
 	return gulp.src(PATHS.src.css).pipe(gulp.dest('dist'));
 });
 
-gulp.task('libs', function () {
+gulp.task('rx', function () {
+	return gulp.src(PATHS.rx, {base: 'node_modules/\@reactivex/'}).pipe(gulp.dest('dist/\@reactivex'));
+});
+
+gulp.task('libs', ['rx'], function () {
 	return gulp.src(PATHS.libs).pipe(gulp.dest('dist/lib'));
 });
 

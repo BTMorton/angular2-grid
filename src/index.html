@@ -13,9 +13,11 @@
 		<script>
 		(function() {
 			System.config({
-				paths: {
-					'app': 'app.js',
-					'NgGrid': 'NgGrid.js'
+				defaultJSExtensions: true,
+				packages: {
+					'angular2': {
+						defaultExtension: false
+					}
 				}
 			});
 			System.import('app');

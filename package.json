@@ -26,8 +26,10 @@
   },
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "peerDependencies": {
-    "angular2": "2.0.0-alpha.40",
-    "systemjs": "^0.18.17"
+    "angular2": "2.0.0-alpha.44",
+    "systemjs": "^0.19.4"
+    "@reactivex/rxjs": "^5.0.0-alpha.5",
+    "traceur": "0.0.91"
   },
   "files": [
     "src/NgGrid.ts",
@@ -38,7 +40,7 @@
     "del": "^1.2.1",
     "gulp": "^3.9.0",
     "gulp-sourcemaps": "^1.5.2",
-    "gulp-typescript": "^2.8.1",
+    "gulp-typescript": "^2.9.2",
     "gulp-uglify": "^1.4.1",
     "jasmine": "^2.3.2",
     "jasmine-core": "^2.3.4",
@@ -48,9 +50,8 @@
     "karma-phantomjs-launcher": "^0.2.1",
     "merge2": "^0.3.6",
     "phantomjs": "^1.9.18",
-    "typescript": "^1.5.3"
+    "typescript": "^1.6.2"
   },
   "dependencies": {
-    "traceur": "0.0.91"
   }
 }
