@@ -19,7 +19,8 @@
   "author": "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
   "contributors": [
     "Martin Sikora (https://github.com/martinsik)",
-    "Daniel (Dani Pasta) Pastor de la Fuenta (https://github.com/aesubius)"
+    { "name": "Daniel (Dani Pasta) Pastor de la Fuenta", "url": "https://github.com/aebsubis" },
+    "Frederik Schubert (https://github.com/frederikschubert)"
   ],
   "license": "MIT",
   "bugs": {

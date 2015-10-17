@@ -4,7 +4,9 @@
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "authors": [
     "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
-    "Martin Sikora (https://github.com/martinsik)"
+    "Martin Sikora (https://github.com/martinsik)",
+    "Daniel Pastor de la Fuenta (https://github.com/aebsubis)",
+    "Frederik Schubert (https://github.com/frederikschubert)"
   ],
   "description": "Grid-based drag/drop/resize directive plugin for Angular 2",
   "main": "NgGrid.ts",
@@ -18,7 +20,8 @@
     "grid",
     "drag",
     "drop",
-    "resize"
+    "resize",
+    "web-components"
   ],
   "license": "MIT",
   "ignore": [
