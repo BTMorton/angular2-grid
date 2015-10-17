@@ -28,7 +28,7 @@
   "peerDependencies": {
     "angular2": "2.0.0-alpha.44",
     "systemjs": "^0.19.4"
-    "@reactivex/rxjs": "^5.0.0-alpha.5",
+    "\@reactivex/rxjs": "^5.0.0-alpha.5",
     "traceur": "0.0.91"
   },
   "files": [

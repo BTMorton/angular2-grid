@@ -2,7 +2,9 @@ var del = require('del');
 var gulp = require('gulp');
 var typescript = require('gulp-typescript');
 var uglify = require('gulp-uglify');
+var symlink = require('gulp-symlink');
 var sourcemaps = require('gulp-sourcemaps');
+var runSequence = require('run-sequence');
 var merge = require('merge2');
 var KarmaServer = require('karma').Server;
 
@@ -11,7 +13,8 @@ var tsProject = typescript.createProject({
 	module: 'commonjs',
 	target: 'ES5',
 	emitDecoratorMetadata: true,
-	experimentalDecorators: true
+	experimentalDecorators: true,
+	noExternalResolve: true
 });
 
 var PATHS = {
@@ -31,15 +34,20 @@ var PATHS = {
 		'node_modules/traceur/bin/traceur-runtime.js'
 	],
 	rx: 'node_modules/\@reactivex/rxjs/dist/**/*.js',
-	typings: ['node_modules/angular2/bundles/typings/angular2/angular2.d.ts'],
+	typings: [
+		'node_modules/angular2/bundles/typings/angular2/angular2.d.ts',
+		'node_modules/angular2/typings/**/*.d.ts'
+	],
 	testTypings: [
 		'node_modules/angular2/bundles/typings/angular2/angular2.d.ts',
-		'typings/jasmine/jasmine.d.ts'
+		'node_modules/angular2/typings/**/*.d.ts',
+		'dist/*.d.ts'
+		// 'typings/jasmine/jasmine.d.ts'
 	],
 };
 
 gulp.task('clean', function (done) {
-	del(['dist'], done);
+	return del(['dist'], done);
 });
 
 gulp.task('ts', function () {
@@ -49,12 +57,12 @@ gulp.task('ts', function () {
 
 	return merge([
 		tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('dist')),//.pipe(uglify())
-		tsResult.dts.pipe(gulp.dest('src'))
+		tsResult.dts.pipe(gulp.dest('src')).pipe(gulp.dest('dist'))
 	]);
 });
 
 gulp.task('test-clean-build', function(done) {
-	del(['test/*.js'], done)
+	return del(['test/*.js'], done)
 });
 
 gulp.task('test-build', ['test-clean-build'], function () {
@@ -65,10 +73,15 @@ gulp.task('test-build', ['test-clean-build'], function () {
 	return tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('test'));
 });
 
-gulp.task('test', ['test-build'], function() {
-	gulp.start('test-run');
+gulp.task('test', ['test-build'], function(done) {
+	runSequence('test-link', 'test-run', ['test-link-clean', 'test-clean-build'], done);
 });
-
+gulp.task('test-link-clean', function(done) {
+	return del(['\@reactivex'], done);
+});
+gulp.task('test-link', ['test-link-clean'], function() {
+	return gulp.src('node_modules/\@reactivex/').pipe(symlink('\@reactivex'));
+});
 gulp.task('test-run', function(done) {
 	new KarmaServer({
 		configFile: __dirname + '/karma.conf.js',
@@ -100,11 +113,11 @@ gulp.task('libs', ['rx'], function () {
 });
 
 gulp.task('build', function() {
-	gulp.start('libs', 'html', 'css', 'ts');
+	return gulp.start('libs', 'html', 'css', 'ts');
 });
 
 gulp.task('rebuild', ['clean'], function() {
-	gulp.start('build');
+	return gulp.start('build');
 });
 
 gulp.task('watch', ['build'], function () {
@@ -114,5 +127,5 @@ gulp.task('watch', ['build'], function () {
 });
 
 gulp.task('default', function() {
-	gulp.start('build');
+	return gulp.start('rebuild');
 });

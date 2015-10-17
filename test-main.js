@@ -16,10 +16,7 @@ System.config({
 	transpiler: 'babel',
 	defaultJSExtensions: true,
 	paths: {
-	    'test/*': 'test/*',
-	    'src/*': 'dist/*',
 	    'angular2/*': 'node_modules/angular2/*',
-	    'rx': 'node_modules/angular2/node_modules/rx/dist/rx.min.js'
 	}
 })
 
