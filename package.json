@@ -27,8 +27,8 @@
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "peerDependencies": {
     "angular2": "2.0.0-alpha.44",
-    "systemjs": "^0.19.4"
-    "\@reactivex/rxjs": "^5.0.0-alpha.5",
+    "systemjs": "^0.19.4",
+    "@reactivex/rxjs": "^5.0.0-alpha.5",
     "traceur": "0.0.91"
   },
   "files": [
