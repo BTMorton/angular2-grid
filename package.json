@@ -1,6 +1,6 @@
 {
   "name": "angular2-grid",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
   "main": "NgGrid.js",
   "scripts": {
@@ -19,7 +19,10 @@
   "author": "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
   "contributors": [
     "Martin Sikora (https://github.com/martinsik)",
-    { "name": "Daniel (Dani Pasta) Pastor de la Fuenta", "url": "https://github.com/aebsubis" },
+    {
+      "name": "Daniel (Dani Pasta) Pastor de la Fuenta",
+      "url": "https://github.com/aebsubis"
+    },
     "Frederik Schubert (https://github.com/frederikschubert)"
   ],
   "license": "MIT",
