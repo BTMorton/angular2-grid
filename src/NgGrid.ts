@@ -753,10 +753,6 @@ export class NgGrid implements OnInit, DoCheck {
 				pos.row++;
 				
 				this._updateSize(null, pos.row + dims.y - 1);
-				
-				if (this._maxRows > 0 && (pos.row + dims.y - 1) > this._maxRows) {
-					throw new Error("Unable to calculate grid position");
-				}
 			}
 		}
 		
@@ -775,13 +771,9 @@ export class NgGrid implements OnInit, DoCheck {
 		for (var j = 0; j < dims.y; j++) {
 			if (this._itemGrid[pos.row + j] == null) this._itemGrid[pos.row + j] = {};
 			for (var i = 0; i < dims.x; i++) {
-				if (this._itemGrid[pos.row + j][pos.col + i] == null) {
-					this._itemGrid[pos.row + j][pos.col + i] = item;
-					
-					this._updateSize(pos.col + dims.x - 1, pos.row + dims.y - 1);
-				} else {
-					throw new Error("Cannot add item to grid. Space already taken.");
-				}
+				this._itemGrid[pos.row + j][pos.col + i] = item;
+				
+				this._updateSize(pos.col + dims.x - 1, pos.row + dims.y - 1);
 			}
 		}
 	}

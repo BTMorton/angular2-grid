@@ -85,6 +85,70 @@ export function main() {
 			expect(ngGrid.marginLeft).toBe(12);
 		});
 		
+		it("should fix collisions with other items", ()=> {
+			var renderSpy = jasmine.createSpyObj("Renderer", ["setElementStyle", "setElementClass"]);
+			var ngGrid = new NgGrid(null, null, renderSpy, null);
+			var item1 = new NgGridItem(null, renderSpy, ngGrid);
+			var item2 = new NgGridItem(null, renderSpy, ngGrid);
+			var item3 = new NgGridItem(null, renderSpy, ngGrid);
+			var item4 = new NgGridItem(null, renderSpy, ngGrid);
+			
+			item1.config = {col: 1, row: 1, sizex: 1, sizey: 1};
+			item2.config = {col: 2, row: 1, sizex: 1, sizey: 3};
+			item3.config = {col: 2, row: 2, sizex: 1, sizey: 1};
+			item4.config = {col: 1, row: 3, sizex: 1, sizey: 1};
+			
+			expect((<any>item1)._col).toBe(1);
+			expect((<any>item1)._row).toBe(1);
+			expect((<any>item2)._col).toBe(2);
+			expect((<any>item2)._row).toBe(1);
+			expect((<any>item3)._col).toBe(3);
+			expect((<any>item3)._row).toBe(2);
+			expect((<any>item4)._col).toBe(1);
+			expect((<any>item4)._row).toBe(3);
+		});
 		
+		it("should fix cascade items up", ()=> {
+			var renderSpy = jasmine.createSpyObj("Renderer", ["setElementStyle", "setElementClass"]);
+			var ngGrid = new NgGrid(null, null, renderSpy, null);
+			var item1 = new NgGridItem(null, renderSpy, ngGrid);
+			var item2 = new NgGridItem(null, renderSpy, ngGrid);
+			var item3 = new NgGridItem(null, renderSpy, ngGrid);
+			var item4 = new NgGridItem(null, renderSpy, ngGrid);
+			
+			item1.config = {col: 1, row: 1, sizex: 4, sizey: 1};
+			item2.config = {col: 2, row: 3, sizex: 1, sizey: 3};
+			item3.config = {col: 2, row: 7, sizex: 2, sizey: 1};
+			item4.config = {col: 1, row: 3, sizex: 1, sizey: 1};
+			
+			(<any>ngGrid)._cascadeGrid();
+			
+			expect((<any>item1)._col).toBe(1);
+			expect((<any>item1)._row).toBe(1);
+			expect((<any>item2)._col).toBe(2);
+			expect((<any>item2)._row).toBe(2);
+			expect((<any>item3)._col).toBe(2);
+			expect((<any>item3)._row).toBe(5);
+			expect((<any>item4)._col).toBe(1);
+			expect((<any>item4)._row).toBe(2);
+			
+			try {
+				(<any>ngGrid)._cascadeGrid({});
+				expect(false).toBe(true);
+			} catch(err) {
+				
+			}
+			
+			(<any>ngGrid)._cascadeGrid({col: 4, row: 1}, {x: 1, y: 1});
+			
+			expect((<any>item1)._col).toBe(1);
+			expect((<any>item1)._row).toBe(2);
+			expect((<any>item2)._col).toBe(2);
+			expect((<any>item2)._row).toBe(3);
+			expect((<any>item3)._col).toBe(2);
+			expect((<any>item3)._row).toBe(6);
+			expect((<any>item4)._col).toBe(1);
+			expect((<any>item4)._row).toBe(3);
+		});
 	});
 }
