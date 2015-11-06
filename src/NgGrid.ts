@@ -433,14 +433,12 @@ export class NgGrid implements OnInit, DoCheck {
 			
 			if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
 				this._draggingItem.setGridPosition(gridPos.col, gridPos.row);
+				this._placeholderRef.instance.setGridPosition(gridPos.col, gridPos.row);
 				
 				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
 					this._fixGridCollisions(gridPos, dims);
 					this._cascadeGrid(gridPos, dims);
 				}
-				
-				this._updateSize(gridPos.col + dims.x - 1, gridPos.row + dims.y - 1);
-				this._placeholderRef.instance.setGridPosition(gridPos.col, gridPos.row);
 			}
 			if (!this._fixToGrid) {
 				this._draggingItem.setPosition(newL, newT);
@@ -476,21 +474,22 @@ export class NgGrid implements OnInit, DoCheck {
 			
 			if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
 				this._resizingItem.setSize(calcSize.x, calcSize.y);
-				
-				this._fixGridCollisions(iGridPos, calcSize);
-				this._cascadeGrid(iGridPos, calcSize);
 				this._placeholderRef.instance.setSize(calcSize.x, calcSize.y);
-			}
-			if (!this._fixToGrid) {
-				this._resizingItem.setDimensions(newW, newH);
+				
+				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
+					this._fixGridCollisions(iGridPos, calcSize);
+					this._cascadeGrid(iGridPos, calcSize);
+				}
 			}
 			
-            var bigGrid = this._maxGridSize(itemPos.left + newW + (2*e.movementX), itemPos.top + newH + (2*e.movementY));
-            
-            if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
-            if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
-            
-            this._updateSize(bigGrid.x, bigGrid.y);
+			if (!this._fixToGrid)
+				this._resizingItem.setDimensions(newW, newH);
+			
+			var bigGrid = this._maxGridSize(itemPos.left + newW + (2*e.movementX), itemPos.top + newH + (2*e.movementY));
+			
+			if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
+			if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
+			
 			this.resize.next(this._resizingItem);
 			this._resizingItem.resize.next(this._resizingItem.getDimensions());
 		}
