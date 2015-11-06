@@ -434,8 +434,10 @@ export class NgGrid implements OnInit, DoCheck {
 			if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
 				this._draggingItem.setGridPosition(gridPos.col, gridPos.row);
 				
-				this._fixGridCollisions(gridPos, dims);
-				this._cascadeGrid(gridPos, dims);
+				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
+					this._fixGridCollisions(gridPos, dims);
+					this._cascadeGrid(gridPos, dims);
+				}
 				
 				this._updateSize(gridPos.col + dims.x - 1, gridPos.row + dims.y - 1);
 				this._placeholderRef.instance.setGridPosition(gridPos.col, gridPos.row);
@@ -611,6 +613,7 @@ export class NgGrid implements OnInit, DoCheck {
 			switch (this.cascade) {
 				case "up":
 				case "down":
+				default:
 					if (this._maxRows > 0 && itemPos.row + (itemDims.y - 1) >= this._maxRows) {
 						itemPos.col++;
 					} else {
@@ -738,6 +741,8 @@ export class NgGrid implements OnInit, DoCheck {
 						}
 					}
 				}
+				break;
+			default:
 				break;
 		}
 	}
