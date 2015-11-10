@@ -19,7 +19,7 @@ class MyAppComponent {
 	private gridConfig = {
 		'margins': [5],
 		'draggable': true,
-		'resizeable': true,
+		'resizable': true,
 		'max_cols': 6,
 		'max_rows': 0,
 		'min_cols': 1,

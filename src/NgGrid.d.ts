@@ -115,6 +115,9 @@ export declare class NgGridItem implements OnInit {
         'x': number;
         'y': number;
     };
+    isFixed: boolean;
+    isDraggable: boolean;
+    isResizable: boolean;
     private _col;
     private _row;
     private _sizex;
