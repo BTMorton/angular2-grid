@@ -22,7 +22,7 @@
 					<label>
 						Resizable
 					</label>
-					<input type="checkbox" name="resizeable" ng-control="resizeable" [(ng-model)]="gridConfig.resizeable" />
+					<input type="checkbox" name="resizable" ng-control="resizable" [(ng-model)]="gridConfig.resizable" />
 				</div>
 				<div class="form-group">
 					<label>
@@ -116,6 +116,7 @@
 				Col: {{ curItem.col }}, Row: {{ curItem.row }}, Size X: {{ curItem.sizex }}, Size Y: {{ curItem.sizey }}
 				<a (click)="removeBox()" class="btn btn-primary">Remove Box</a>
 			</div>
+			</div>
 		</form>
 		<a (click)="addBox()" class="btn btn-primary pull-right">Add Box</a>
 	</div>
@@ -124,5 +125,21 @@
 	<div *ng-for="#box of boxes; #i = index" [ng-grid-item]="{'dragHandle': '.handle'}" (item-change)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		{{box}}
+	</div>
+	<div [ng-grid-item]="{'dragHandle': '.handle', 'fixed': true, 'col': 2, 'row': 3}" (item-change)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed - moveable, resizable
+	</div>
+	<div [ng-grid-item]="{'dragHandle': '.handle', 'fixed': true, 'draggable': false, 'col': 1, 'row': 5}" (item-change)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed - not moveable, resizable
+	</div>
+	<div [ng-grid-item]="{'dragHandle': '.handle', 'fixed': true, 'resizable': false, 'col': 5, 'row': 2}" (item-change)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed - moveable, not resizable
+	</div>
+	<div [ng-grid-item]="{'dragHandle': '.handle', 'fixed': true, 'resizable': false, 'draggable': false, 'col': 3, 'row': 4}" (item-change)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed - not moveable, not resizable
 	</div>
 </div>

@@ -71,7 +71,7 @@ export class NgGrid implements OnInit, DoCheck {
 	private static CONST_DEFAULT_CONFIG = {
 		'margins': [10],
 		'draggable': true,
-		'resizeable': true,
+		'resizable': true,
 		'max_cols': 0,
 		'max_rows': 0,
 		'col_width': 250,
@@ -130,7 +130,7 @@ export class NgGrid implements OnInit, DoCheck {
 				case 'draggable':
 					this.dragEnable = val ? true : false;
 					break;
-				case 'resizeable':
+				case 'resizable':
 					this.resizeEnable = val ? true : false;
 					break;
 				case 'max_rows':
@@ -664,6 +664,8 @@ export class NgGrid implements OnInit, DoCheck {
 						
 						if (this._itemGrid[r][c] != null) {
 							var item = this._itemGrid[r][c];
+							if (item.isFixed) continue;
+							
 							var itemDims = item.getSize();
 							var itemPos = item.getGridPosition();
 							
@@ -957,17 +959,23 @@ export class NgGridItem implements OnInit {
 	public resizeStop: EventEmitter = new EventEmitter();
 	
 	//	Default config
-	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string } = {
+	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'fixed': boolean, 'draggable': boolean, 'resizable': boolean } = {
 		'col': 1,
 		'row': 1,
 		'sizex': 1,
 		'sizey': 1,
 		'dragHandle': null,
-		'resizeHandle': null
+		'resizeHandle': null,
+		'fixed': false,
+		'draggable': true,
+		'resizable': true
 	}
 	
 	public gridPosition = {'col': 1, 'row': 1}
 	public gridSize = {'x': 1, 'y': 1}
+	public isFixed: boolean = false;
+	public isDraggable: boolean = true;
+	public isResizable: boolean = true;
 	
 	//	Private variables
 	private _col: number = 1;
@@ -1014,6 +1022,8 @@ export class NgGridItem implements OnInit {
 	
 	//	Public methods
 	public canDrag(e: any): boolean {
+		if (!this.isDraggable) return false;
+		
 		if (this._dragHandle) {
 			var parent = e.target.parentElement;
 			
@@ -1024,6 +1034,8 @@ export class NgGridItem implements OnInit {
 	}
 	
 	public canResize(e: any): string {
+		if (!this.isResizable) return null;
+		
 		if (this._resizeHandle) {
 			var parent = e.target.parentElement;
 
@@ -1049,7 +1061,7 @@ export class NgGridItem implements OnInit {
 			if (this._ngGrid.dragEnable && this.canDrag(e)) {
 				this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
 			} 
-			if (this._ngGrid.resizeEnable && !this._resizeHandle) {
+			if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
 				var mousePos = this._getMousePosition(e);
 
 				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 5
@@ -1113,6 +1125,9 @@ export class NgGridItem implements OnInit {
 		this._sizey = config.sizey;
 		this._dragHandle = config.dragHandle;
 		this._resizeHandle = config.resizeHandle;
+		this.isDraggable = config.draggable ? true : false;
+		this.isResizable = config.resizable ? true : false;
+		this.isFixed = config.fixed ? true : false;
 		
 		this._recalculatePosition();
 		this._recalculateDimensions();
