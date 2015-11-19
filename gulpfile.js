@@ -35,12 +35,18 @@ var PATHS = {
 	],
 	rx: 'node_modules/\@reactivex/rxjs/dist/**/*.js',
 	typings: [
-		'node_modules/angular2/bundles/typings/angular2/angular2.d.ts',
-		'node_modules/angular2/typings/**/*.d.ts'
+		'node_modules/angular2/*.d.ts',
+		'node_modules/angular2/src/**/*.d.ts',
+		'node_modules/angular2/manual_typings/*.d.ts',
+		'node_modules/angular2/typings/**/*.d.ts',
+		'node_modules/\@reactivex/rxjs/dist/cjs/**/*.d.ts'
 	],
 	testTypings: [
-		'node_modules/angular2/bundles/typings/angular2/angular2.d.ts',
+		'node_modules/angular2/*.d.ts',
+		'node_modules/angular2/src/**/*.d.ts',
+		'node_modules/angular2/manual_typings/*.d.ts',
 		'node_modules/angular2/typings/**/*.d.ts',
+		'node_modules/\@reactivex/rxjs/dist/cjs/**/*.d.ts',
 		'dist/*.d.ts'
 		// 'typings/jasmine/jasmine.d.ts'
 	],

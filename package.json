@@ -55,6 +55,7 @@
     "karma-phantomjs-launcher": "^0.2.1",
     "merge2": "^0.3.6",
     "phantomjs": "^1.9.18",
+    "reflect-metadata": "^0.1.2",
     "typescript": "^1.6.2"
   },
   "dependencies": {}
