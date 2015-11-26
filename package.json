@@ -1,6 +1,6 @@
 {
   "name": "angular2-grid",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
   "main": "NgGrid.js",
   "scripts": {
@@ -31,9 +31,9 @@
   },
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "peerDependencies": {
-    "angular2": "2.0.0-alpha.44",
+    "angular2": "2.0.0-alpha.46",
     "systemjs": "^0.19.4",
-    "@reactivex/rxjs": "^5.0.0-alpha.5",
+    "@reactivex/rxjs": "5.0.0-alpha.7",
     "traceur": "0.0.91"
   },
   "files": [
@@ -55,6 +55,7 @@
     "karma-phantomjs-launcher": "^0.2.1",
     "merge2": "^0.3.6",
     "phantomjs": "^1.9.18",
+    "reflect-metadata": "^0.1.2",
     "typescript": "^1.6.2"
   },
   "dependencies": {}

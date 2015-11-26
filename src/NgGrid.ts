@@ -20,13 +20,13 @@ import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicC
 })
 export class NgGrid implements OnInit, DoCheck {
 	//	Event Emitters
-	public dragStart: EventEmitter = new EventEmitter();
-	public drag: EventEmitter = new EventEmitter();
-	public dragStop: EventEmitter = new EventEmitter();
-	public dragOver: EventEmitter = new EventEmitter();
-	public resizeStart: EventEmitter = new EventEmitter();
-	public resize: EventEmitter = new EventEmitter();
-	public resizeStop: EventEmitter = new EventEmitter();
+	public dragStart: EventEmitter<any> = new EventEmitter();
+	public drag: EventEmitter<any> = new EventEmitter();
+	public dragStop: EventEmitter<any> = new EventEmitter();
+	public dragOver: EventEmitter<any> = new EventEmitter();
+	public resizeStart: EventEmitter<any> = new EventEmitter();
+	public resize: EventEmitter<any> = new EventEmitter();
+	public resizeStop: EventEmitter<any> = new EventEmitter();
 	
 	//	Public variables
 	public colWidth: number = 250;
@@ -950,13 +950,13 @@ export class NgGrid implements OnInit, DoCheck {
 })
 export class NgGridItem implements OnInit {
 	//	Event Emitters
-	public itemChange: EventEmitter = new EventEmitter();
-	public dragStart: EventEmitter = new EventEmitter();
-	public drag: EventEmitter = new EventEmitter();
-	public dragStop: EventEmitter = new EventEmitter();
-	public resizeStart: EventEmitter = new EventEmitter();
-	public resize: EventEmitter = new EventEmitter();
-	public resizeStop: EventEmitter = new EventEmitter();
+	public itemChange: EventEmitter<any> = new EventEmitter();
+	public dragStart: EventEmitter<any> = new EventEmitter();
+	public drag: EventEmitter<any> = new EventEmitter();
+	public dragStop: EventEmitter<any> = new EventEmitter();
+	public resizeStart: EventEmitter<any> = new EventEmitter();
+	public resize: EventEmitter<any> = new EventEmitter();
+	public resizeStop: EventEmitter<any> = new EventEmitter();
 	
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'fixed': boolean, 'draggable': boolean, 'resizable': boolean } = {
