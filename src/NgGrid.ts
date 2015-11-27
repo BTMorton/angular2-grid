@@ -920,7 +920,7 @@ export class NgGridItem implements OnInit {
 	public resizeStop: EventEmitter<any> = new EventEmitter();
 	
 	//	Default config
-	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'fixed': boolean, 'draggable': boolean, 'resizable': boolean } = {
+	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'fixed': boolean, 'draggable': boolean, 'resizable': boolean, 'bordersize': number } = {
 		'col': 1,
 		'row': 1,
 		'sizex': 1,
@@ -929,7 +929,8 @@ export class NgGridItem implements OnInit {
 		'resizeHandle': null,
 		'fixed': false,
 		'draggable': true,
-		'resizable': true
+		'resizable': true,
+		'bordersize': 15
 	}
 	
 	public gridPosition = {'col': 1, 'row': 1}
@@ -946,6 +947,7 @@ export class NgGridItem implements OnInit {
 	private _config: any;
 	private _dragHandle: string;
 	private _resizeHandle: string;
+	private _borderSize: number;
 	private _elemWidth: number;
 	private _elemHeight: number;
 	private _elemLeft: number;
@@ -1004,13 +1006,13 @@ export class NgGridItem implements OnInit {
 		}
 		
 		var mousePos = this._getMousePosition(e);
-		
-		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
-			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+
+		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 			return 'both';
-		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15) {
+		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
 			return 'width';
-		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 			return 'height';
 		}
 		
@@ -1021,16 +1023,19 @@ export class NgGridItem implements OnInit {
 		if (this._ngGrid.autoStyle) {
 			if (this._ngGrid.dragEnable && this.canDrag(e)) {
 				this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
-			} else if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
+			} 
+			if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
 				var mousePos = this._getMousePosition(e);
 
-				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15
-					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'nwse-resize');
-				} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 15) {
+				} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ew-resize');
-				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 15) {
+				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ns-resize');
+				} else if (this._ngGrid.dragEnable && this.canDrag(e)) {
+					this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
 				} else {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'default');
 				}
@@ -1083,6 +1088,7 @@ export class NgGridItem implements OnInit {
 		this._sizey = config.sizey;
 		this._dragHandle = config.dragHandle;
 		this._resizeHandle = config.resizeHandle;
+		this._borderSize = config.borderSize;
 		this.isDraggable = config.draggable ? true : false;
 		this.isResizable = config.resizable ? true : false;
 		this.isFixed = config.fixed ? true : false;
