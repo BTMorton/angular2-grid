@@ -4,5 +4,3 @@ dist/
 node_modules/
 bower_components/
 coverage/
-test/*.js
-@reactivex/

@@ -61,8 +61,6 @@ export class NgGrid implements OnInit, DoCheck {
 	private _fixToGrid: boolean = false;
 	private _autoResize: boolean = false;
 	private _differ: KeyValueDiffer;
-	private _currentTargetPosition;
-	private _isDraggingFromOutside = false;
 	
 	//	Default config
 	private static CONST_DEFAULT_CONFIG = {
@@ -487,11 +485,11 @@ export class NgGrid implements OnInit, DoCheck {
 			if (!this._fixToGrid)
 				this._resizingItem.setDimensions(newW, newH);
 			
-            var bigGrid = this._maxGridSize(itemPos.left + newW + (2*e.movementX), itemPos.top + newH + (2*e.movementY));
-            
-            if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
-            if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
-            
+			var bigGrid = this._maxGridSize(itemPos.left + newW + (2*e.movementX), itemPos.top + newH + (2*e.movementY));
+			
+			if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
+			if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
+			
 			this.resize.next(this._resizingItem);
 			this._resizingItem.resize.next(this._resizingItem.getDimensions());
 		}
@@ -614,7 +612,7 @@ export class NgGrid implements OnInit, DoCheck {
 			switch (this.cascade) {
 				case "up":
 				case "down":
-				default:			
+				default:
 					if (this._maxRows > 0 && itemPos.row + (itemDims.y - 1) >= this._maxRows) {
 						itemPos.col++;
 					} else {
@@ -761,10 +759,6 @@ export class NgGrid implements OnInit, DoCheck {
 				pos.row++;
 				
 				this._updateSize(null, pos.row + dims.y - 1);
-				
-				if (this._maxRows > 0 && (pos.row + dims.y - 1) > this._maxRows) {
-					throw new Error("Unable to calculate grid position");
-				}
 			}
 		}
 		
@@ -783,13 +777,9 @@ export class NgGrid implements OnInit, DoCheck {
 		for (var j = 0; j < dims.y; j++) {
 			if (this._itemGrid[pos.row + j] == null) this._itemGrid[pos.row + j] = {};
 			for (var i = 0; i < dims.x; i++) {
-				if (this._itemGrid[pos.row + j][pos.col + i] == null) {
-					this._itemGrid[pos.row + j][pos.col + i] = item;
-					
-					this._updateSize(pos.col + dims.x - 1, pos.row + dims.y - 1);
-				} else {
-					throw new Error("Cannot add item to grid. Space already taken.");
-				}
+				this._itemGrid[pos.row + j][pos.col + i] = item;
+				
+				this._updateSize(pos.col + dims.x - 1, pos.row + dims.y - 1);
 			}
 		}
 	}
@@ -856,7 +846,7 @@ export class NgGrid implements OnInit, DoCheck {
 		Object.keys(me._itemGrid).map(function(v) { maxes.push(Math.max.apply(null, Object.keys(me._itemGrid[v]))); });
 		return Math.max.apply(null, maxes);
 	}
-
+	
 	private _getMousePosition(e: any): {left: number, top: number} {
 		if (((<any>window).TouchEvent && e instanceof TouchEvent) || (e.touches || e.changedTouches)) {
 			e = e.touches.length > 0 ? e.touches[0] : e.changedTouches[0];
