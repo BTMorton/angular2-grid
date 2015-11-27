@@ -43,8 +43,6 @@ export declare class NgGrid implements OnInit, DoCheck {
     private _fixToGrid;
     private _autoResize;
     private _differ;
-    private _currentTargetPosition;
-    private _isDraggingFromOutside;
     private static CONST_DEFAULT_CONFIG;
     private _config;
     config: any;
