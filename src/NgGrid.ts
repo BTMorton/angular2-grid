@@ -12,18 +12,15 @@ import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicC
 		'(touchend)': '_onMouseUp($event)',
 		'(window:resize)': '_onResize($event)',
 		'(document:mousemove)': '_onMouseMove($event)',
-		'(document:mouseup)': '_onMouseUp($event)',
-		'(dragover)': '_onDragOver($event)',
-		'(drop)': '_onDrop($event)'
+		'(document:mouseup)': '_onMouseUp($event)'
 	},
-	outputs: ['dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop', 'dragOver']
+	outputs: ['dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
 })
 export class NgGrid implements OnInit, DoCheck {
 	//	Event Emitters
 	public dragStart: EventEmitter<any> = new EventEmitter();
 	public drag: EventEmitter<any> = new EventEmitter();
 	public dragStop: EventEmitter<any> = new EventEmitter();
-	public dragOver: EventEmitter<any> = new EventEmitter();
 	public resizeStart: EventEmitter<any> = new EventEmitter();
 	public resize: EventEmitter<any> = new EventEmitter();
 	public resizeStop: EventEmitter<any> = new EventEmitter();
@@ -859,33 +856,7 @@ export class NgGrid implements OnInit, DoCheck {
 		Object.keys(me._itemGrid).map(function(v) { maxes.push(Math.max.apply(null, Object.keys(me._itemGrid[v]))); });
 		return Math.max.apply(null, maxes);
 	}
-	private _onDragStart(event) {
-		let newTargetPos = this.getTargetPosition(event);
-		this._createPlaceholder(newTargetPos, {x: 1, y:3});
-	}
-	private _onDrop(event) {
-		this._isDraggingFromOutside = false;
-		this._placeholderRef.dispose();
-	}
-	private _onDragOver(event) {
-		event.preventDefault();
-		let newTargetPos = this.getTargetPosition(event);
-		console.log(newTargetPos);
-		if (!this._currentTargetPosition || this._currentTargetPosition.col != newTargetPos.col || this._currentTargetPosition.row != newTargetPos.row) {
-			this._currentTargetPosition = newTargetPos;
-			this.dragOver.next(this._currentTargetPosition);
-			if (!this._isDraggingFromOutside) {
-				this._isDraggingFromOutside = true;
-				this._createPlaceholder(newTargetPos, {x: 1, y:3});
-			} else {
-				this._placeholderRef.instance.setGridPosition(newTargetPos.col, newTargetPos.row);
-			}
-		}
-	}
-	public getTargetPosition = (event) => {
-		let mousePos = this._getMousePosition(event);
-		return this._calculateGridPosition(mousePos.left - 65, mousePos.top - 7);
-	}
+
 	private _getMousePosition(e: any): {left: number, top: number} {
 		if (((<any>window).TouchEvent && e instanceof TouchEvent) || (e.touches || e.changedTouches)) {
 			e = e.touches.length > 0 ? e.touches[0] : e.changedTouches[0];
@@ -959,7 +930,7 @@ export class NgGridItem implements OnInit {
 	public resizeStop: EventEmitter<any> = new EventEmitter();
 	
 	//	Default config
-	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'fixed': boolean, 'draggable': boolean, 'resizable': boolean } = {
+	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'fixed': boolean, 'draggable': boolean, 'resizable': boolean, 'bordersize': number } = {
 		'col': 1,
 		'row': 1,
 		'sizex': 1,
@@ -968,7 +939,8 @@ export class NgGridItem implements OnInit {
 		'resizeHandle': null,
 		'fixed': false,
 		'draggable': true,
-		'resizable': true
+		'resizable': true,
+		'bordersize': 15
 	}
 	
 	public gridPosition = {'col': 1, 'row': 1}
@@ -985,6 +957,7 @@ export class NgGridItem implements OnInit {
 	private _config: any;
 	private _dragHandle: string;
 	private _resizeHandle: string;
+	private _borderSize: number;
 	private _elemWidth: number;
 	private _elemHeight: number;
 	private _elemLeft: number;
@@ -1043,13 +1016,13 @@ export class NgGridItem implements OnInit {
 		}
 		
 		var mousePos = this._getMousePosition(e);
-		
-		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 5
-			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 5) {
+
+		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 			return 'both';
-		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 5) {
+		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
 			return 'width';
-		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 5) {
+		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 			return 'height';
 		}
 		
@@ -1064,12 +1037,12 @@ export class NgGridItem implements OnInit {
 			if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
 				var mousePos = this._getMousePosition(e);
 
-				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 5
-					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 5) {
+				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'nwse-resize');
-				} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - 5) {
+				} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ew-resize');
-				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - 5) {
+				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ns-resize');
 				} else if (this._ngGrid.dragEnable && this.canDrag(e)) {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
@@ -1125,6 +1098,7 @@ export class NgGridItem implements OnInit {
 		this._sizey = config.sizey;
 		this._dragHandle = config.dragHandle;
 		this._resizeHandle = config.resizeHandle;
+		this._borderSize = config.borderSize;
 		this.isDraggable = config.draggable ? true : false;
 		this.isResizable = config.resizable ? true : false;
 		this.isFixed = config.fixed ? true : false;
