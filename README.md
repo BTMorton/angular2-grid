@@ -62,8 +62,9 @@ The defaults for the grid item are:
     'sizex': 1,             //  The start width in terms of columns for the item
     'sizey': 1,             //  The start height in terms of rows for the item
     'dragHandle': null,     //  The selector to be used for the drag handle. If null, uses the whole item
-    'resizeHandle': null,   //  The selector to be used for the resize handle. If null, uses 15 pixels from the right for horizontal resize, 
-                            //    15 pixels from the bottom for vertical, and the square in the corner bottom-right for both
+    'resizeHandle': null,   //  The selector to be used for the resize handle. If null, uses 'borderSize' pixels from the right for horizontal resize, 
+                            //    'borderSize' pixels from the bottom for vertical, and the square in the corner bottom-right for both
+    'borderSize': 15,
     'fixed': false,         //  If the grid item should be cascaded or not. If yes, manual movement is required
     'draggable': true,      //  If the grid item can be dragged. If this or the global setting is set to false, the item cannot be dragged.
     'resizable': true       //  If the grid item can be resized. If this or the global setting is set to false, the item cannot be resized.

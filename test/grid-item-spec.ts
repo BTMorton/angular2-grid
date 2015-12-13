@@ -33,7 +33,7 @@ export function main() {
 			spyOn(ngGridItem, '_recalculatePosition');
 			ngGridItem.ngOnInit();
 			expect(renderSpy.setElementClass).toHaveBeenCalledWith(ngEl, 'grid-item', true);
-			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl,'position', 'absolute');
+			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'position', 'absolute');
 			expect((<any>ngGridItem)._recalculateDimensions).toHaveBeenCalled();
 			expect((<any>ngGridItem)._recalculatePosition).toHaveBeenCalled();
 		});
@@ -48,11 +48,11 @@ export function main() {
 			target.parentElement.querySelector.and.returnValue(target);
 
 			(<any>ngGridItem)._dragHandle = "#id";
-			expect(ngGridItem.canDrag({target: target})).toBe(true);
+			expect(ngGridItem.canDrag({ target: target })).toBe(true);
 			expect(target.parentElement.querySelector).toHaveBeenCalledWith('#id');
 
 			target.parentElement.querySelector.and.returnValue({});
-			expect(ngGridItem.canDrag({target: target})).toBe(false);
+			expect(ngGridItem.canDrag({ target: target })).toBe(false);
 			expect(target.parentElement.querySelector).toHaveBeenCalledWith('#id');
 		});
 
@@ -61,84 +61,77 @@ export function main() {
 				parentElement: jasmine.createSpyObj('parentElement', ['querySelector'])
 			};
 			target.parentElement.querySelector.and.returnValue(target);
-			var e: any = {target: target};
+			var e: any = { target: target };
 
 			var ngGridItem: NgGridItem = new NgGridItem(null, null, null);
 			var getMousePositionSpy = spyOn(ngGridItem, '_getMousePosition');
-			getMousePositionSpy.and.returnValue({left: 0, top: 0});
+			getMousePositionSpy.and.returnValue({ left: 0, top: 0 });
 
-			(<any>ngGridItem)._elemHeight = -150;
-			expect(ngGridItem.canResize(e)).toBe(null);
+			for (let size of [5, 10, 15]) {
 
-			(<any>ngGridItem)._elemHeight = 0;
-			expect(ngGridItem.canResize(e)).toBe(null);
+				(<any>ngGridItem)._borderSize = size;
+				(<any>ngGridItem)._elemHeight = -150;
+				expect(ngGridItem.canResize(e)).toBe(null);
 
-			(<any>ngGridItem)._elemHeight = 1;
-			expect(ngGridItem.canResize(e)).toBe('height');
+				(<any>ngGridItem)._elemHeight = 0;
+				expect(ngGridItem.canResize(e)).toBe(null);
 
-			(<any>ngGridItem)._elemHeight = 10;
-			expect(ngGridItem.canResize(e)).toBe('height');
+				(<any>ngGridItem)._elemHeight = 1;
+				expect(ngGridItem.canResize(e)).toBe('height');
 
-			(<any>ngGridItem)._elemHeight = 14;
-			expect(ngGridItem.canResize(e)).toBe('height');
+				(<any>ngGridItem)._elemHeight = size - 1;
+				expect(ngGridItem.canResize(e)).toBe('height');
 
-			(<any>ngGridItem)._elemHeight = 15;
-			expect(ngGridItem.canResize(e)).toBe(null);
+				(<any>ngGridItem)._elemHeight = size;
+				expect(ngGridItem.canResize(e)).toBe(null);
 
-			(<any>ngGridItem)._elemHeight = 150;
-			expect(ngGridItem.canResize(e)).toBe(null);
-
-
-			(<any>ngGridItem)._elemWidth = -150;
-			expect(ngGridItem.canResize(e)).toBe(null);
-
-			(<any>ngGridItem)._elemWidth = 0;
-			expect(ngGridItem.canResize(e)).toBe(null);
-
-			(<any>ngGridItem)._elemWidth = 1;
-			expect(ngGridItem.canResize(e)).toBe('width');
-
-			(<any>ngGridItem)._elemWidth = 10;
-			expect(ngGridItem.canResize(e)).toBe('width');
-
-			(<any>ngGridItem)._elemWidth = 14;
-			expect(ngGridItem.canResize(e)).toBe('width');
-
-			(<any>ngGridItem)._elemWidth = 15;
-			expect(ngGridItem.canResize(e)).toBe(null);
-
-			(<any>ngGridItem)._elemWidth = 150;
-			expect(ngGridItem.canResize(e)).toBe(null);
+				(<any>ngGridItem)._elemHeight = 150;
+				expect(ngGridItem.canResize(e)).toBe(null);
 
 
-			(<any>ngGridItem)._elemWidth = -150;
-			(<any>ngGridItem)._elemHeight = 150;
-			expect(ngGridItem.canResize(e)).toBe(null);
+				(<any>ngGridItem)._elemWidth = -150;
+				expect(ngGridItem.canResize(e)).toBe(null);
 
-			(<any>ngGridItem)._elemWidth = 0;
-			(<any>ngGridItem)._elemHeight = 0;
-			expect(ngGridItem.canResize(e)).toBe(null);
+				(<any>ngGridItem)._elemWidth = 0;
+				expect(ngGridItem.canResize(e)).toBe(null);
 
-			(<any>ngGridItem)._elemWidth = 1;
-			(<any>ngGridItem)._elemHeight = 1;
-			expect(ngGridItem.canResize(e)).toBe('both');
+				(<any>ngGridItem)._elemWidth = 1;
+				expect(ngGridItem.canResize(e)).toBe('width');
 
-			(<any>ngGridItem)._elemWidth = 10;
-			(<any>ngGridItem)._elemHeight = 10;
-			expect(ngGridItem.canResize(e)).toBe('both');
+				(<any>ngGridItem)._elemWidth = size - 1;
+				expect(ngGridItem.canResize(e)).toBe('width');
 
-			(<any>ngGridItem)._elemWidth = 14;
-			(<any>ngGridItem)._elemHeight = 14;
-			expect(ngGridItem.canResize(e)).toBe('both');
+				(<any>ngGridItem)._elemWidth = size;
+				expect(ngGridItem.canResize(e)).toBe(null);
 
-			(<any>ngGridItem)._elemWidth = 15;
-			(<any>ngGridItem)._elemHeight = 15;
-			expect(ngGridItem.canResize(e)).toBe(null);
+				(<any>ngGridItem)._elemWidth = 150;
+				expect(ngGridItem.canResize(e)).toBe(null);
 
-			(<any>ngGridItem)._elemWidth = 150;
-			(<any>ngGridItem)._elemHeight = 150;
-			expect(ngGridItem.canResize(e)).toBe(null);
 
+				(<any>ngGridItem)._elemWidth = -150;
+				(<any>ngGridItem)._elemHeight = 150;
+				expect(ngGridItem.canResize(e)).toBe(null);
+
+				(<any>ngGridItem)._elemWidth = 0;
+				(<any>ngGridItem)._elemHeight = 0;
+				expect(ngGridItem.canResize(e)).toBe(null);
+
+				(<any>ngGridItem)._elemWidth = 1;
+				(<any>ngGridItem)._elemHeight = 1;
+				expect(ngGridItem.canResize(e)).toBe('both');
+
+				(<any>ngGridItem)._elemWidth = size - 1;
+				(<any>ngGridItem)._elemHeight = size - 1;
+				expect(ngGridItem.canResize(e)).toBe('both');
+
+				(<any>ngGridItem)._elemWidth = size;
+				(<any>ngGridItem)._elemHeight = size;
+				expect(ngGridItem.canResize(e)).toBe(null);
+
+				(<any>ngGridItem)._elemWidth = 150;
+				(<any>ngGridItem)._elemHeight = 150;
+				expect(ngGridItem.canResize(e)).toBe(null);
+			}
 
 			(<any>ngGridItem)._resizeHandle = "#id";
 			expect(ngGridItem.canResize(e)).toBe('both');
@@ -146,7 +139,7 @@ export function main() {
 			target.parentElement.querySelector.and.returnValue({});
 			expect(ngGridItem.canResize(e)).toBe(null);
 		});
-		
+
 		it("should update the cursor", () => {
 			var e: any = {};
 			var ngEl: any = {};
@@ -198,6 +191,7 @@ export function main() {
 			(<any>ngGridItem)._resizeHandle = false;
 			(<any>ngGridItem)._elemWidth = 0;
 			(<any>ngGridItem)._elemHeight = 0;
+			(<any>ngGridItem)._borderSize = 15;
 			ngGrid.resizeEnable = true;
 			(<any>ngGridItem)._getMousePosition.and.returnValue({});
 			ngGridItem.onMouseMove(e);
@@ -213,8 +207,9 @@ export function main() {
 			(<any>ngGridItem)._resizeHandle = false;
 			(<any>ngGridItem)._elemWidth = 0;
 			(<any>ngGridItem)._elemHeight = 10;
+			(<any>ngGridItem)._borderSize = 15;
 			ngGrid.resizeEnable = true;
-			(<any>ngGridItem)._getMousePosition.and.returnValue({left: 0, top: 0});
+			(<any>ngGridItem)._getMousePosition.and.returnValue({ left: 0, top: 0 });
 			ngGridItem.onMouseMove(e);
 			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
 			expect(ngGridItem.canResize).not.toHaveBeenCalled();
@@ -228,8 +223,9 @@ export function main() {
 			(<any>ngGridItem)._resizeHandle = false;
 			(<any>ngGridItem)._elemWidth = 10;
 			(<any>ngGridItem)._elemHeight = 0;
+			(<any>ngGridItem)._borderSize = 15;
 			ngGrid.resizeEnable = true;
-			(<any>ngGridItem)._getMousePosition.and.returnValue({left: 0, top: 0});
+			(<any>ngGridItem)._getMousePosition.and.returnValue({ left: 0, top: 0 });
 			ngGridItem.onMouseMove(e);
 			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
 			expect(ngGridItem.canResize).not.toHaveBeenCalled();
@@ -243,8 +239,9 @@ export function main() {
 			(<any>ngGridItem)._resizeHandle = false;
 			(<any>ngGridItem)._elemWidth = 10;
 			(<any>ngGridItem)._elemHeight = 10;
+			(<any>ngGridItem)._borderSize = 15;
 			ngGrid.resizeEnable = true;
-			(<any>ngGridItem)._getMousePosition.and.returnValue({left: 0, top: 0});
+			(<any>ngGridItem)._getMousePosition.and.returnValue({ left: 0, top: 0 });
 			ngGridItem.onMouseMove(e);
 			expect(ngGridItem.canDrag).not.toHaveBeenCalled();
 			expect(ngGridItem.canResize).not.toHaveBeenCalled();
@@ -262,7 +259,7 @@ export function main() {
 			ngGridItem.onMouseMove(e);
 			expect(ngGridItem.canDrag).toHaveBeenCalled();
 			expect(ngGridItem.canResize).not.toHaveBeenCalled();
-			expect((<any>ngGridItem)._getMousePosition).not.toHaveBeenCalled();
+			expect((<any>ngGridItem)._getMousePosition).toHaveBeenCalled();
 			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'cursor', 'move');
 			(<any>ngGridItem.canDrag).calls.reset();
 			(<any>ngGridItem.canResize).calls.reset();
@@ -497,17 +494,17 @@ export function main() {
 
 			(<any>ngGridItem)._recalculateDimensions();
 			expect((<any>ngGridItem).setDimensions).toHaveBeenCalledWith(39, 111);
-			
+
 			ngGrid.minCols = 7;
 			ngGrid.minRows = 8;
-			
+
 			(<any>ngGridItem)._sizex = 1;
 			(<any>ngGridItem)._sizey = 1;
 
 			(<any>ngGridItem)._recalculateDimensions();
 			expect((<any>ngGridItem).setDimensions).toHaveBeenCalledWith(39, 111);
 		});
-		
+
 		it("should recalculate position and dimensions when recalculating self", () => {
 			spyOn(NgGridItem.prototype, "_recalculateDimensions");
 			spyOn(NgGridItem.prototype, "_recalculatePosition");
@@ -519,61 +516,61 @@ export function main() {
 			expect((<any>ngGridItem)._recalculatePosition).toHaveBeenCalled();
 			expect((<any>ngGridItem)._recalculateDimensions).toHaveBeenCalled();
 		});
-		
+
 		it("should add moving class and styles on startMoving", () => {
 			var renderSpy = jasmine.createSpyObj('renderSpy', ['setElementStyle', 'setElementClass']);
 			var styleSpy = jasmine.createSpyObj('styleSpy', ['getPropertyValue']);
 			styleSpy.getPropertyValue.and.returnValue(100);
 			var oldGetCompStyle = window.getComputedStyle;
 			(<any>window).getComputedStyle = jasmine.createSpy("getComputedStyle").and.returnValue(styleSpy);
-			
+
 			var ngGrid: any = { 'autoStyle': false };
 			var elem: any = { 'nativeElement': {} };
-			
+
 			var ngGridItem: NgGridItem = new NgGridItem(elem, renderSpy, ngGrid);
 			ngGridItem.startMoving();
-			
+
 			expect(window.getComputedStyle).toHaveBeenCalledWith(elem.nativeElement);
 			expect(renderSpy.setElementClass).toHaveBeenCalledWith(elem, 'moving', true);
 			expect(renderSpy.setElementStyle).not.toHaveBeenCalled();
 			expect(styleSpy.getPropertyValue).not.toHaveBeenCalled();
-			
+
 			ngGrid.autoStyle = true;
 			ngGridItem.startMoving();
-			
+
 			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(elem, 'z-index', '101');
 			expect(styleSpy.getPropertyValue).toHaveBeenCalledWith('z-index');
-			
+
 			(<any>window).getComputedStyle = oldGetCompStyle;
 		});
-		
+
 		it("should remove moving class and styles on stopMoving", () => {
 			var renderSpy = jasmine.createSpyObj('renderSpy', ['setElementStyle', 'setElementClass']);
 			var styleSpy = jasmine.createSpyObj('styleSpy', ['getPropertyValue']);
 			styleSpy.getPropertyValue.and.returnValue(100);
 			var oldGetCompStyle = window.getComputedStyle;
 			(<any>window).getComputedStyle = jasmine.createSpy("getComputedStyle").and.returnValue(styleSpy);
-			
+
 			var ngGrid: any = { 'autoStyle': false };
 			var elem: any = { 'nativeElement': {} };
-			
+
 			var ngGridItem: NgGridItem = new NgGridItem(elem, renderSpy, ngGrid);
 			ngGridItem.stopMoving();
-			
+
 			expect(window.getComputedStyle).toHaveBeenCalledWith(elem.nativeElement);
 			expect(renderSpy.setElementClass).toHaveBeenCalledWith(elem, 'moving', false);
 			expect(renderSpy.setElementStyle).not.toHaveBeenCalled();
 			expect(styleSpy.getPropertyValue).not.toHaveBeenCalled();
-			
+
 			ngGrid.autoStyle = true;
 			ngGridItem.stopMoving();
-			
+
 			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(elem, 'z-index', '99');
 			expect(styleSpy.getPropertyValue).toHaveBeenCalledWith('z-index');
-			
+
 			(<any>window).getComputedStyle = oldGetCompStyle;
 		});
-		
+
 		it("should attempt to calculate the mouse position", () => {
 			var event: any = {
 				clientX: 14234,
@@ -588,39 +585,39 @@ export function main() {
 					'getBoundingClientRect': jasmine.createSpy('elemSpy').and.returnValue({ 'left': 4353, 'top': 3554 })
 				}
 			}
-			
+
 			var ngGridItem: NgGridItem = new NgGridItem(elem, null, null);
-			
+
 			expect((<any>ngGridItem)._getMousePosition(event)).toEqual({ 'left': 9881, 'top': 20769 });
-			
+
 			event.originalEvent.touches = [];
-			event.originalEvent.changedTouches = [{'clientX': 8658, 'clientY': 9757}];
-			
+			event.originalEvent.changedTouches = [{ 'clientX': 8658, 'clientY': 9757 }];
+
 			expect((<any>ngGridItem)._getMousePosition(event)).toEqual({ 'left': 4305, 'top': 6203 });
-			
+
 			event.originalEvent.touches = [{ 'clientX': 34523, 'clientY': 7898 }];
 			expect((<any>ngGridItem)._getMousePosition(event)).toEqual({ 'left': 30170, 'top': 4344 });
 		});
-		
+
 		it("should add self to ngGrid, store config and recalculate when config is set", () => {
 			spyOn(NgGridItem.prototype, '_recalculatePosition');
 			spyOn(NgGridItem.prototype, '_recalculateDimensions');
 			spyOn(NgGridItem.prototype, 'setConfig');
-			
+
 			var ngGrid: any = jasmine.createSpyObj('NgGridSpy', ['addItem']);
 			var ngGridItem: NgGridItem = new NgGridItem(null, null, ngGrid);
-			
+
 			ngGridItem.config = { 'col': 5, 'row': 2 };
-			
+
 			expect(ngGridItem.setConfig).toHaveBeenCalled();
 			expect(ngGrid.addItem).toHaveBeenCalledWith(ngGridItem);
 			expect((<any>ngGridItem)._recalculatePosition).toHaveBeenCalled();
 			expect((<any>ngGridItem)._recalculateDimensions).toHaveBeenCalled();
 			expect((<any>ngGridItem)._added).toBe(true);
-			
+
 			ngGrid.addItem.calls.reset();
 			ngGridItem.config = {};
-			
+
 			expect(ngGrid.addItem).not.toHaveBeenCalledWith(ngGridItem);
 		});
 	});
