@@ -128,8 +128,8 @@ NOTE: The grid system sets the values `width, height, left, top` in CSS to move 
 ------------
 
 ```html
-<div [ng-grid]="{'resizeable': false, 'margins': [5, 10]}">
-	<div *ng-for="#box of boxes" [ng-grid-item]="{'dragHandle': '.title'}">
+<div [ngGrid]="{'resizeable': false, 'margins': [5, 10]}">
+	<div *ngFor="#box of boxes" [ngGridItem]="{'dragHandle': '.title'}">
 		<div class="title">{{box.title}}</div>
 		<p>{{box.text}}</p>
 	</div>

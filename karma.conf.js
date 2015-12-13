@@ -13,18 +13,18 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-            'bower_components/bind-polyfill/index.js',
+            'dist/lib/shim.min.js',
             'dist/lib/system-polyfills.js',
+            'dist/lib/es6-shim.min.js',
+            'dist/lib/es6-promise.min.js',
             'dist/lib/system.js',
-            'node_modules/babel-core/browser-polyfill.min.js',
-            'node_modules/babel-core/browser.min.js',
             'node_modules/reflect-metadata/Reflect.js',
             'test-main.js',
             { pattern: 'node_modules/babel-core/*.js', included: false, serve: true, watch: false },
             { pattern: 'node_modules/angular2/*.js', included: false, serve: true, watch: false },
             { pattern: 'node_modules/angular2/src/**/*.js', included: false, serve: true, watch: false },
             { pattern: 'dist/*.js', included: false, serve: true, watch: true },
-            { pattern: '\@reactivex/rxjs/dist/cjs/**/*.js', included: false, serve: true, watch: false },
+            { pattern: 'rxjs/**/*.js', included: false, serve: true, watch: false },
             {
                 pattern: 'test/**/*spec.js',
                 included: false,

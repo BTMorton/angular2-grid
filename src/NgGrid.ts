@@ -1,8 +1,8 @@
-import {Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, DoCheck} from 'angular2/angular2';
+import { Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, DoCheck } from 'angular2/core';
 
 @Directive({
-	selector: '[ng-grid]',
-	inputs: ['config: ng-grid'],
+	selector: '[ngGrid]',
+	inputs: ['config: ngGrid'],
 	host: {
 		'(mousedown)': '_onMouseDown($event)',
 		'(mousemove)': '_onMouseMove($event)',
@@ -95,7 +95,7 @@ export class NgGrid implements OnInit, DoCheck {
 	constructor(private _differs: KeyValueDiffers, private _ngEl: ElementRef, private _renderer: Renderer, private _loader: DynamicComponentLoader) {}
 	
 	//	Public methods
-	public onInit(): void {
+	public ngOnInit(): void {
 		this._renderer.setElementClass(this._ngEl, 'grid', true);
 		if (this.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'relative');
 		this.setConfig(this._config);
@@ -254,7 +254,7 @@ export class NgGrid implements OnInit, DoCheck {
 		return this._items[index].getSize();
 	}
 	
-	public doCheck(): boolean {
+	public ngDoCheck(): boolean {
 		if (this._differ != null) {
 			var changes = this._differ.diff(this._config);
 			
@@ -905,8 +905,8 @@ export class NgGrid implements OnInit, DoCheck {
 }
 
 @Directive({
-	selector: '[ng-grid-item]',
-	inputs: [ 'config: ng-grid-item', 'gridPosition: ng-grid-position', 'gridSize: ng-grid-size' ],
+	selector: '[ngGridItem]',
+	inputs: [ 'config: ngGridItem', 'gridPosition: ngGridPosition', 'gridSize: ngGridSize' ],
 	outputs: ['itemChange', 'dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
 })
 export class NgGridItem implements OnInit {
@@ -974,7 +974,7 @@ export class NgGridItem implements OnInit {
 	//	Constructor
 	constructor(private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid:NgGrid) {}
 	
-	public onInit(): void {
+	public ngOnInit(): void {
 		this._renderer.setElementClass(this._ngEl, 'grid-item', true);
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 		this._recalculateDimensions();
@@ -1208,7 +1208,7 @@ export class NgGridPlaceholder implements OnInit {
 	
 	constructor (private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid: NgGrid) {}
 	
-	public onInit(): void {
+	public ngOnInit(): void {
 		this._renderer.setElementClass(this._ngEl, 'grid-placeholder', true);
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 	}

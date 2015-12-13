@@ -9,12 +9,13 @@ var merge = require('merge2');
 var KarmaServer = require('karma').Server;
 
 var tsProject = typescript.createProject({
-	declarationFiles: true,
-	module: 'commonjs',
-	target: 'ES5',
-	emitDecoratorMetadata: true,
-	experimentalDecorators: true,
-	noExternalResolve: true
+	"target": "ES5",
+    "module": "commonjs",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+	"declarationFiles": true
 });
 
 var PATHS = {
@@ -31,24 +32,23 @@ var PATHS = {
 		'node_modules/angular2/bundles/angular2.min.js',
 		'node_modules/systemjs/dist/system.js',
 		'node_modules/systemjs/dist/system-polyfills.js',
-		'node_modules/traceur/bin/traceur-runtime.js'
+		'node_modules/es6-promise/dist/es6-promise.min.js',
+		'node_modules/es6-shim/es6-shim.min.js',
+		'node_modules/core-js/client/shim.min.js'
 	],
-	rx: 'node_modules/\@reactivex/rxjs/dist/**/*.js',
+	rx: 'node_modules/rxjs/**/*.js',
 	typings: [
 		'node_modules/angular2/*.d.ts',
 		'node_modules/angular2/src/**/*.d.ts',
 		'node_modules/angular2/manual_typings/*.d.ts',
 		'node_modules/angular2/typings/**/*.d.ts',
-		'node_modules/\@reactivex/rxjs/dist/cjs/**/*.d.ts'
 	],
 	testTypings: [
 		'node_modules/angular2/*.d.ts',
 		'node_modules/angular2/src/**/*.d.ts',
 		'node_modules/angular2/manual_typings/*.d.ts',
 		'node_modules/angular2/typings/**/*.d.ts',
-		'node_modules/\@reactivex/rxjs/dist/cjs/**/*.d.ts',
 		'dist/*.d.ts'
-		// 'typings/jasmine/jasmine.d.ts'
 	],
 };
 
@@ -83,10 +83,10 @@ gulp.task('test', ['test-build'], function(done) {
 	runSequence('test-link', 'test-run', ['test-link-clean', 'test-clean-build'], done);
 });
 gulp.task('test-link-clean', function(done) {
-	return del(['\@reactivex'], done);
+	return del(['rxjs'], done);
 });
 gulp.task('test-link', ['test-link-clean'], function() {
-	return gulp.src('node_modules/\@reactivex/').pipe(symlink('\@reactivex'));
+	return gulp.src('node_modules/rxjs/').pipe(symlink('rxjs'));
 });
 gulp.task('test-run', function(done) {
 	new KarmaServer({
@@ -111,7 +111,7 @@ gulp.task('css', function () {
 });
 
 gulp.task('rx', function () {
-	return gulp.src(PATHS.rx, {base: 'node_modules/\@reactivex/'}).pipe(gulp.dest('dist/\@reactivex'));
+	return gulp.src(PATHS.rx, {base: 'node_modules/'}).pipe(gulp.dest('dist/'));
 });
 
 gulp.task('libs', ['rx'], function () {

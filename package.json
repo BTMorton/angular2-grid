@@ -30,19 +30,18 @@
     "url": "https://github.com/BTMorton/angular2-grid/issues"
   },
   "homepage": "https://github.com/BTMorton/angular2-grid",
-  "peerDependencies": {
-    "angular2": "2.0.0-alpha.46",
-    "systemjs": "^0.19.4",
-    "@reactivex/rxjs": "5.0.0-alpha.7",
-    "traceur": "0.0.91"
-  },
   "files": [
     "src/NgGrid.ts",
     "src/NgGrid.css"
   ],
+  "peerDependencies": {
+    "angular2": "2.0.0-alpha.53"
+  },
   "devDependencies": {
-    "babel-core": "^5.8.25",
+    "angular2": "2.0.0-alpha.53",
     "del": "^1.2.1",
+    "es6-promise": "^3.0.2",
+    "es6-shim": "^0.33.3",
     "gulp": "^3.9.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-typescript": "^2.9.2",
@@ -54,9 +53,13 @@
     "karma-jasmine": "^0.3.6",
     "karma-phantomjs-launcher": "^0.2.1",
     "merge2": "^0.3.6",
-    "phantomjs": "^1.9.18",
+    "phantomjs": "^1.9.19",
     "reflect-metadata": "^0.1.2",
-    "typescript": "^1.6.2"
+    "run-sequence": "^1.1.5",
+    "rxjs": "5.0.0-alpha.14",
+    "systemjs": "^0.19.4",
+    "typescript": "^1.6.2",
+    "zone.js": "0.5.8"
   },
   "dependencies": {}
 }

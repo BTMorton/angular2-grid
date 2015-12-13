@@ -13,7 +13,7 @@ export function main() {
 				autoStyle: false
 			};
 			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(ngEl, renderSpy, ngGrid);
-			ngGridPlaceholder.onInit();
+			ngGridPlaceholder.ngOnInit();
 			expect(renderSpy.setElementClass).toHaveBeenCalledWith(ngEl, 'grid-placeholder', true);
 			expect(renderSpy.setElementStyle).not.toHaveBeenCalled();
 		});
@@ -25,7 +25,7 @@ export function main() {
 				autoStyle: true
 			};
 			var ngGridPlaceholder: NgGridPlaceholder = new NgGridPlaceholder(ngEl, renderSpy, ngGrid);
-			ngGridPlaceholder.onInit();
+			ngGridPlaceholder.ngOnInit();
 			expect(renderSpy.setElementClass).toHaveBeenCalledWith(ngEl, 'grid-placeholder', true);
 			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl,'position', 'absolute');
 		});

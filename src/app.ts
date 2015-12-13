@@ -1,5 +1,7 @@
-import {Component, View, bootstrap, CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES, Self, Query, QueryList, ViewEncapsulation } from 'angular2/angular2';
-import {NgGrid, NgGridItem} from "./NgGrid";
+import { Component, View, Self, Query, QueryList, ViewEncapsulation } from 'angular2/core';
+import { CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES } from 'angular2/common';
+import { bootstrap } from 'angular2/platform/browser';
+import { NgGrid, NgGridItem } from "./NgGrid";
 
 // Annotation section
 @Component({

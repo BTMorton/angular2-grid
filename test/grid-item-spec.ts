@@ -15,7 +15,7 @@ export function main() {
 			var ngGridItem: NgGridItem = new NgGridItem(ngEl, renderSpy, ngGrid);
 			spyOn(ngGridItem, '_recalculateDimensions');
 			spyOn(ngGridItem, '_recalculatePosition');
-			ngGridItem.onInit();
+			ngGridItem.ngOnInit();
 			expect(renderSpy.setElementClass).toHaveBeenCalledWith(ngEl, 'grid-item', true);
 			expect(renderSpy.setElementStyle).not.toHaveBeenCalled();
 			expect((<any>ngGridItem)._recalculateDimensions).toHaveBeenCalled();
@@ -31,7 +31,7 @@ export function main() {
 			var ngGridItem: NgGridItem = new NgGridItem(ngEl, renderSpy, ngGrid);
 			spyOn(ngGridItem, '_recalculateDimensions');
 			spyOn(ngGridItem, '_recalculatePosition');
-			ngGridItem.onInit();
+			ngGridItem.ngOnInit();
 			expect(renderSpy.setElementClass).toHaveBeenCalledWith(ngEl, 'grid-item', true);
 			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl,'position', 'absolute');
 			expect((<any>ngGridItem)._recalculateDimensions).toHaveBeenCalled();

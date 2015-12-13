@@ -1,15 +1,15 @@
-import { Renderer, KeyValueDiffers, DynamicComponentLoader } from 'angular2/angular2';
+import { Renderer, KeyValueDiffers, DynamicComponentLoader } from 'angular2/core';
 import { NgGrid, NgGridItem, NgGridPlaceholder } from '../dist/NgGrid';
 
 export function main() {
 	describe("NgGrid Directive", () => {
-		it("should initialise element styles and config onInit", () => {
+		it("should initialise element styles and config ngOnInit", () => {
 			spyOn(NgGrid.prototype, "setConfig");
 			var renderSpy = jasmine.createSpyObj('renderSpy', ['setElementStyle', 'setElementClass']);
 			
 			var ngGrid = new NgGrid(null, null, renderSpy, null);
 			
-			ngGrid.onInit();
+			ngGrid.ngOnInit();
 			
 			expect(renderSpy.setElementClass).toHaveBeenCalled();
 			expect(renderSpy.setElementStyle).toHaveBeenCalled();
@@ -20,7 +20,7 @@ export function main() {
 			(<any>ngGrid.setConfig).calls.reset();
 			
 			ngGrid.autoStyle = false;
-			ngGrid.onInit();
+			ngGrid.ngOnInit();
 			
 			expect(renderSpy.setElementClass).toHaveBeenCalled();
 			expect(renderSpy.setElementStyle).not.toHaveBeenCalled();

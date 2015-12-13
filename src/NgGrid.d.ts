@@ -1,4 +1,4 @@
-import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, DoCheck } from 'angular2/angular2';
+import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, DoCheck } from 'angular2/core';
 export declare class NgGrid implements OnInit, DoCheck {
     private _differs;
     private _ngEl;
@@ -47,7 +47,7 @@ export declare class NgGrid implements OnInit, DoCheck {
     private _config;
     config: any;
     constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader);
-    onInit(): void;
+    ngOnInit(): void;
     setConfig(config: any): void;
     getItemPosition(index: number): {
         col: number;
@@ -57,7 +57,7 @@ export declare class NgGrid implements OnInit, DoCheck {
         x: number;
         y: number;
     };
-    doCheck(): boolean;
+    ngDoCheck(): boolean;
     setMargins(margins: Array<string>): void;
     enableDrag(): void;
     disableDrag(): void;
@@ -132,7 +132,7 @@ export declare class NgGridItem implements OnInit {
     private _added;
     config: any;
     constructor(_ngEl: ElementRef, _renderer: Renderer, _ngGrid: NgGrid);
-    onInit(): void;
+    ngOnInit(): void;
     canDrag(e: any): boolean;
     canResize(e: any): string;
     onMouseMove(e: any): void;
@@ -177,7 +177,7 @@ export declare class NgGridPlaceholder implements OnInit {
     private _col;
     private _row;
     constructor(_ngEl: ElementRef, _renderer: Renderer, _ngGrid: NgGrid);
-    onInit(): void;
+    ngOnInit(): void;
     setSize(x: number, y: number): void;
     setGridPosition(col: number, row: number): void;
     private _setPosition(x, y);
