@@ -920,7 +920,7 @@ export class NgGridItem implements OnInit {
 	public resizeStop: EventEmitter<any> = new EventEmitter();
 	
 	//	Default config
-	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'fixed': boolean, 'draggable': boolean, 'resizable': boolean, 'bordersize': number } = {
+	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'fixed': boolean, 'draggable': boolean, 'resizable': boolean, 'borderSize': number } = {
 		'col': 1,
 		'row': 1,
 		'sizex': 1,
@@ -930,7 +930,7 @@ export class NgGridItem implements OnInit {
 		'fixed': false,
 		'draggable': true,
 		'resizable': true,
-		'bordersize': 15
+		'borderSize': 15
 	}
 	
 	public gridPosition = {'col': 1, 'row': 1}
@@ -1023,8 +1023,7 @@ export class NgGridItem implements OnInit {
 		if (this._ngGrid.autoStyle) {
 			if (this._ngGrid.dragEnable && this.canDrag(e)) {
 				this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
-			} 
-			if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
+			} else if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
 				var mousePos = this._getMousePosition(e);
 
 				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
@@ -1034,8 +1033,6 @@ export class NgGridItem implements OnInit {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ew-resize');
 				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ns-resize');
-				} else if (this._ngGrid.dragEnable && this.canDrag(e)) {
-					this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
 				} else {
 					this._renderer.setElementStyle(this._ngEl, 'cursor', 'default');
 				}
