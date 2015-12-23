@@ -1,4 +1,4 @@
-import { Component, View, Self, Query, QueryList, ViewEncapsulation } from 'angular2/core';
+import { Component, View, Self, Query, QueryList, ViewEncapsulation, enableProdMode } from 'angular2/core';
 import { CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES } from 'angular2/common';
 import { bootstrap } from 'angular2/platform/browser';
 import { NgGrid, NgGridItem } from "./NgGrid";
@@ -72,4 +72,5 @@ class MyAppComponent {
 	}
 }
 
+enableProdMode();
 bootstrap(MyAppComponent);
