@@ -1,4 +1,4 @@
-import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, DoCheck } from 'angular2/core';
+import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, OnDestroy, DoCheck } from 'angular2/core';
 export declare class NgGrid implements OnInit, DoCheck {
     private _differs;
     private _ngEl;
@@ -95,7 +95,7 @@ export declare class NgGrid implements OnInit, DoCheck {
     private _getItemFromPosition(position);
     private _createPlaceholder(pos, dims);
 }
-export declare class NgGridItem implements OnInit {
+export declare class NgGridItem implements OnInit, OnDestroy {
     private _ngEl;
     private _renderer;
     private _ngGrid;
@@ -137,7 +137,7 @@ export declare class NgGridItem implements OnInit {
     canDrag(e: any): boolean;
     canResize(e: any): string;
     onMouseMove(e: any): void;
-    onDestroy(): void;
+    ngOnDestroy(): void;
     getElement(): ElementRef;
     getDragHandle(): string;
     getResizeHandle(): string;

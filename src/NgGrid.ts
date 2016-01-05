@@ -1,4 +1,4 @@
-import { Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, DoCheck } from 'angular2/core';
+import { Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck } from 'angular2/core';
 
 @Directive({
 	selector: '[ngGrid]',
@@ -372,8 +372,8 @@ export class NgGrid implements OnInit, DoCheck {
 			this._createPlaceholder(item.getGridPosition(), item.getSize());
 			this.isResizing = true;
 			
-			this.resizeStart.next(item);
-			item.resizeStart.next(item.getDimensions());
+			this.resizeStart.emit(item);
+			item.resizeStart.emit(item.getDimensions());
 		}
 	}
 	
@@ -391,8 +391,8 @@ export class NgGrid implements OnInit, DoCheck {
 			this._createPlaceholder(item.getGridPosition(), item.getSize());
 			this.isDragging = true;
 			
-			this.dragStart.next(item);
-			item.dragStart.next(item.getPosition());
+			this.dragStart.emit(item);
+			item.dragStart.emit(item.getPosition());
 		}
 	}
 	
@@ -444,8 +444,8 @@ export class NgGrid implements OnInit, DoCheck {
 				this._draggingItem.setPosition(newL, newT);
 			}
 			
-			this.drag.next(this._draggingItem);
-			this._draggingItem.drag.next(this._draggingItem.getPosition());
+			this.drag.emit(this._draggingItem);
+			this._draggingItem.drag.emit(this._draggingItem.getPosition());
 		}
 	}
 	
@@ -490,8 +490,8 @@ export class NgGrid implements OnInit, DoCheck {
 			if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
 			if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
 			
-			this.resize.next(this._resizingItem);
-			this._resizingItem.resize.next(this._resizingItem.getDimensions());
+			this.resize.emit(this._resizingItem);
+			this._resizingItem.resize.emit(this._resizingItem.getDimensions());
 		}
 	}
 	
@@ -519,8 +519,8 @@ export class NgGrid implements OnInit, DoCheck {
 			this._cascadeGrid();
 			
 			this._draggingItem.stopMoving();
-			this._draggingItem.dragStop.next(this._draggingItem.getPosition);
-			this.dragStop.next(this._draggingItem);
+			this._draggingItem.dragStop.emit(this._draggingItem.getPosition);
+			this.dragStop.emit(this._draggingItem);
 			this._draggingItem = null;
 			this._posOffset = null;
             this._placeholderRef.dispose();
@@ -539,8 +539,8 @@ export class NgGrid implements OnInit, DoCheck {
             this._cascadeGrid();
             
             this._resizingItem.stopMoving();
-			this._resizingItem.resizeStop.next(this._resizingItem.getDimensions());
-			this.resizeStop.next(this._resizingItem);
+			this._resizingItem.resizeStop.emit(this._resizingItem.getDimensions());
+			this.resizeStop.emit(this._resizingItem);
             this._resizingItem = null;
             this._resizeDirection = null;
             this._placeholderRef.dispose();
@@ -909,7 +909,7 @@ export class NgGrid implements OnInit, DoCheck {
 	inputs: [ 'config: ngGridItem', 'gridPosition: ngGridPosition', 'gridSize: ngGridSize' ],
 	outputs: ['itemChange', 'dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
 })
-export class NgGridItem implements OnInit {
+export class NgGridItem implements OnInit, OnDestroy {
 	//	Event Emitters
 	public itemChange: EventEmitter<any> = new EventEmitter();
 	public dragStart: EventEmitter<any> = new EventEmitter();
@@ -1044,7 +1044,7 @@ export class NgGridItem implements OnInit {
 		}
 	}
 	
-	public onDestroy(): void {
+	public ngOnDestroy(): void {
 		if (this._added) this._ngGrid.removeItem(this);
 	}
 	
@@ -1100,7 +1100,7 @@ export class NgGridItem implements OnInit {
 		this.gridSize = { 'x': this._sizex, 'y': this._sizey };
 		this._recalculateDimensions();
 		
-		this.itemChange.next({'col': this._col, 'row': this._row, 'sizex': this._sizex, 'sizey': this._sizey});
+		this.itemChange.emit({'col': this._col, 'row': this._row, 'sizex': this._sizex, 'sizey': this._sizey});
 	}
 	
 	public setGridPosition(col: number, row: number): void {
@@ -1110,7 +1110,7 @@ export class NgGridItem implements OnInit {
 		
 		this._recalculatePosition();
 		
-		this.itemChange.next({'col': this._col, 'row': this._row, 'sizex': this._sizex, 'sizey': this._sizey});
+		this.itemChange.emit({'col': this._col, 'row': this._row, 'sizex': this._sizex, 'sizey': this._sizey});
 	}
 	
 	public setPosition(x: number, y: number): void {

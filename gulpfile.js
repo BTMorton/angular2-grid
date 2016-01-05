@@ -30,10 +30,12 @@ var PATHS = {
 		'bower_components/bootstrap/dist/css/bootstrap.min.css',
 		'bower_components/bootstrap/dist/css/bootstrap-theme.min.css',
 		'node_modules/angular2/bundles/angular2.min.js',
+		'node_modules/angular2/bundles/angular2-polyfills.min.js',
 		'node_modules/systemjs/dist/system.js',
 		'node_modules/systemjs/dist/system-polyfills.js',
 		'node_modules/es6-shim/es6-shim.min.js',
-		'node_modules/reflect-metadata/Reflect.js'
+		'node_modules/reflect-metadata/Reflect.js',
+		'node_modules/rxjs/bundles/Rx.min.js'
 	],
 	rx: 'node_modules/rxjs/**/*.js',
 	typings: [
