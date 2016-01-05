@@ -36,8 +36,8 @@ To configure the grid with your own options, it is as easy as adding them as the
 ```javascript
 {
     'margins': [10],        //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
-    'draggable': true,      //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
-    'resizeable': true,     //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
+    'canDrag': true,      //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
+    'canResize': true,     //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
     'max_cols': 0,          //  The maximum number of columns allowed. Set to 0 for infinite. Cannot be used with max_rows
     'max_rows': 0,          //  The maximum number of rows allowed. Set to 0 for infinite. Cannot be used with max_cols
     'min_cols': 0,          //  The minimum number of columns allowed. Can be any number greater than or equal to 1.
@@ -65,9 +65,9 @@ The defaults for the grid item are:
     'resizeHandle': null,   //  The selector to be used for the resize handle. If null, uses 'borderSize' pixels from the right for horizontal resize, 
                             //    'borderSize' pixels from the bottom for vertical, and the square in the corner bottom-right for both
     'borderSize': 15,
-    'fixed': false,         //  If the grid item should be cascaded or not. If yes, manual movement is required
-    'draggable': true,      //  If the grid item can be dragged. If this or the global setting is set to false, the item cannot be dragged.
-    'resizable': true       //  If the grid item can be resized. If this or the global setting is set to false, the item cannot be resized.
+    'canCascade': false,         //  If the grid item should be cascaded or not. If yes, manual movement is required
+    'canDrag': true,      //  If the grid item can be dragged. If this or the global setting is set to false, the item cannot be dragged.
+    'canResize': true       //  If the grid item can be resized. If this or the global setting is set to false, the item cannot be resized.
 }
 ```
 

@@ -65,8 +65,8 @@ export class NgGrid implements OnInit, DoCheck {
 	//	Default config
 	private static CONST_DEFAULT_CONFIG = {
 		'margins': [10],
-		'draggable': true,
-		'resizable': true,
+		'canDrag': true,
+		'canResize': true,
 		'max_cols': 0,
 		'max_rows': 0,
 		'col_width': 250,
@@ -122,10 +122,10 @@ export class NgGrid implements OnInit, DoCheck {
 				case 'auto_resize':
 					this._autoResize = val ? true : false;
 					break;
-				case 'draggable':
+				case 'canDrag':
 					this.dragEnable = val ? true : false;
 					break;
-				case 'resizable':
+				case 'canResize':
 					this.resizeEnable = val ? true : false;
 					break;
 				case 'max_rows':
@@ -431,15 +431,25 @@ export class NgGrid implements OnInit, DoCheck {
 			if (this._maxRows > 0 && gridPos.row > this._maxRows - (dims.y - 1))
 				gridPos.row = this._maxRows - (dims.y - 1);
 			
-			if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
-				this._draggingItem.setGridPosition(gridPos.col, gridPos.row);
-				this._placeholderRef.instance.setGridPosition(gridPos.col, gridPos.row);
-				
-				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(gridPos, dims);
-					this._cascadeGrid(gridPos, dims);
+			var canTakeSpace = true;
+			var collisions = this._getCollisions(gridPos, dims);
+			
+			for (var x in collisions)
+				if (collisions[x].isFixed)
+					canTakeSpace = false;
+			
+			if (canTakeSpace) {
+				if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
+					this._draggingItem.setGridPosition(gridPos.col, gridPos.row);
+					this._placeholderRef.instance.setGridPosition(gridPos.col, gridPos.row);
+
+					if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
+						this._fixGridCollisions(this._draggingItem);
+						this._cascadeGrid(gridPos, dims);
+					}
 				}
 			}
+			
 			if (!this._fixToGrid) {
 				this._draggingItem.setPosition(newL, newT);
 			}
@@ -471,24 +481,33 @@ export class NgGrid implements OnInit, DoCheck {
 			
 			if (this._maxRows > 0 && iGridPos.row + (calcSize.y - 1) > this._maxRows)
 				calcSize.y = (this._maxRows - iGridPos.row) + 1;
-			
-			if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
-				this._resizingItem.setSize(calcSize.x, calcSize.y);
-				this._placeholderRef.instance.setSize(calcSize.x, calcSize.y);
-				
-				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(iGridPos, calcSize);
-					this._cascadeGrid(iGridPos, calcSize);
+
+			var canTakeSpace = true;
+			var collisions = this._getCollisions(iGridPos, calcSize);
+
+			for (var x in collisions)
+				if (collisions[x].isFixed)
+					canTakeSpace = false;
+
+			if (canTakeSpace) {
+				if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
+					this._resizingItem.setSize(calcSize.x, calcSize.y);
+					this._placeholderRef.instance.setSize(calcSize.x, calcSize.y);
+
+					if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
+						this._fixGridCollisions(this._resizingItem);
+						this._cascadeGrid(iGridPos, calcSize);
+					}
 				}
+
+				if (!this._fixToGrid)
+					this._resizingItem.setDimensions(newW, newH);
+
+				var bigGrid = this._maxGridSize(itemPos.left + newW + (2 * e.movementX), itemPos.top + newH + (2 * e.movementY));
+
+				if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
+				if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
 			}
-			
-			if (!this._fixToGrid)
-				this._resizingItem.setDimensions(newW, newH);
-			
-			var bigGrid = this._maxGridSize(itemPos.left + newW + (2*e.movementX), itemPos.top + newH + (2*e.movementY));
-			
-			if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
-			if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
 			
 			this.resize.emit(this._resizingItem);
 			this._resizingItem.resize.emit(this._resizingItem.getDimensions());
@@ -599,15 +618,20 @@ export class NgGrid implements OnInit, DoCheck {
 		return returns;
 	}
 	
-	private _fixGridCollisions(pos: {col: number, row: number}, dims: {x: number, y: number}): void {
-		while (this._checkGridCollision(pos, dims)) {
+	private _fixGridCollisions(item: NgGridItem): void {
+		var pos = item.getGridPosition();
+		var dims = item.getSize();
+		
+		if (this._checkGridCollision(pos, dims)) {
 			var collisions = this._getCollisions(pos, dims);
 			
-			var me = this;
-			this._removeFromGrid(collisions[0]);
+			var moving = collisions[0].isFixed ? item : collisions[0];
 			
-			var itemPos = collisions[0].getGridPosition();
-			var itemDims = collisions[0].getSize();
+			var me = this;
+			this._removeFromGrid(moving);
+			
+			var itemPos = moving.getGridPosition();
+			var itemDims = moving.getSize();
 			
 			switch (this.cascade) {
 				case "up":
@@ -619,7 +643,7 @@ export class NgGrid implements OnInit, DoCheck {
 						itemPos.row++;
 					}
 					
-					collisions[0].setGridPosition(itemPos.col, itemPos.row);
+					moving.setGridPosition(itemPos.col, itemPos.row);
 					break;
 				case "left":
 				case "right":
@@ -629,13 +653,13 @@ export class NgGrid implements OnInit, DoCheck {
 						itemPos.col++;
 					}
 					
-					collisions[0].setGridPosition(itemPos.col, itemPos.row);
+					moving.setGridPosition(itemPos.col, itemPos.row);
 					break;
 			}
 			
-			this._fixGridCollisions(itemPos, itemDims);
+			this._fixGridCollisions(moving);
 			
-			this._addToGrid(collisions[0]);
+			this._addToGrid(moving);
 		}
 	}
 	
@@ -659,7 +683,7 @@ export class NgGrid implements OnInit, DoCheck {
 						
 						if (this._itemGrid[r][c] != null) {
 							var item = this._itemGrid[r][c];
-							if (item.isFixed) continue;
+							if (!item.canCascade || item.isFixed) continue;
 							
 							var itemDims = item.getSize();
 							var itemPos = item.getGridPosition();
@@ -770,7 +794,7 @@ export class NgGrid implements OnInit, DoCheck {
 		var dims = item.getSize();
 		
 		if (this._checkGridCollision(pos, dims)) {
-			this._fixGridCollisions(pos, dims);
+			this._fixGridCollisions(item);
 			pos = item.getGridPosition();
 		}
 		
@@ -920,24 +944,26 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public resizeStop: EventEmitter<any> = new EventEmitter();
 	
 	//	Default config
-	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'fixed': boolean, 'draggable': boolean, 'resizable': boolean, 'borderSize': number } = {
+	private static CONST_DEFAULT_CONFIG: { 'col': number, 'row': number, 'sizex': number, 'sizey': number, 'dragHandle': string, 'resizeHandle': string, 'canCascade': boolean, 'canDrag': boolean, 'canResize': boolean, 'borderSize': number, 'fixed': boolean } = {
 		'col': 1,
 		'row': 1,
 		'sizex': 1,
 		'sizey': 1,
 		'dragHandle': null,
 		'resizeHandle': null,
-		'fixed': false,
-		'draggable': true,
-		'resizable': true,
-		'borderSize': 15
+		'canCascade': true,
+		'canDrag': true,
+		'canResize': true,
+		'borderSize': 15,
+		'fixed': false
 	}
 	
 	public gridPosition = {'col': 1, 'row': 1}
 	public gridSize = {'x': 1, 'y': 1}
+	public canCascade: boolean = true;
+	public isDragEnabled: boolean = true;
+	public isResizeEnabled: boolean = true;
 	public isFixed: boolean = false;
-	public isDraggable: boolean = true;
-	public isResizable: boolean = true;
 	
 	//	Private variables
 	private _col: number = 1;
@@ -985,7 +1011,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	
 	//	Public methods
 	public canDrag(e: any): boolean {
-		if (!this.isDraggable) return false;
+		if (!this.isDragEnabled) return false;
 		
 		if (this._dragHandle) {
 			var parent = e.target.parentElement;
@@ -997,7 +1023,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 	
 	public canResize(e: any): string {
-		if (!this.isResizable) return null;
+		if (!this.isResizeEnabled) return null;
 		
 		if (this._resizeHandle) {
 			var parent = e.target.parentElement;
@@ -1023,7 +1049,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		if (this._ngGrid.autoStyle) {
 			if (this._ngGrid.dragEnable && this.canDrag(e)) {
 				this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
-			} else if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
+			} else if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizeEnabled) {
 				var mousePos = this._getMousePosition(e);
 
 				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
@@ -1086,8 +1112,9 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this._dragHandle = config.dragHandle;
 		this._resizeHandle = config.resizeHandle;
 		this._borderSize = config.borderSize;
-		this.isDraggable = config.draggable ? true : false;
-		this.isResizable = config.resizable ? true : false;
+		this.isDragEnabled = config.canDrag ? true : false;
+		this.isResizeEnabled = config.canResize ? true : false;
+		this.canCascade = config.canCascade ? true : false;
 		this.isFixed = config.fixed ? true : false;
 		
 		this._recalculatePosition();

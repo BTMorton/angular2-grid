@@ -81,7 +81,7 @@ export declare class NgGrid implements OnInit, DoCheck {
     private _calculateGridPosition(left, top);
     private _checkGridCollision(pos, dims);
     private _getCollisions(pos, dims);
-    private _fixGridCollisions(pos, dims);
+    private _fixGridCollisions(item);
     private _cascadeGrid(pos?, dims?);
     private _fixGridPosition(pos, dims);
     private _addToGrid(item);
@@ -115,9 +115,10 @@ export declare class NgGridItem implements OnInit, OnDestroy {
         'x': number;
         'y': number;
     };
+    canCascade: boolean;
+    isDragEnabled: boolean;
+    isResizeEnabled: boolean;
     isFixed: boolean;
-    isDraggable: boolean;
-    isResizable: boolean;
     private _col;
     private _row;
     private _sizex;
