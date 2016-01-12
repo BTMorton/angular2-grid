@@ -32,7 +32,9 @@
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "files": [
     "src/NgGrid.ts",
-    "src/NgGrid.css"
+    "dist/NgGrid.css",
+    "dist/NgGrid.js",
+    "dist/NgGrid.d.ts"
   ],
   "peerDependencies": {
     "angular2": "2.0.0-beta.0"
