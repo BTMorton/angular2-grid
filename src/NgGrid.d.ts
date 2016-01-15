@@ -160,6 +160,16 @@ export declare class NgGridItem implements OnInit, OnDestroy {
     setConfig(config: any): void;
     setSize(x: number, y: number): void;
     setGridPosition(col: number, row: number): void;
+    getEventOutput(): {
+        col: number;
+        row: number;
+        sizex: number;
+        sizey: number;
+        width: number;
+        height: number;
+        left: number;
+        top: number;
+    };
     setPosition(x: number, y: number): void;
     setDimensions(w: number, h: number): void;
     startMoving(): void;

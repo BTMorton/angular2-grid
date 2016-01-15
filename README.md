@@ -88,14 +88,28 @@ resizeStop(item)    //  When an item stops being resized. Returns reference to c
 The individual items will also throw the following events:
 
 ```javascript
-dragStart({'left': number, 'top': number})              //  When the item starts being dragged. Returns object containing the item's raw left and top values
-drag({'left': number, 'top': number})                   //  When the item moves while dragging. Returns object containing the item's raw left and top values
-dragStop({'left': number, 'top': number})               //  When the item stops being dragged. Returns object containing the item's raw left and top values
-resizeStart({'width': number, 'height': number})        //  When the item starts being resized. Returns object containing the item's raw width and height values
-resize({'width': number, 'height': number})             //  When the item is resized. Returns object containing the item's raw width and height values
-resizeStop({'width': number, 'height': number})         //  When the item stops being resized. Returns object containing the item's raw width and height values
-itemChange({'col': number, 'row': number,               //  When the item's grid size or position is changed. Returns object containing the item's grid position and size
-            'sizex': number, 'sizey': number})          //      The difference between this event and the above is that the values correspond to the psuedo-grid and not the dom positioning
+dragStart()     //  When the item starts being dragged.
+drag()          //  When the item moves while dragging.
+dragStop()      //  When the item stops being dragged.
+resizeStart()   //  When the item starts being resized.
+resize()        //  When the item is resized.
+resizeStop()    //  When the item stops being resized.
+itemChange()    //  When either the item's grid size or position is changed.
+```
+
+Each event will also provide the following object to any callback functions:
+
+```javascript
+{
+	col: number,    //  The item's column position within the grid
+	row: number,    //  The item's row position within the grid
+	sizex: number,  //  The item's column size within the grid
+	sizey: number,  //  The item's row size within the grid
+	width: number,  //  The item's raw width value
+	height: number, //  The item's raw height value
+	left: number,   //  The item's offset left value
+	top: number     //  The item's offset top value
+}
 ```
 
 #### Styling

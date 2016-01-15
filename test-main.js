@@ -12,11 +12,14 @@ System.baseURL = '/base/';
 // Here we set all the preffixes so that we'll
 // be able for example to import 'test/test_name'
 // instead of 'scripts/build/test_name'
+System.defaultJSExtensions = true;
 System.config({
-	transpiler: 'babel',
-	defaultJSExtensions: true,
 	paths: {
-	    'angular2/*': 'node_modules/angular2/*',
+	    'angular2/*': 'node_modules/angular2/*'
+	},
+	packages: {
+	    'dist': {defaultExtension: 'js', format: 'register'},
+	    'test': {defaultExtension: 'js', format: 'register'}
 	}
 })
 
