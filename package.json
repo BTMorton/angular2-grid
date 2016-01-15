@@ -2,7 +2,8 @@
   "name": "angular2-grid",
   "version": "0.3.7",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
-  "main": "NgGrid.js",
+  "main": "dist/NgGrid.min.js",
+  "typings": "dist/NgGrid.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,11 +20,11 @@
   "author": "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
   "contributors": [
     "Martin Sikora (https://github.com/martinsik)",
-    {
-      "name": "Daniel (Dani Pasta) Pastor de la Fuenta",
-      "url": "https://github.com/aebsubis"
-    },
-    "Frederik Schubert (https://github.com/frederikschubert)"
+    "Daniel Pastor de la Fuenta (https://github.com/aebsubis)",
+    "Frederik Schubert (https://github.com/frederikschubert)",
+    "Matthew de Nobrega (https://github.com/matthewdenobrega)",
+    "lifecoderua (https://github.com/lifecoderua)",
+    "pocmanu (https://github.com/pocmanu)"
   ],
   "license": "MIT",
   "bugs": {
@@ -32,9 +33,7 @@
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "files": [
     "src/NgGrid.ts",
-    "dist/NgGrid.css",
-    "dist/NgGrid.js",
-    "dist/NgGrid.d.ts"
+    "dist/NgGrid.*"
   ],
   "peerDependencies": {
     "angular2": "2.0.0-beta.0"
@@ -47,7 +46,7 @@
     "gulp": "^3.9.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-typescript": "^2.9.2",
-    "gulp-uglify": "^1.4.1",
+    "gulp-uglify": "^1.5.1",
     "jasmine": "^2.3.2",
     "jasmine-core": "^2.3.4",
     "karma": "^0.13.10",

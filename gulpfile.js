@@ -2,6 +2,7 @@ var del = require('del');
 var gulp = require('gulp');
 var typescript = require('gulp-typescript');
 var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
 var symlink = require('gulp-symlink');
 var sourcemaps = require('gulp-sourcemaps');
 var runSequence = require('run-sequence');
@@ -64,7 +65,7 @@ gulp.task('ts', function () {
 		.pipe(typescript(tsProject));
 
 	return merge([
-		tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('dist')),//.pipe(uglify())
+		tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('dist')).pipe(uglify()).pipe(rename({extname: '.min.js'})).pipe(gulp.dest('dist')),
 		tsResult.dts.pipe(gulp.dest('src')).pipe(gulp.dest('dist'))
 	]);
 });

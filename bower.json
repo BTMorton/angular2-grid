@@ -27,9 +27,7 @@
   "ignore": [
     "*",
     "!src/NgGrid.ts",
-    "!dist/NgGrid.css",
-    "!dist/NgGrid.d.ts",
-    "!dist/NgGrid.js"
+    "!dist/NgGrid.*"
   ],
   "repository": {
     "type": "git",
