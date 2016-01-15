@@ -981,6 +981,11 @@ export class NgGridItem implements OnInit, OnDestroy {
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
 		this._recalculateDimensions();
 		this._recalculatePosition();
+
+		if (!this._added) {
+			this._added = true;
+			this._ngGrid.addItem(this);
+		}
 	}
 	
 	//	Public methods
