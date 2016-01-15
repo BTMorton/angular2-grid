@@ -519,7 +519,7 @@ export class NgGrid implements OnInit, DoCheck {
 			this._cascadeGrid();
 			
 			this._draggingItem.stopMoving();
-			this._draggingItem.dragStop.emit(this._draggingItem.getPosition);
+			this._draggingItem.dragStop.emit(this._draggingItem.getPosition());
 			this.dragStop.emit(this._draggingItem);
 			this._draggingItem = null;
 			this._posOffset = null;
