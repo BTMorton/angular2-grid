@@ -1,5 +1,5 @@
 import { Component, View, ViewEncapsulation, enableProdMode } from 'angular2/core';
-import { CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES } from 'angular2/common';
+import { CORE_DIRECTIVES, FORM_DIRECTIVES } from 'angular2/common';
 import { bootstrap } from 'angular2/platform/browser';
 import { NgGrid, NgGridItem } from "./NgGrid";
 
@@ -10,7 +10,7 @@ import { NgGrid, NgGridItem } from "./NgGrid";
 @View({
 	templateUrl: 'app.html',
 	styleUrls: ['app.css', 'NgGrid.css'],
-	directives: [CORE_DIRECTIVES, NgStyle, NgGrid, NgGridItem, FORM_DIRECTIVES],
+	directives: [CORE_DIRECTIVES, NgGrid, NgGridItem, FORM_DIRECTIVES],
 	encapsulation: ViewEncapsulation.None
 })
 // Component controller

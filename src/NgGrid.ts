@@ -96,8 +96,8 @@ export class NgGrid implements OnInit, DoCheck {
 	
 	//	Public methods
 	public ngOnInit(): void {
-		this._renderer.setElementClass(this._ngEl, 'grid', true);
-		if (this.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'relative');
+		this._renderer.setElementClass(this._ngEl.nativeElement, 'grid', true);
+		if (this.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'position', 'relative');
 		this.setConfig(this._config);
 	}
 
@@ -790,7 +790,6 @@ export class NgGrid implements OnInit, DoCheck {
 				pos.col = 1;
 			}
 		}
-		console.log(this._hasGridCollision(pos, dims), this._isWithinBounds(pos, dims), pos, dims);
 		return pos;
 	}
 
@@ -839,8 +838,8 @@ export class NgGrid implements OnInit, DoCheck {
 		var maxRow = Math.max(this._getMaxRow(), row);
 		var maxCol = Math.max(this._getMaxCol(), col);
 		
-		this._renderer.setElementStyle(this._ngEl, 'width', "100%");//(maxCol * (this.colWidth + this.marginLeft + this.marginRight))+"px");
-		this._renderer.setElementStyle(this._ngEl, 'height', (maxRow * (this.rowHeight + this.marginTop + this.marginBottom)) + "px");
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', "100%");//(maxCol * (this.colWidth + this.marginLeft + this.marginRight))+"px");
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', (maxRow * (this.rowHeight + this.marginTop + this.marginBottom)) + "px");
 	}
 	
 	private _filterGrid(): void {
@@ -932,8 +931,7 @@ export class NgGrid implements OnInit, DoCheck {
 	
 	private _createPlaceholder(pos: {col: number, row:number}, dims: {x: number, y: number}) {
 		var me = this;
-		
-		this._loader.loadNextToLocation((<Type>NgGridPlaceholder), (<any>this._ngEl).parentView._view.elementRefs[(<any>this._ngEl).boundElementIndex + 1]).then(componentRef => {
+		this._loader.loadNextToLocation((<Type>NgGridPlaceholder), (<any>this._ngEl).internalElement.parentView.appElements[(<any>this._ngEl).internalElement.proto.index + 1].ref).then(componentRef => {
 			me._placeholderRef = componentRef;
 			var placeholder = componentRef.instance;
 			// me._placeholder.setGrid(me);
@@ -983,7 +981,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	private _row: number = 1;
 	private _sizex: number = 1;
 	private _sizey: number = 1;
-	private _config: any;
+	private _config = NgGridItem.CONST_DEFAULT_CONFIG;
 	private _dragHandle: string;
 	private _resizeHandle: string;
 	private _borderSize: number;
@@ -1016,8 +1014,8 @@ export class NgGridItem implements OnInit, OnDestroy {
 	constructor(private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid: NgGrid) { }
 
 	public ngOnInit(): void {
-		this._renderer.setElementClass(this._ngEl, 'grid-item', true);
-		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
+		this._renderer.setElementClass(this._ngEl.nativeElement, 'grid-item', true);
+		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'position', 'absolute');
 		this._recalculateDimensions();
 		this._recalculatePosition();
 
@@ -1066,24 +1064,24 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public onMouseMove(e: any): void {
 		if (this._ngGrid.autoStyle) {
 			if (this._ngGrid.dragEnable && this.canDrag(e)) {
-				this._renderer.setElementStyle(this._ngEl, 'cursor', 'move');
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'move');
 			} else if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
 				var mousePos = this._getMousePosition(e);
 
 				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-					this._renderer.setElementStyle(this._ngEl, 'cursor', 'nwse-resize');
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'nwse-resize');
 				} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
-					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ew-resize');
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ew-resize');
 				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-					this._renderer.setElementStyle(this._ngEl, 'cursor', 'ns-resize');
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ns-resize');
 				} else {
-					this._renderer.setElementStyle(this._ngEl, 'cursor', 'default');
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'default');
 				}
 			} else if (this._ngGrid.resizeEnable && this.canResize(e)) {
-				this._renderer.setElementStyle(this._ngEl, 'cursor', 'nwse-resize');
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'nwse-resize');
 			} else {
-				this._renderer.setElementStyle(this._ngEl, 'cursor', 'default');
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'default');
 			}
 		}
 	}
@@ -1175,22 +1173,22 @@ export class NgGridItem implements OnInit, OnDestroy {
 			case 'up':
 			case 'left':
 			default:
-				this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
-				this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
-				this._renderer.setElementStyle(this._ngEl, 'right', null);
-				this._renderer.setElementStyle(this._ngEl, 'bottom', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', x+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', y+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', null);
 				break;
 			case 'right':
-				this._renderer.setElementStyle(this._ngEl, 'right', x+"px");
-				this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
-				this._renderer.setElementStyle(this._ngEl, 'left', null);
-				this._renderer.setElementStyle(this._ngEl, 'bottom', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', x+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', y+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', null);
 				break;
 			case 'down':
-				this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
-				this._renderer.setElementStyle(this._ngEl, 'bottom', y+"px");
-				this._renderer.setElementStyle(this._ngEl, 'right', null);
-				this._renderer.setElementStyle(this._ngEl, 'top', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', x+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', y+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', null);
 				break;
 		}
 		this._elemLeft = x;
@@ -1198,22 +1196,22 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 	
 	public setDimensions(w: number, h: number): void {
-		this._renderer.setElementStyle(this._ngEl, 'width', w+"px");
-		this._renderer.setElementStyle(this._ngEl, 'height', h+"px");
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', w+"px");
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', h+"px");
 		this._elemWidth = w;
 		this._elemHeight = h;
 	}
 	
 	public startMoving(): void {
-		this._renderer.setElementClass(this._ngEl, 'moving', true);
+		this._renderer.setElementClass(this._ngEl.nativeElement, 'moving', true);
 		var style = window.getComputedStyle(this._ngEl.nativeElement);
-		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'z-index', (parseInt(style.getPropertyValue('z-index')) + 1).toString());
+		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'z-index', (parseInt(style.getPropertyValue('z-index')) + 1).toString());
 	}
 	
 	public stopMoving(): void {
-		this._renderer.setElementClass(this._ngEl, 'moving', false);
+		this._renderer.setElementClass(this._ngEl.nativeElement, 'moving', false);
 		var style = window.getComputedStyle(this._ngEl.nativeElement);
-		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'z-index', (parseInt(style.getPropertyValue('z-index')) - 1).toString());
+		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'z-index', (parseInt(style.getPropertyValue('z-index')) - 1).toString());
 	}
 	
 	public recalculateSelf(): void {
@@ -1269,8 +1267,8 @@ export class NgGridPlaceholder implements OnInit {
 	constructor (private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid: NgGrid) {}
 	
 	public ngOnInit(): void {
-		this._renderer.setElementClass(this._ngEl, 'grid-placeholder', true);
-		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl, 'position', 'absolute');
+		this._renderer.setElementClass(this._ngEl.nativeElement, 'grid-placeholder', true);
+		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'position', 'absolute');
 	}
 	
 	public setSize(x: number, y: number): void {
@@ -1290,29 +1288,29 @@ export class NgGridPlaceholder implements OnInit {
 			case 'up':
 			case 'left':
 			default:
-				this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
-				this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
-				this._renderer.setElementStyle(this._ngEl, 'right', null);
-				this._renderer.setElementStyle(this._ngEl, 'bottom', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', x+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', y+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', null);
 				break;
 			case 'right':
-				this._renderer.setElementStyle(this._ngEl, 'right', x+"px");
-				this._renderer.setElementStyle(this._ngEl, 'top', y+"px");
-				this._renderer.setElementStyle(this._ngEl, 'left', null);
-				this._renderer.setElementStyle(this._ngEl, 'bottom', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', x+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', y+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', null);
 				break;
 			case 'down':
-				this._renderer.setElementStyle(this._ngEl, 'left', x+"px");
-				this._renderer.setElementStyle(this._ngEl, 'bottom', y+"px");
-				this._renderer.setElementStyle(this._ngEl, 'right', null);
-				this._renderer.setElementStyle(this._ngEl, 'top', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', x+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', y+"px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', null);
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', null);
 				break;
 		}
 	}
 	
 	private _setDimensions(w: number, h: number): void {
-		this._renderer.setElementStyle(this._ngEl, 'width', w+"px");
-		this._renderer.setElementStyle(this._ngEl, 'height', h+"px");
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', w+"px");
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', h+"px");
 	}
 	
 	//	Private methods
