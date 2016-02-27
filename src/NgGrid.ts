@@ -16,7 +16,7 @@ import { Component, View, Directive, ElementRef, Renderer, EventEmitter, Dynamic
 	},
 	outputs: ['dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
 })
-export class NgGrid implements OnInit, DoCheck {
+export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	//	Event Emitters
 	public dragStart: EventEmitter<any> = new EventEmitter();
 	public drag: EventEmitter<any> = new EventEmitter();
@@ -61,6 +61,7 @@ export class NgGrid implements OnInit, DoCheck {
 	private _fixToGrid: boolean = false;
 	private _autoResize: boolean = false;
 	private _differ: KeyValueDiffer;
+	private _destroyed: boolean = false;
 	
 	//	Default config
 	private static CONST_DEFAULT_CONFIG = {
@@ -99,6 +100,10 @@ export class NgGrid implements OnInit, DoCheck {
 		this._renderer.setElementClass(this._ngEl.nativeElement, 'grid', true);
 		if (this.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'position', 'relative');
 		this.setConfig(this._config);
+	}
+	
+	public ngOnDestroy(): void {
+		this._destroyed = true;
 	}
 
 	public setConfig(config: any): void {
@@ -322,7 +327,8 @@ export class NgGrid implements OnInit, DoCheck {
 			if (this._items[x] == ngItem)
 				this._items.splice(x, 1);
 
-		// Update position of all items
+		if (this._destroyed) return;
+		
 		this._cascadeGrid();
 		this._updateSize();
 		this._items.forEach((item) => item.recalculateSelf());
@@ -655,6 +661,7 @@ export class NgGrid implements OnInit, DoCheck {
 	}
 
 	private _cascadeGrid(pos?: { col: number, row: number }, dims?: { x: number, y: number }): void {
+		if (this._destroyed) return;
 		if (pos && !dims) throw new Error("Cannot cascade with only position and not dimensions");
 
 		switch (this.cascade) {
@@ -830,6 +837,7 @@ export class NgGrid implements OnInit, DoCheck {
 	}
 	
 	private _updateSize(col?: number, row?:number): void {
+		if (this._destroyed) return;
 		col = (col == undefined) ? 0 : col;
 		row = (row == undefined) ? 0 : row;
 		

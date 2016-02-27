@@ -1,5 +1,5 @@
 import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, OnDestroy, DoCheck } from 'angular2/core';
-export declare class NgGrid implements OnInit, DoCheck {
+export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _differs;
     private _ngEl;
     private _renderer;
@@ -43,11 +43,13 @@ export declare class NgGrid implements OnInit, DoCheck {
     private _fixToGrid;
     private _autoResize;
     private _differ;
+    private _destroyed;
     private static CONST_DEFAULT_CONFIG;
     private _config;
     config: any;
     constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader);
     ngOnInit(): void;
+    ngOnDestroy(): void;
     setConfig(config: any): void;
     getItemPosition(index: number): {
         col: number;
