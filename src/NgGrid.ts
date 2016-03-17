@@ -1129,10 +1129,10 @@ export class NgGridItem implements OnInit, OnDestroy {
 	
 	//	Setters
 	public setConfig(config: any): void {
-		this._col = config.col;
-		this._row = config.row;
-		this._sizex = config.sizex;
-		this._sizey = config.sizey;
+		this._col = config.col ? parseInt(config.col) : NgGridItem.CONST_DEFAULT_CONFIG.col;
+		this._row = config.row ? parseInt(config.row) : NgGridItem.CONST_DEFAULT_CONFIG.row;
+		this._sizex = config.sizex ? parseInt(config.sizex) : NgGridItem.CONST_DEFAULT_CONFIG.sizex;
+		this._sizey = config.sizey ? parseInt(config.sizey) : NgGridItem.CONST_DEFAULT_CONFIG.sizey;
 		this._dragHandle = config.dragHandle;
 		this._resizeHandle = config.resizeHandle;
 		this._borderSize = config.borderSize;

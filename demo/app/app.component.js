@@ -25,7 +25,7 @@ System.register(['angular2/core', 'angular2-grid'], function(exports_1) {
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'my-app',
-                        template: '<h1>My First Angular 2 App</h1><div class="grid" [ngGrid]><div class="grid-item" [ngGridItem]></div></div>',
+                        template: '<h1>My First Angular 2 App</h1><div class="grid" [ngGrid]="{\'max_cols\': 6, \'auto_resize\': true}"><div class="grid-item" [ngGridItem]="{\'sizex\': \'2\', \'sizey\': \'3\'}"></div></div>',
                         directives: [angular2_grid_1.NgGrid, angular2_grid_1.NgGridItem]
                     }), 
                     __metadata('design:paramtypes', [])
