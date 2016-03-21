@@ -1,13 +1,11 @@
-import { Component, View, ViewEncapsulation, enableProdMode } from 'angular2/core';
+import { Component, ViewEncapsulation, enableProdMode } from 'angular2/core';
 import { CORE_DIRECTIVES, FORM_DIRECTIVES } from 'angular2/common';
 import { bootstrap } from 'angular2/platform/browser';
 import { NgGrid, NgGridItem } from "./NgGrid";
 
 // Annotation section
 @Component({
-	selector: 'my-app'
-})
-@View({
+	selector: 'my-app',
 	templateUrl: 'app.html',
 	styleUrls: ['app.css', 'NgGrid.css'],
 	directives: [CORE_DIRECTIVES, NgGrid, NgGridItem, FORM_DIRECTIVES],

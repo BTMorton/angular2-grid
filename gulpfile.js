@@ -41,15 +41,9 @@ var PATHS = {
 	],
 	rx: 'node_modules/rxjs/**/*.js',
 	typings: [
-		'node_modules/angular2/*.d.ts',
-		'node_modules/angular2/src/**/*.d.ts',
-		'node_modules/angular2/manual_typings/*.d.ts',
 		'node_modules/angular2/typings/**/*.d.ts',
 	],
 	testTypings: [
-		'node_modules/angular2/*.d.ts',
-		'node_modules/angular2/src/**/*.d.ts',
-		'node_modules/angular2/manual_typings/*.d.ts',
 		'node_modules/angular2/typings/**/*.d.ts',
 		'dist/*.d.ts'
 	],

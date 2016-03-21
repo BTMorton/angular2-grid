@@ -1,4 +1,4 @@
-import { Component, View, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck } from 'angular2/core';
+import { Component, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck } from 'angular2/core';
 
 @Directive({
 	selector: '[ngGrid]',
@@ -1261,9 +1261,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 }
 
 @Component({
-	selector: 'div'
-})
-@View({
+	selector: 'div',
 	template: ""
 })
 export class NgGridPlaceholder implements OnInit {
