@@ -40,6 +40,8 @@ To configure the grid with your own options, it is as easy as adding them as the
     'resizeable': true,     //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
     'max_cols': 0,          //  The maximum number of columns allowed. Set to 0 for infinite. Cannot be used with max_rows
     'max_rows': 0,          //  The maximum number of rows allowed. Set to 0 for infinite. Cannot be used with max_cols
+    'visible_cols': 0,      //  The number of columns shown on screen when auto_resize is set to true. Set to 0 to not auto_resize. Will be overriden by max_cols
+    'visible_rows': 0,      //  The number of rows shown on screen when auto_resize is set to true. Set to 0 to not auto_resize. Will be overriden by max_rows
     'min_cols': 0,          //  The minimum number of columns allowed. Can be any number greater than or equal to 1.
     'min_rows': 0,          //  The minimum number of rows allowed. Can be any number greater than or equal to 1.
     'col_width': 250,       //  The width of each column
