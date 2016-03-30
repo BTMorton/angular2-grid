@@ -1,6 +1,6 @@
 {
   "name": "angular2-grid",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
   "main": "dist/NgGrid.min.js",
   "typings": "dist/NgGrid.d.ts",
