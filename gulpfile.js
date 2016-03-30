@@ -31,7 +31,7 @@ var PATHS = {
 	libs: [
 		'bower_components/bootstrap/dist/css/bootstrap.min.css',
 		'bower_components/bootstrap/dist/css/bootstrap-theme.min.css',
-		'node_modules/angular2/bundles/angular2.min.js',
+		'node_modules/angular2/bundles/angular2.js',
 		'node_modules/angular2/bundles/angular2-polyfills.min.js',
 		'node_modules/systemjs/dist/system.js',
 		'node_modules/systemjs/dist/system-polyfills.js',

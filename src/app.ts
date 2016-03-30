@@ -22,6 +22,8 @@ class MyAppComponent {
 		'resizable': true,
 		'max_cols': 6,
 		'max_rows': 0,
+		'visible_cols': 0,
+		'visible_rows': 0,
 		'min_cols': 1,
 		'min_rows': 1,
 		'col_width': 250,

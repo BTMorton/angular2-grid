@@ -3,62 +3,62 @@
 		<h1>Angular 2 Grid Demo</h1>
 		<p>This is a simple demo used for creation/testing of <a href="https://github.com/BTMorton/angular2-grid">angular2-grid</a>, a grid-based drag/drop/resize plugin directive for <a href="http://angular.io">Angular 2</a>. It makes use of angular directives so that in order to include it, all you need to do is add an "[ngGrid]" attribute to your container and an "[ngGridItem]" to each of your grid items. It even works with the ngFor directive to add boxes on the fly!</p>
 		<br />
-		<!-- <form>
+		<form>
 			<div class="form-inline">
 				<div class="form-group">
 					<label>
 						Fix to Grid
-						<input type="checkbox" name="fix_to_grid" />
 					</label>
+					<input type="checkbox" name="fix_to_grid" ngControl="fix_to_grid" [(ngModel)]="gridConfig.fix_to_grid" />
 				</div>
 				<div class="form-group">
 					<label>
 						Draggable
-						<input type="checkbox" name="draggable" />
 					</label>
+					<input type="checkbox" name="draggable" ngControl="draggable" [(ngModel)]="gridConfig.draggable" />
 				</div>
 				<div class="form-group">
 					<label>
 						Resizable
-						<input type="checkbox" name="resizable" />
 					</label>
+					<input type="checkbox" name="resizable" ngControl="resizable" [(ngModel)]="gridConfig.resizable" />
 				</div>
 				<div class="form-group">
 					<label>
 						Auto-Resize Rows/Columns
-						<input type="checkbox" name="auto_resize" />
 					</label>
+					<input type="checkbox" name="auto_resize" ngControl="auto_resize" [(ngModel)]="gridConfig.auto_resize" />
 				</div>
 				<div class="form-group">
 					<label>
 						Cascade Direction
-						<select class="form-control" name="cascade">
-							<!-- <option value="">Off</option>
-							<option value="up">Up</option>
-							<option value="down">Down</option>
-							<option value="left">Left</option>
-							<option value="right">Right</option> --
-						</select>
 					</label>
+					<select name="cascade" ngControl="cascade" [(ngModel)]="gridConfig.cascade">
+						<option value="">Off</option>
+						<option value="up">Up</option>
+						<option value="down">Down</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
 				</div>
 			</div>
 			<div class="form-inline">
 				<div class="form-group">
 					<label>
 						Column Width
-						<input type="number" class="form-control" name="col_width" />
+						<input type="number" class="form-control" name="col_width" ngControl="col_width" [(ngModel)]="gridConfig.col_width" />
 					</label>
 				</div>
 				<div class="form-group">
 					<label>
 						Row Height
-						<input type="number" class="form-control" name="row_height" />
+						<input type="number" class="form-control" name="row_height" ngControl="row_height" [(ngModel)]="gridConfig.row_height" />
 					</label>
 				</div>
 				<div class="form-group">
 					<label>
 						Margins
-						<input type="number" class="form-control" name="margins" />
+						<input type="number" class="form-control" name="margins" ngControl="margins" [(ngModel)]="gridConfig.margins[0]" />
 					</label>
 				</div>
 			</div>
@@ -66,13 +66,13 @@
 				<div class="form-group">
 					<label>
 						Minimum Column Width
-						<input type="number" class="form-control" name="min_width" />
+						<input type="number" class="form-control" name="min_width" ngControl="min_width" [(ngModel)]="gridConfig.min_width" />
 					</label>
 				</div>
 				<div class="form-group">
 					<label>
 						Minimum Row Height
-						<input type="number" class="form-control" name="min_height" />
+						<input type="number" class="form-control" name="min_height" ngControl="min_height" [(ngModel)]="gridConfig.min_height" />
 					</label>
 				</div>
 			</div>
@@ -80,13 +80,27 @@
 				<div class="form-group">
 					<label>
 						Max Columns
-						<input type="number" class="form-control" name="max_cols" [attr.disabled]="gridConfig.max_rows > 0" />
+						<input type="number" class="form-control" name="max_cols" ngControl="max_cols" [(ngModel)]="gridConfig.max_cols" [disabled]="gridConfig.max_rows > 0" />
 					</label>
 				</div>
 				<div class="form-group">
 					<label>
 						Max Rows
-						<input type="number" class="form-control" name="max_rows"  [attr.disabled]="gridConfig.max_cols > 0" />
+						<input type="number" class="form-control" name="max_rows" ngControl="max_rows" [(ngModel)]="gridConfig.max_rows"  [disabled]="gridConfig.max_cols > 0" />
+					</label>
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Visible Columns
+						<input type="number" class="form-control" name="visible_cols" ngControl="visible_cols" [(ngModel)]="gridConfig.visible_cols" [disabled]="gridConfig.max_cols > 0" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Visible Rows
+						<input type="number" class="form-control" name="visible_rows" ngControl="visible_rows" [(ngModel)]="gridConfig.visible_rows"  [disabled]="gridConfig.max_rows > 0" />
 					</label>
 				</div>
 			</div>
@@ -94,28 +108,28 @@
 				<div class="form-group">
 					<label>
 						Min Columns
-						<input type="number" class="form-control" name="min_cols" />
+						<input type="number" class="form-control" name="min_cols" ngControl="min_cols" [(ngModel)]="gridConfig.min_cols" />
 					</label>
 				</div>
 				<div class="form-group">
 					<label>
 						Min Rows
-						<input type="number" class="form-control" name="min_rows"  />
+						<input type="number" class="form-control" name="min_rows" ngControl="min_rows" [(ngModel)]="gridConfig.min_rows"  />
 					</label>
 				</div>
 			</div>
 			<div class="form-inline">
 				<label>
 					Get Item Position &amp; Size
-					<select name="itemCheck" class="form-control">
-						<!-- <option *ngFor="#box of boxes; #i = index" [attr.value]="i">{{box}}</option> --
+					<select name="itemCheck" class="form-control" ngControl="item_check" [(ngModel)]="itemCheck">
+						<option *ngFor="#box of boxes; #i = index" [attr.value]="i">{{box}}</option>
 					</select>
 				</label>
 				
-				
+				Col: {{ curItem.col }}, Row: {{ curItem.row }}, Size X: {{ curItem.sizex }}, Size Y: {{ curItem.sizey }}
 				<a (click)="removeBox()" class="btn btn-primary">Remove Box</a>
 			</div>
-		</form> -->
+		</form>
 		<a (click)="addBox()" class="btn btn-primary pull-right">Add Box</a>
 	</div>
 </div>

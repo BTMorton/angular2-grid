@@ -33,6 +33,8 @@ export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _containerHeight;
     private _maxCols;
     private _maxRows;
+    private _visibleCols;
+    private _visibleRows;
     private _minWidth;
     private _minHeight;
     private _setWidth;
@@ -67,6 +69,7 @@ export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     disableResize(): void;
     addItem(ngItem: NgGridItem): void;
     removeItem(ngItem: NgGridItem): void;
+    triggerCascade(): void;
     private _onResize(e);
     private _applyChanges(changes);
     private _onMouseDown(e);
