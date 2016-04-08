@@ -1,7 +1,7 @@
 import { Component, ViewEncapsulation, enableProdMode } from 'angular2/core';
 import { CORE_DIRECTIVES, FORM_DIRECTIVES } from 'angular2/common';
 import { bootstrap } from 'angular2/platform/browser';
-import { NgGrid, NgGridItem } from "./NgGrid";
+import { NgGrid, NgGridConfig, NgGridItem, NgGridItemConfig, NgGridItemEvent } from "./NgGrid";
 
 // Annotation section
 @Component({
@@ -16,7 +16,7 @@ class MyAppComponent {
 	private boxes = [1, 2, 3, 4];
 	private rgb = '#efefef';
 	private curNum: number = 5;
-	private gridConfig = {
+	private gridConfig = <NgGridConfig>{
 		'margins': [5],
 		'draggable': true,
 		'resizable': true,
