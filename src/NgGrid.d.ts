@@ -1,4 +1,23 @@
 import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, OnDestroy, DoCheck } from 'angular2/core';
+export interface NgGridConfig {
+    margins?: number[];
+    draggable?: boolean;
+    resizeable?: boolean;
+    max_cols?: number;
+    max_rows?: number;
+    visible_cols?: number;
+    visible_rows?: number;
+    min_cols?: number;
+    min_rows?: number;
+    col_width?: number;
+    row_height?: number;
+    cascade?: string;
+    min_width?: number;
+    min_height?: number;
+    fix_to_grid?: boolean;
+    auto_style?: boolean;
+    auto_resize?: boolean;
+}
 export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _differs;
     private _ngEl;
@@ -48,11 +67,11 @@ export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _destroyed;
     private static CONST_DEFAULT_CONFIG;
     private _config;
-    config: any;
+    config: NgGridConfig;
     constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader);
     ngOnInit(): void;
     ngOnDestroy(): void;
-    setConfig(config: any): void;
+    setConfig(config: NgGridConfig): void;
     getItemPosition(index: number): {
         col: number;
         row: number;
@@ -103,17 +122,39 @@ export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _getItemFromPosition(position);
     private _createPlaceholder(pos, dims);
 }
+export interface NgGridItemConfig {
+    col?: number;
+    row?: number;
+    sizex?: number;
+    sizey?: number;
+    dragHandle?: string;
+    resizeHandle?: string;
+    fixed?: boolean;
+    draggable?: boolean;
+    resizable?: boolean;
+    borderSize?: number;
+}
+export interface NgGridItemEvent {
+    col: number;
+    row: number;
+    sizex: number;
+    sizey: number;
+    width: number;
+    height: number;
+    left: number;
+    top: number;
+}
 export declare class NgGridItem implements OnInit, OnDestroy {
     private _ngEl;
     private _renderer;
     private _ngGrid;
-    itemChange: EventEmitter<any>;
-    dragStart: EventEmitter<any>;
-    drag: EventEmitter<any>;
-    dragStop: EventEmitter<any>;
-    resizeStart: EventEmitter<any>;
-    resize: EventEmitter<any>;
-    resizeStop: EventEmitter<any>;
+    itemChange: EventEmitter<NgGridItemEvent>;
+    dragStart: EventEmitter<NgGridItemEvent>;
+    drag: EventEmitter<NgGridItemEvent>;
+    dragStop: EventEmitter<NgGridItemEvent>;
+    resizeStart: EventEmitter<NgGridItemEvent>;
+    resize: EventEmitter<NgGridItemEvent>;
+    resizeStop: EventEmitter<NgGridItemEvent>;
     private static CONST_DEFAULT_CONFIG;
     gridPosition: {
         'col': number;
@@ -139,7 +180,7 @@ export declare class NgGridItem implements OnInit, OnDestroy {
     private _elemLeft;
     private _elemTop;
     private _added;
-    config: any;
+    config: NgGridItemConfig;
     constructor(_ngEl: ElementRef, _renderer: Renderer, _ngGrid: NgGrid);
     ngOnInit(): void;
     canDrag(e: any): boolean;
@@ -165,19 +206,10 @@ export declare class NgGridItem implements OnInit, OnDestroy {
         col: number;
         row: number;
     };
-    setConfig(config: any): void;
+    setConfig(config: NgGridItemConfig): void;
     setSize(x: number, y: number): void;
     setGridPosition(col: number, row: number): void;
-    getEventOutput(): {
-        col: number;
-        row: number;
-        sizex: number;
-        sizey: number;
-        width: number;
-        height: number;
-        left: number;
-        top: number;
-    };
+    getEventOutput(): NgGridItemEvent;
     setPosition(x: number, y: number): void;
     setDimensions(w: number, h: number): void;
     startMoving(): void;
