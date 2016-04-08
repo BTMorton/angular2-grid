@@ -2,7 +2,7 @@ import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDif
 export interface NgGridConfig {
     margins?: number[];
     draggable?: boolean;
-    resizeable?: boolean;
+    resizable?: boolean;
     max_cols?: number;
     max_rows?: number;
     visible_cols?: number;

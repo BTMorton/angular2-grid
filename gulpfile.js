@@ -11,7 +11,7 @@ var KarmaServer = require('karma').Server;
 
 var tsProject = typescript.createProject({
 	"target": "ES5",
-    "module": "commonjs",
+    "module": "umd",
     "moduleResolution": "node",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
