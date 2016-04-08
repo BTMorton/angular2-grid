@@ -4,7 +4,7 @@ import { Component, Directive, ElementRef, Renderer, EventEmitter, DynamicCompon
 export interface NgGridConfig {
 	margins?: number[];
 	draggable?: boolean;
-	resizeable?: boolean;
+	resizable?: boolean;
 	max_cols?: number;
 	max_rows?: number;
 	visible_cols?: number;
@@ -87,7 +87,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _destroyed: boolean = false;
 
 	//	Default config
-	private static CONST_DEFAULT_CONFIG = <NgGridConfig>{
+	private static CONST_DEFAULT_CONFIG:NgGridConfig = {
 		margins: [10],
 		draggable: true,
 		resizable: true,
@@ -1011,7 +1011,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public resizeStop: EventEmitter<NgGridItemEvent> = new EventEmitter();
 
 	//	Default config
-	private static CONST_DEFAULT_CONFIG = <NgGridItemConfig>{
+	private static CONST_DEFAULT_CONFIG:NgGridItemConfig = {
 		col: 1,
 		row: 1,
 		sizex: 1,
