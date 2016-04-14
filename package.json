@@ -2,7 +2,7 @@
   "name": "angular2-grid",
   "version": "0.5.3",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
-  "main": "dist/NgGrid.min.js",
+  "main": "dist/NgGrid.js",
   "typings": "dist/NgGrid.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
