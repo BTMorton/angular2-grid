@@ -23,12 +23,13 @@ export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _ngEl;
     private _renderer;
     private _loader;
-    dragStart: EventEmitter<any>;
-    drag: EventEmitter<any>;
-    dragStop: EventEmitter<any>;
-    resizeStart: EventEmitter<any>;
-    resize: EventEmitter<any>;
-    resizeStop: EventEmitter<any>;
+    dragStart: EventEmitter<NgGridItem>;
+    drag: EventEmitter<NgGridItem>;
+    dragStop: EventEmitter<NgGridItem>;
+    resizeStart: EventEmitter<NgGridItem>;
+    resize: EventEmitter<NgGridItem>;
+    resizeStop: EventEmitter<NgGridItem>;
+    itemChange: EventEmitter<Array<NgGridItemEvent>>;
     colWidth: number;
     rowHeight: number;
     minCols: number;
@@ -88,6 +89,7 @@ export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     disableResize(): void;
     addItem(ngItem: NgGridItem): void;
     removeItem(ngItem: NgGridItem): void;
+    updateItem(ngItem: NgGridItem): void;
     triggerCascade(): void;
     private _onResize(e);
     private _applyChanges(changes);

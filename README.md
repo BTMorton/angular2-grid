@@ -86,6 +86,7 @@ dragStop(item)      //  When an item stops being dragged. Returns reference to c
 resizeStart(item)   //  When an item starts being resized. Returns reference to corresponding NgGridItem
 resize(item)        //  When an item is resized. Returns reference to corresponding NgGridItem
 resizeStop(item)    //  When an item stops being resized. Returns reference to corresponding NgGridItem
+itemChange(items)   //  When any item stops being dragged or resized. Returns an array of NgGridItemEvents in the order in which each item was added to the grid
 ```
 
 The individual items will also throw the following events:
@@ -103,7 +104,7 @@ itemChange()    //  When either the item's grid size or position is changed.
 Each event will also provide the following object to any callback functions:
 
 ```javascript
-{
+interface NgGridItemEvent {
 	col: number,    //  The item's column position within the grid
 	row: number,    //  The item's row position within the grid
 	sizex: number,  //  The item's column size within the grid

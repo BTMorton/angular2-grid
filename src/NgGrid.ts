@@ -35,16 +35,17 @@ export interface NgGridConfig {
 		'(document:mousemove)': '_onMouseMove($event)',
 		'(document:mouseup)': '_onMouseUp($event)'
 	},
-	outputs: ['dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
+	outputs: ['itemChange', 'dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
 })
 export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	//	Event Emitters
-	public dragStart: EventEmitter<any> = new EventEmitter();
-	public drag: EventEmitter<any> = new EventEmitter();
-	public dragStop: EventEmitter<any> = new EventEmitter();
-	public resizeStart: EventEmitter<any> = new EventEmitter();
-	public resize: EventEmitter<any> = new EventEmitter();
-	public resizeStop: EventEmitter<any> = new EventEmitter();
+	public dragStart: EventEmitter<NgGridItem> = new EventEmitter();
+	public drag: EventEmitter<NgGridItem> = new EventEmitter();
+	public dragStop: EventEmitter<NgGridItem> = new EventEmitter();
+	public resizeStart: EventEmitter<NgGridItem> = new EventEmitter();
+	public resize: EventEmitter<NgGridItem> = new EventEmitter();
+	public resizeStop: EventEmitter<NgGridItem> = new EventEmitter();
+	public itemChange: EventEmitter<Array<NgGridItemEvent>> = new EventEmitter();
 
 	//	Public variables
 	public colWidth: number = 250;
@@ -346,6 +347,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._updateSize();
 		this._items.forEach((item) => item.recalculateSelf());
 	}
+	
+	public updateItem(ngItem: NgGridItem) {
+		this._removeFromGrid(ngItem);
+		this._addToGrid(ngItem);
+		this._cascadeGrid();
+		this._updateSize();
+	}
 
 	public triggerCascade() {
 		this._cascadeGrid();
@@ -568,6 +576,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._draggingItem = null;
 			this._posOffset = null;
 			this._placeholderRef.dispose();
+			
+			this.itemChange.emit(this._items.map(item => item.getEventOutput()));
 		}
 	}
 
@@ -588,6 +598,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._resizingItem = null;
 			this._resizeDirection = null;
 			this._placeholderRef.dispose();
+			
+			this.itemChange.emit(this._items.map(item => item.getEventOutput()));
 		}
 	}
 
@@ -1002,7 +1014,7 @@ export interface NgGridItemEvent {
 })
 export class NgGridItem implements OnInit, OnDestroy {
 	//	Event Emitters
-	public itemChange: EventEmitter<NgGridItemEvent> = new EventEmitter();
+	public itemChange: EventEmitter<NgGridItemEvent> = new EventEmitter(false);
 	public dragStart: EventEmitter<NgGridItemEvent> = new EventEmitter();
 	public drag: EventEmitter<NgGridItemEvent> = new EventEmitter();
 	public dragStop: EventEmitter<NgGridItemEvent> = new EventEmitter();
@@ -1187,8 +1199,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this.isFixed = config.fixed ? true : false;
 
 		if (this._added) {
-			this._ngGrid.removeItem(this);
-			this._ngGrid.addItem(this);
+			this._ngGrid.updateItem(this);
 		}
 
 		this._recalculatePosition();
