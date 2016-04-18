@@ -19,6 +19,7 @@ export interface NgGridConfig {
 	fix_to_grid?: boolean;
 	auto_style?: boolean;
 	auto_resize?: boolean;
+	maintain_ratio: boolean;
 }
 
 @Directive({
@@ -86,6 +87,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _autoResize: boolean = false;
 	private _differ: KeyValueDiffer;
 	private _destroyed: boolean = false;
+	private _maintainRatio: boolean = false;
+	private _aspectRatio: number;
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG:NgGridConfig = {
@@ -103,7 +106,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		min_height: 100,
 		fix_to_grid: false,
 		auto_style: true,
-		auto_resize: false
+		auto_resize: false,
+		maintain_ratio: false
 	};
 	private _config = NgGrid.CONST_DEFAULT_CONFIG;
 
@@ -195,9 +199,20 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				case 'fix_to_grid':
 					this._fixToGrid = val ? true : false;
 					break;
+				case 'maintain_ratio':
+					this._maintainRatio = val ? true : false;
+					break;
 			}
 		}
-
+		
+		if (this._maintainRatio) {
+			if (this.colWidth && this.rowHeight) {
+				this._aspectRatio = this.colWidth / this.rowHeight;
+			} else {
+				this._maintainRatio = false;
+			}
+		}
+		
 		if (maxColRowChanged) {
 			if (this._maxCols > 0 && this._maxRows > 0) {	//	Can't have both, prioritise on cascade
 				switch (this.cascade) {
@@ -238,24 +253,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._cascadeGrid();
 		}
 
-		if (this._autoResize) {
-			if (this._maxCols > 0 || this._visibleCols > 0) {
-				var maxCols = this._maxCols > 0 ? this._maxCols : this._visibleCols;
-				var maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
-
-				var colWidth: number = Math.floor(maxWidth / maxCols);
-				colWidth -= (this.marginLeft + this.marginRight);
-				if (colWidth > 0) this.colWidth = colWidth;
-			}
-			if (this._maxRows > 0 || this._visibleRows > 0) {
-				var maxRows = this._maxRows > 0 ? this._maxRows : this._visibleRows;
-				var maxHeight: number = window.innerHeight;
-
-				var rowHeight: number = Math.floor(maxHeight / maxRows);
-				rowHeight -= (this.marginTop + this.marginBottom);
-				if (rowHeight > 0) this.rowHeight = rowHeight;
-			}
-		}
+		this._calculateRowHeight();
+		this._calculateColWidth();
 
 		var maxWidth = this._maxCols * this.colWidth;
 		var maxHeight = this._maxRows * this.rowHeight;
@@ -268,7 +267,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 		if (this._maxCols > 0 && this.minCols > this._maxCols) this.minCols = 1;
 		if (this._maxRows > 0 && this.minRows > this._maxRows) this.minRows = 1;
-
+		
+		this._updateRatio();
+		
 		for (var x in this._items) {
 			this._removeFromGrid(this._items[x]);
 			this._items[x].recalculateSelf();
@@ -325,8 +326,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	public addItem(ngItem: NgGridItem): void {
-		var newPos = this._fixGridPosition(ngItem.getGridPosition(), ngItem.getSize());
-		ngItem.setGridPosition(newPos.col, newPos.row);
+		if (!this._preferNew) {
+			var newPos = this._fixGridPosition(ngItem.getGridPosition(), ngItem.getSize());
+			ngItem.setGridPosition(newPos.col, newPos.row);
+		}
 		this._items.push(ngItem);
 		this._addToGrid(ngItem);
 		ngItem.recalculateSelf();
@@ -360,25 +363,53 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	//	Private methods
-	private _onResize(e: any): void {
-		if (this._autoResize) {
+	private _calculateRowHeight(): void {
+		if(this._autoResize) {
 			if (this._maxCols > 0 || this._visibleCols > 0) {
 				var maxCols = this._maxCols > 0 ? this._maxCols : this._visibleCols;
-				var maxWidth = this._ngEl.nativeElement.getBoundingClientRect().width;
+				var maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
 
-				var colWidth = Math.floor(maxWidth / maxCols);
+				var colWidth: number = Math.floor(maxWidth / maxCols);
 				colWidth -= (this.marginLeft + this.marginRight);
-				this.colWidth = colWidth;
-			}
-			if (this._maxRows > 0 || this._visibleRows > 0) {
-				var maxRows = this._maxRows > 0 ? this._maxRows : this._visibleRows;
-				var maxHeight = window.innerHeight;
-
-				var rowHeight = Math.floor(maxHeight / maxRows);
-				rowHeight -= (this.marginTop + this.marginBottom);
-				this.rowHeight = rowHeight;
+				if (colWidth > 0) this.colWidth = colWidth;
 			}
 		}
+	}
+	
+	private _calculateColWidth(): void {
+		if (this._autoResize) {
+			if (this._maxRows > 0 || this._visibleRows > 0) {
+				var maxRows = this._maxRows > 0 ? this._maxRows : this._visibleRows;
+				var maxHeight: number = window.innerHeight;
+
+				var rowHeight: number = Math.floor(maxHeight / maxRows);
+				rowHeight -= (this.marginTop + this.marginBottom);
+				if (rowHeight > 0) this.rowHeight = rowHeight;
+			}
+		}
+	}
+	
+	private _updateRatio(): void {
+		if (this._autoResize && this._maintainRatio) {
+			if (this._maxCols > 0 && this._visibleRows <= 0) {
+				this.rowHeight = this.colWidth / this._aspectRatio;
+			} else if (this._maxRows > 0 && this._visibleCols <= 0) {
+				this.colWidth = this._aspectRatio * this.rowHeight;
+			} else if (this._maxCols == 0 && this._maxRows == 0) {
+				if (this._visibleCols > 0) {
+					this.rowHeight = this.colWidth / this._aspectRatio;
+				} else if (this._visibleRows > 0) {
+					this.colWidth = this._aspectRatio * this.rowHeight;
+				}
+			}
+		}
+	}
+	
+	private _onResize(e: any): void {
+		this._calculateColWidth();
+		this._calculateRowHeight();
+		
+		this._updateRatio();
 
 		for (var x in this._items) {
 			this._items[x].recalculateSelf();

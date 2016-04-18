@@ -33,7 +33,8 @@ class MyAppComponent {
 		'min_height': 100,
 		'fix_to_grid': false,
 		'auto_style': true,
-		'auto_resize': true
+		'auto_resize': true,
+		'maintain_ratio': false
 	};
 	private curItem = {
 		'col': 0,
@@ -43,6 +44,12 @@ class MyAppComponent {
 	}
 	private curItemCheck:number = 0;
 	private itemPositions: Array<any> = [];
+	
+	get ratioDisabled(): boolean {
+		return (this.gridConfig.max_rows > 0 && this.gridConfig.visible_cols > 0) ||
+			(this.gridConfig.max_cols > 0 && this.gridConfig.visible_rows > 0) ||
+			(this.gridConfig.visible_cols > 0 && this.gridConfig.visible_rows > 0);
+	}
 	
 	get itemCheck() { return this.curItemCheck; }
 	set itemCheck(v: number) {

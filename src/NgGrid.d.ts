@@ -17,6 +17,7 @@ export interface NgGridConfig {
     fix_to_grid?: boolean;
     auto_style?: boolean;
     auto_resize?: boolean;
+    maintain_ratio: boolean;
 }
 export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _differs;
@@ -66,6 +67,8 @@ export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _autoResize;
     private _differ;
     private _destroyed;
+    private _maintainRatio;
+    private _aspectRatio;
     private static CONST_DEFAULT_CONFIG;
     private _config;
     config: NgGridConfig;
@@ -91,6 +94,9 @@ export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     removeItem(ngItem: NgGridItem): void;
     updateItem(ngItem: NgGridItem): void;
     triggerCascade(): void;
+    private _calculateRowHeight();
+    private _calculateColWidth();
+    private _updateRatio();
     private _onResize(e);
     private _applyChanges(changes);
     private _onMouseDown(e);
