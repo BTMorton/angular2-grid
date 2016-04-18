@@ -54,6 +54,7 @@ To configure the grid with your own options, it is as easy as adding them as the
     'auto_style': true,         //  Automatically add required element styles at run-time
     'auto_resize': false,       //  Automatically set col_width/row_height so that max_cols/max_rows fills the screen. Only has effect is max_cols or max_rows is set
     'maintain_ratio': false,    //  Attempts to maintain aspect ratio based on the colWidth/rowHeight values set in the config
+    'prefer_new': false,        //  When adding new items, will use that items position ahead of existing items
 }
 ```
 
@@ -96,9 +97,15 @@ The individual items will also throw the following events:
 dragStart()     //  When the item starts being dragged.
 drag()          //  When the item moves while dragging.
 dragStop()      //  When the item stops being dragged.
+dragAny()       //  When the item starts/stops/is being dragged.
 resizeStart()   //  When the item starts being resized.
 resize()        //  When the item is resized.
 resizeStop()    //  When the item stops being resized.
+resizeAny()     //  When the item starts/stops/is being resized.
+changeStart()   //  When the item starts being dragged or resized.
+change()        //  When the item is dragged or resized.
+changeStop()    //  When the item stops being dragged or resized.
+changeAny()     //  When the item starts/stops/is being dragged or resized.
 itemChange()    //  When either the item's grid size or position is changed.
 ```
 

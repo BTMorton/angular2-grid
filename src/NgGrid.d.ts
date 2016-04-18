@@ -17,7 +17,8 @@ export interface NgGridConfig {
     fix_to_grid?: boolean;
     auto_style?: boolean;
     auto_resize?: boolean;
-    maintain_ratio: boolean;
+    maintain_ratio?: boolean;
+    prefer_new?: boolean;
 }
 export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _differs;
@@ -69,6 +70,7 @@ export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _destroyed;
     private _maintainRatio;
     private _aspectRatio;
+    private _preferNew;
     private static CONST_DEFAULT_CONFIG;
     private _config;
     config: NgGridConfig;
@@ -160,9 +162,15 @@ export declare class NgGridItem implements OnInit, OnDestroy {
     dragStart: EventEmitter<NgGridItemEvent>;
     drag: EventEmitter<NgGridItemEvent>;
     dragStop: EventEmitter<NgGridItemEvent>;
+    dragAny: EventEmitter<NgGridItemEvent>;
     resizeStart: EventEmitter<NgGridItemEvent>;
     resize: EventEmitter<NgGridItemEvent>;
     resizeStop: EventEmitter<NgGridItemEvent>;
+    resizeAny: EventEmitter<NgGridItemEvent>;
+    changeStart: EventEmitter<NgGridItemEvent>;
+    change: EventEmitter<NgGridItemEvent>;
+    changeStop: EventEmitter<NgGridItemEvent>;
+    changeAny: EventEmitter<NgGridItemEvent>;
     private static CONST_DEFAULT_CONFIG;
     gridPosition: {
         'col': number;
@@ -190,6 +198,12 @@ export declare class NgGridItem implements OnInit, OnDestroy {
     private _added;
     config: NgGridItemConfig;
     constructor(_ngEl: ElementRef, _renderer: Renderer, _ngGrid: NgGrid);
+    onResizeStart(): void;
+    onResize(): void;
+    onResizeStop(): void;
+    onDragStart(): void;
+    onDrag(): void;
+    onDragStop(): void;
     ngOnInit(): void;
     canDrag(e: any): boolean;
     canResize(e: any): string;

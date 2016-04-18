@@ -111,6 +111,12 @@
 						<input type="checkbox" class="form-control" name="maintain_ratio" ngControl="maintain_ratio" [(ngModel)]="gridConfig.maintain_ratio" [disabled]="ratioDisabled" />
 					</label>
 				</div>
+				<div class="form-group">
+					<label>
+						Prefer New Items
+						<input type="checkbox" class="form-control" name="prefer_new" ngControl="prefer_new" [(ngModel)]="gridConfig.prefer_new" />
+					</label>
+				</div>
 			</div>
 			<div class="form-inline">
 				<div class="form-group">
@@ -142,7 +148,7 @@
 	</div>
 </div>
 <div [ngGrid]="gridConfig">
-	<div *ngFor="#box of boxes; #i = index" [ngGridItem]="{'dragHandle': '.handle'}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<div *ngFor="#box of boxes; #i = index" [ngGridItem]="{'dragHandle': '.handle', 'col': 1, 'row': 1, 'sizex': 1, 'sizey': 1}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		{{box}}
 	</div>

@@ -34,7 +34,8 @@ class MyAppComponent {
 		'fix_to_grid': false,
 		'auto_style': true,
 		'auto_resize': true,
-		'maintain_ratio': false
+		'maintain_ratio': false,
+		'prefer_new': false
 	};
 	private curItem = {
 		'col': 0,
