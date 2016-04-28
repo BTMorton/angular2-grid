@@ -166,7 +166,7 @@ NOTE: The grid system sets the values `width, height, left, top` in CSS to move 
 In order to include the relevant files, you will need to import `NgGrid` and `NgGridItem` to your app and add them to the `@View` directives. This can be achieved by adding: 
 
 ```typescript
-import { NgGrid, NgGridItem } from 'angular2_grid';
+import { NgGrid, NgGridItem } from 'angular2-grid';
 ```
 
 to your typescript imports, and ensuring that your `@Component` annotation looks similar to the following:
