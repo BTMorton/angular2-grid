@@ -1,6 +1,6 @@
 {
   "name": "angular2-grid",
-  "version": "0.3.4",
+  "version": "0.6.3",
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "authors": [
     "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
@@ -27,7 +27,7 @@
   "ignore": [
     "*",
     "!src/NgGrid.ts",
-    "!src/NgGrid.css"
+    "!dist/NgGrid.*"
   ],
   "repository": {
     "type": "git",

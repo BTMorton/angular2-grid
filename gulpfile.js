@@ -2,6 +2,7 @@ var del = require('del');
 var gulp = require('gulp');
 var typescript = require('gulp-typescript');
 var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
 var symlink = require('gulp-symlink');
 var sourcemaps = require('gulp-sourcemaps');
 var runSequence = require('run-sequence');
@@ -11,6 +12,7 @@ var KarmaServer = require('karma').Server;
 var tsProject = typescript.createProject({
 	"target": "ES5",
     "module": "commonjs",
+    "moduleResolution": "node",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -29,7 +31,7 @@ var PATHS = {
 	libs: [
 		'bower_components/bootstrap/dist/css/bootstrap.min.css',
 		'bower_components/bootstrap/dist/css/bootstrap-theme.min.css',
-		'node_modules/angular2/bundles/angular2.min.js',
+		'node_modules/angular2/bundles/angular2.js',
 		'node_modules/angular2/bundles/angular2-polyfills.min.js',
 		'node_modules/systemjs/dist/system.js',
 		'node_modules/systemjs/dist/system-polyfills.js',
@@ -39,15 +41,9 @@ var PATHS = {
 	],
 	rx: 'node_modules/rxjs/**/*.js',
 	typings: [
-		'node_modules/angular2/*.d.ts',
-		'node_modules/angular2/src/**/*.d.ts',
-		'node_modules/angular2/manual_typings/*.d.ts',
 		'node_modules/angular2/typings/**/*.d.ts',
 	],
 	testTypings: [
-		'node_modules/angular2/*.d.ts',
-		'node_modules/angular2/src/**/*.d.ts',
-		'node_modules/angular2/manual_typings/*.d.ts',
 		'node_modules/angular2/typings/**/*.d.ts',
 		'dist/*.d.ts'
 	],
@@ -63,7 +59,7 @@ gulp.task('ts', function () {
 		.pipe(typescript(tsProject));
 
 	return merge([
-		tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('dist')),//.pipe(uglify())
+		tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('dist')).pipe(uglify()).pipe(rename({extname: '.min.js'})).pipe(gulp.dest('dist')),
 		tsResult.dts.pipe(gulp.dest('src')).pipe(gulp.dest('dist'))
 	]);
 });

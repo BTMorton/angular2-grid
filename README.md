@@ -1,6 +1,6 @@
 [![GitHub version](http://img.shields.io/github/release/BTMorton%2Fangular2-grid.svg)](https://github.com/BTMorton/angular2-grid)
 [![npm version](http://img.shields.io/npm/v/angular2-grid.svg)](https://www.npmjs.com/package/angular2-grid)
-[![bower version](http://img.shields.io/bower/v/angular2-grid.svg)](https://github.com/BTMorton/angular2-grid)
+[![bower version](http://img.shields.io/bower/v/angular2-grid.svg)](https://libraries.io/bower/angular2-grid)
 [![license](http://img.shields.io/github/license/BTMorton%2Fangular2-grid.svg)](https://github.com/BTMorton/angular2-grid/blob/master/LICENSE)
 [![open issues](http://img.shields.io/github/issues/BTMorton%2Fangular2-grid.svg)](https://github.com/BTMorton/angular2-grid/issues)
 
@@ -11,12 +11,13 @@ The demo included in this repo follows the [Angular 2 quick start](https://angul
 #### Setup
 ----------
 
-To use the Angular 2 Grid system, simply run `npm install angular2-grid` and then include NgGrid.ts into your typescript compilation. No more work needed!
+To use the Angular 2 Grid system, simply run `npm install angular2-grid` and then include NgGrid in your project (see Example for more details).
 
 If you want to help with development or try the demo, it's less simple, but not hard. First you'll need to install [Node](http://nodejs.org) and check out a copy of the repo. Then run:
 
 ```shell
 $ npm install --dev
+$ bower install
 $ gulp build
 ```
 
@@ -35,6 +36,7 @@ To configure the grid with your own options, it is as easy as adding them as the
 
 ```javascript
 {
+<<<<<<< HEAD
     'margins': [10],        //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
     'canDrag': true,      //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
     'canResize': true,     //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
@@ -50,6 +52,27 @@ To configure the grid with your own options, it is as easy as adding them as the
     'fix_to_grid': false,   //  Fix all item movements to the grid
     'auto_style': true,     //  Automatically add required element styles at run-time
     'auto_resize': false,   //  Automatically set col_width/row_height so that max_cols/max_rows fills the screen. Only has effect is max_cols or max_rows is set
+=======
+    'margins': [10],            //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
+    'draggable': true,          //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
+    'resizeable': true,         //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
+    'max_cols': 0,              //  The maximum number of columns allowed. Set to 0 for infinite. Cannot be used with max_rows
+    'max_rows': 0,              //  The maximum number of rows allowed. Set to 0 for infinite. Cannot be used with max_cols
+    'visible_cols': 0,          //  The number of columns shown on screen when auto_resize is set to true. Set to 0 to not auto_resize. Will be overriden by max_cols
+    'visible_rows': 0,          //  The number of rows shown on screen when auto_resize is set to true. Set to 0 to not auto_resize. Will be overriden by max_rows
+    'min_cols': 0,              //  The minimum number of columns allowed. Can be any number greater than or equal to 1.
+    'min_rows': 0,              //  The minimum number of rows allowed. Can be any number greater than or equal to 1.
+    'col_width': 250,           //  The width of each column
+    'row_height': 250,          //  The height of each row
+    'cascade': 'up',            //  The direction to cascade grid items ('up', 'right', 'down', 'left')
+    'min_width': 100,           //  The minimum width of an item. If greater than col_width, this will update the value of min_cols
+    'min_height': 100,          //  The minimum height of an item. If greater than row_height, this will update the value of min_rows
+    'fix_to_grid': false,       //  Fix all item movements to the grid
+    'auto_style': true,         //  Automatically add required element styles at run-time
+    'auto_resize': false,       //  Automatically set col_width/row_height so that max_cols/max_rows fills the screen. Only has effect is max_cols or max_rows is set
+    'maintain_ratio': false,    //  Attempts to maintain aspect ratio based on the colWidth/rowHeight values set in the config
+    'prefer_new': false,        //  When adding new items, will use that items position ahead of existing items
+>>>>>>> master
 }
 ```
 
@@ -77,25 +100,46 @@ The defaults for the grid item are:
 Both the `NgGrid` and `NgGridItem` throw events when an item is moved or resized. The grid has the following:
 
 ```javascript
-dragStart(item)     //  When an item starts being dragged. Returns reference to corresponding NgGridItem
-drag(item)          //  When an item moves while dragging. Returns reference to corresponding NgGridItem
-dragStop(item)      //  When an item stops being dragged. Returns reference to corresponding NgGridItem
-resizeStart(item)   //  When an item starts being resized. Returns reference to corresponding NgGridItem
-resize(item)        //  When an item is resized. Returns reference to corresponding NgGridItem
-resizeStop(item)    //  When an item stops being resized. Returns reference to corresponding NgGridItem
+onDragStart(item)     //  When an item starts being dragged. Returns reference to corresponding NgGridItem
+onDrag(item)          //  When an item moves while dragging. Returns reference to corresponding NgGridItem
+onDragStop(item)      //  When an item stops being dragged. Returns reference to corresponding NgGridItem
+onResizeStart(item)   //  When an item starts being resized. Returns reference to corresponding NgGridItem
+onResize(item)        //  When an item is resized. Returns reference to corresponding NgGridItem
+onResizeStop(item)    //  When an item stops being resized. Returns reference to corresponding NgGridItem
+onItemChange(items)   //  When any item stops being dragged or resized. Returns an array of NgGridItemEvents in the order in which each item was added to the grid
 ```
 
 The individual items will also throw the following events:
 
 ```javascript
-dragStart({'left': number, 'top': number})              //  When the item starts being dragged. Returns object containing the item's raw left and top values
-drag({'left': number, 'top': number})                   //  When the item moves while dragging. Returns object containing the item's raw left and top values
-dragStop({'left': number, 'top': number})               //  When the item stops being dragged. Returns object containing the item's raw left and top values
-resizeStart({'width': number, 'height': number})        //  When the item starts being resized. Returns object containing the item's raw width and height values
-resize({'width': number, 'height': number})             //  When the item is resized. Returns object containing the item's raw width and height values
-resizeStop({'width': number, 'height': number})         //  When the item stops being resized. Returns object containing the item's raw width and height values
-itemChange({'col': number, 'row': number,               //  When the item's grid size or position is changed. Returns object containing the item's grid position and size
-            'sizex': number, 'sizey': number})          //      The difference between this event and the above is that the values correspond to the psuedo-grid and not the dom positioning
+onDragStart()     //  When the item starts being dragged.
+onDrag()          //  When the item moves while dragging.
+onDragStop()      //  When the item stops being dragged.
+onDragAny()       //  When the item starts/stops/is being dragged.
+onResizeStart()   //  When the item starts being resized.
+onResize()        //  When the item is resized.
+onResizeStop()    //  When the item stops being resized.
+onResizeAny()     //  When the item starts/stops/is being resized.
+onChangeStart()   //  When the item starts being dragged or resized.
+onChange()        //  When the item is dragged or resized.
+onChangeStop()    //  When the item stops being dragged or resized.
+onChangeAny()     //  When the item starts/stops/is being dragged or resized.
+onItemChange()    //  When either the item's grid size or position is changed.
+```
+
+Each event will also provide the following object to any callback functions:
+
+```javascript
+interface NgGridItemEvent {
+	col: number,    //  The item's column position within the grid
+	row: number,    //  The item's row position within the grid
+	sizex: number,  //  The item's column size within the grid
+	sizey: number,  //  The item's row size within the grid
+	width: number,  //  The item's raw width value
+	height: number, //  The item's raw height value
+	left: number,   //  The item's offset left value
+	top: number     //  The item's offset top value
+}
 ```
 
 #### Styling
@@ -128,13 +172,31 @@ NOTE: The grid system sets the values `width, height, left, top` in CSS to move 
 #### Example
 ------------
 
+The `NgGrid` and `NgGridItem` can be configured by binding directly to the directive. The `NgGridItem` supports two-way binding so you don't need to bind to any of the above events. The `NgGridItemChange` event emits under the same conditions as `onChangeStop`. The only config values that will change are `col`, `row`, `sizex` and `sizey`; the rest of your configuration will persist. You can then use these values for serialization of the grid. By binding the configuration this way, you are able to update the values on the fly. Here is an example template of the grid with two-way item bindings:
+
 ```html
 <div [ngGrid]="{'resizeable': false, 'margins': [5, 10]}">
-	<div *ngFor="#box of boxes" [ngGridItem]="{'dragHandle': '.title'}">
+	<div *ngFor="#box of boxes" [(ngGridItem)]="box.config">
 		<div class="title">{{box.title}}</div>
 		<p>{{box.text}}</p>
 	</div>
 </div>
 ```
 
-In order to include the relevant files, you will need to import `NgGrid` and `NgGridItem` to your app and add them to the `@View` directives.
+In order to include the relevant files, you will need to import `NgGrid` and `NgGridItem` to your app and add them to the `@View` directives. This can be achieved by adding: 
+
+```typescript
+import { NgGrid, NgGridItem } from 'angular2-grid';
+```
+
+to your typescript imports, and ensuring that your `@Component` annotation looks similar to the following:
+
+```typescript
+@Component({
+    selector: 'my-app',
+    templateUrl: 'app.html',
+    directives: [NgGrid, NgGridItem]
+})
+```
+
+To see a working typescript example project, check the demo folder in the source.

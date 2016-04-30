@@ -18,7 +18,6 @@ module.exports = function(config) {
             'dist/lib/system.js',
             'node_modules/reflect-metadata/Reflect.js',
             'test-main.js',
-            { pattern: 'node_modules/babel-core/*.js', included: false, serve: true, watch: false },
             { pattern: 'node_modules/angular2/*.js', included: false, serve: true, watch: false },
             { pattern: 'node_modules/angular2/src/**/*.js', included: false, serve: true, watch: false },
             { pattern: 'dist/**/*.js', included: false, serve: true, watch: true },

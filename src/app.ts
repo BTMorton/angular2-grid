@@ -1,29 +1,29 @@
-import { Component, View, ViewEncapsulation, enableProdMode } from 'angular2/core';
-import { CORE_DIRECTIVES, NgStyle, FORM_DIRECTIVES } from 'angular2/common';
+import { Component, ViewEncapsulation, enableProdMode } from 'angular2/core';
+import { CORE_DIRECTIVES, FORM_DIRECTIVES } from 'angular2/common';
 import { bootstrap } from 'angular2/platform/browser';
-import { NgGrid, NgGridItem } from "./NgGrid";
+import { NgGrid, NgGridConfig, NgGridItem, NgGridItemConfig, NgGridItemEvent } from "./NgGrid";
 
 // Annotation section
 @Component({
-	selector: 'my-app'
-})
-@View({
+	selector: 'my-app',
 	templateUrl: 'app.html',
-	styleUrls: ['app.css', 'NgGrid.css'],
-	directives: [CORE_DIRECTIVES, NgStyle, NgGrid, NgGridItem, FORM_DIRECTIVES],
+	styleUrls: ['app.css', 'NgGrid.css', 'NgGrid_FixSmall.css'],
+	directives: [CORE_DIRECTIVES, NgGrid, NgGridItem, FORM_DIRECTIVES],
 	encapsulation: ViewEncapsulation.None
 })
 // Component controller
 class MyAppComponent {
-	private boxes = [1, 2, 3, 4];
+	private boxes = [];
 	private rgb = '#efefef';
-	private curNum: number = 5;
-	private gridConfig = {
+	private curNum: number = 4;
+	private gridConfig = <NgGridConfig>{
 		'margins': [5],
 		'draggable': true,
 		'resizable': true,
 		'max_cols': 6,
 		'max_rows': 0,
+		'visible_cols': 0,
+		'visible_rows': 0,
 		'min_cols': 1,
 		'min_rows': 1,
 		'col_width': 250,
@@ -33,25 +33,36 @@ class MyAppComponent {
 		'min_height': 100,
 		'fix_to_grid': false,
 		'auto_style': true,
-		'auto_resize': true
+		'auto_resize': true,
+		'maintain_ratio': false,
+		'prefer_new': false
 	};
-	private curItem = {
-		'col': 0,
-		'row': 0,
-		'sizex': 0,
-		'sizey': 0
-	}
-	private curItemCheck:number = 0;
+	private curItemCheck: number = 0;
 	private itemPositions: Array<any> = [];
+	
+	constructor() {
+		for (var i = 0; i < 4; i++) {
+			this.boxes[i] = { id: i + 1, config: this._generateDefaultItemConfig() };
+		}
+	}
+	
+	get ratioDisabled(): boolean {
+		return (this.gridConfig.max_rows > 0 && this.gridConfig.visible_cols > 0) ||
+			(this.gridConfig.max_cols > 0 && this.gridConfig.visible_rows > 0) ||
+			(this.gridConfig.visible_cols > 0 && this.gridConfig.visible_rows > 0);
+	}
 	
 	get itemCheck() { return this.curItemCheck; }
 	set itemCheck(v: number) {
-		this.curItem = this.itemPositions[v];
 		this.curItemCheck = v;
 	}
 	
+	get curItem() {
+		return this.boxes[this.curItemCheck].config;
+	}
+	
 	addBox() {
-		this.boxes.push(this.curNum++);
+		this.boxes.push({ id: this.curNum++, config: this._generateDefaultItemConfig() });
 	}
 	
 	removeBox() {
@@ -59,8 +70,7 @@ class MyAppComponent {
 	}
 	
 	updateItem(index: number, pos: { col: number, row: number, sizex: number, sizey: number }) {
-		this.itemPositions[index] = pos;
-		if (this.curItemCheck == index) this.curItem = pos;
+		// Do something here
 	}
 	
 	onDrag(index: number, pos: { left: number, top: number }) {
@@ -69,6 +79,17 @@ class MyAppComponent {
 	
 	onResize(index: number, dims: { width: number, height: number }) {
 		// Do something here
+	}
+	
+	private _generateDefaultItemConfig(): any {
+		return { 'dragHandle': '.handle', 'col': 1, 'row': 1, 'sizex': 1, 'sizey': 1 };
+	}
+	
+	private _randomise() {
+		for (var x in this.boxes) {
+			this.boxes[x].config.col = Math.floor(Math.random() * 6) + 1;
+			this.boxes[x].config.row = 1;
+		}
 	}
 }
 

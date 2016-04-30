@@ -93,6 +93,34 @@
 			<div class="form-inline">
 				<div class="form-group">
 					<label>
+						Visible Columns
+						<input type="number" class="form-control" name="visible_cols" ngControl="visible_cols" [(ngModel)]="gridConfig.visible_cols" [disabled]="gridConfig.max_cols > 0 || gridConfig.maintain_ratio" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Visible Rows
+						<input type="number" class="form-control" name="visible_rows" ngControl="visible_rows" [(ngModel)]="gridConfig.visible_rows"  [disabled]="gridConfig.max_rows > 0 || gridConfig.maintain_ratio" />
+					</label>
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Maintain Aspect Ratio
+						<input type="checkbox" class="form-control" name="maintain_ratio" ngControl="maintain_ratio" [(ngModel)]="gridConfig.maintain_ratio" [disabled]="ratioDisabled" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Prefer New Items
+						<input type="checkbox" class="form-control" name="prefer_new" ngControl="prefer_new" [(ngModel)]="gridConfig.prefer_new" />
+					</label>
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
 						Min Columns
 						<input type="number" class="form-control" name="min_cols" ngControl="min_cols" [(ngModel)]="gridConfig.min_cols" />
 					</label>
@@ -108,7 +136,7 @@
 				<label>
 					Get Item Position &amp; Size
 					<select name="itemCheck" class="form-control" ngControl="item_check" [(ngModel)]="itemCheck">
-						<option *ngFor="#box of boxes; #i = index" [attr.value]="i">{{box}}</option>
+						<option *ngFor="let box of boxes; let i = index" [attr.value]="i">{{box.id}}</option>
 					</select>
 				</label>
 				
@@ -116,13 +144,15 @@
 				<a (click)="removeBox()" class="btn btn-primary">Remove Box</a>
 			</div>
 		</form>
+		
+		<a (click)="_randomise()" class="btn btn-primary pull-right">Randomise Boxes</a>
 		<a (click)="addBox()" class="btn btn-primary pull-right">Add Box</a>
 	</div>
 </div>
 <div [ngGrid]="gridConfig">
-	<div *ngFor="#box of boxes; #i = index" [ngGridItem]="{'dragHandle': '.handle'}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<div *ngFor="let box of boxes; let i = index" [(ngGridItem)]="box.config" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
-		{{box}}
+		{{box.id}}
 	</div>
 	<div [ngGridItem]="{'dragHandle': '.handle', 'canCascade': false, 'col': 2, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>

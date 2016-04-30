@@ -259,7 +259,7 @@ export function main() {
 			ngGridItem.onMouseMove(e);
 			expect(ngGridItem.canDrag).toHaveBeenCalled();
 			expect(ngGridItem.canResize).not.toHaveBeenCalled();
-			expect((<any>ngGridItem)._getMousePosition).toHaveBeenCalled();
+			expect((<any>ngGridItem)._getMousePosition).not.toHaveBeenCalled();
 			expect(renderSpy.setElementStyle).toHaveBeenCalledWith(ngEl, 'cursor', 'move');
 			(<any>ngGridItem.canDrag).calls.reset();
 			(<any>ngGridItem.canResize).calls.reset();
@@ -271,11 +271,11 @@ export function main() {
 			var ngGridSpy: any = jasmine.createSpyObj('ngGridSpy', ['removeItem'])
 			var ngGridItem: NgGridItem = new NgGridItem(null, null, ngGridSpy);
 			(<any>ngGridItem)._added = false;
-			ngGridItem.onDestroy();
+			ngGridItem.ngOnDestroy();
 			expect(ngGridSpy.removeItem).not.toHaveBeenCalled();
 
 			(<any>ngGridItem)._added = true;
-			ngGridItem.onDestroy();
+			ngGridItem.ngOnDestroy();
 			expect(ngGridSpy.removeItem).toHaveBeenCalledWith(ngGridItem);
 		});
 

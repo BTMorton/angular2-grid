@@ -1,15 +1,38 @@
-import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, OnDestroy, DoCheck } from 'angular2/core';
-export declare class NgGrid implements OnInit, DoCheck {
+import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef } from 'angular2/core';
+export interface NgGridConfig {
+    margins?: number[];
+    can_drag?: boolean;
+    can_resize?: boolean;
+    max_cols?: number;
+    max_rows?: number;
+    visible_cols?: number;
+    visible_rows?: number;
+    min_cols?: number;
+    min_rows?: number;
+    col_width?: number;
+    row_height?: number;
+    cascade?: string;
+    min_width?: number;
+    min_height?: number;
+    fix_to_grid?: boolean;
+    auto_style?: boolean;
+    auto_resize?: boolean;
+    maintain_ratio?: boolean;
+    prefer_new?: boolean;
+}
+export declare class NgGrid implements OnInit, DoCheck, OnDestroy {
     private _differs;
     private _ngEl;
     private _renderer;
     private _loader;
-    dragStart: EventEmitter<any>;
-    drag: EventEmitter<any>;
-    dragStop: EventEmitter<any>;
-    resizeStart: EventEmitter<any>;
-    resize: EventEmitter<any>;
-    resizeStop: EventEmitter<any>;
+    private _containerRef;
+    onDragStart: EventEmitter<NgGridItem>;
+    onDrag: EventEmitter<NgGridItem>;
+    onDragStop: EventEmitter<NgGridItem>;
+    onResizeStart: EventEmitter<NgGridItem>;
+    onResize: EventEmitter<NgGridItem>;
+    onResizeStop: EventEmitter<NgGridItem>;
+    onItemChange: EventEmitter<Array<NgGridItemEvent>>;
     colWidth: number;
     rowHeight: number;
     minCols: number;
@@ -24,6 +47,8 @@ export declare class NgGrid implements OnInit, DoCheck {
     resizeEnable: boolean;
     dragEnable: boolean;
     cascade: string;
+    minWidth: number;
+    minHeight: number;
     private _items;
     private _draggingItem;
     private _resizingItem;
@@ -33,8 +58,8 @@ export declare class NgGrid implements OnInit, DoCheck {
     private _containerHeight;
     private _maxCols;
     private _maxRows;
-    private _minWidth;
-    private _minHeight;
+    private _visibleCols;
+    private _visibleRows;
     private _setWidth;
     private _setHeight;
     private _posOffset;
@@ -43,12 +68,17 @@ export declare class NgGrid implements OnInit, DoCheck {
     private _fixToGrid;
     private _autoResize;
     private _differ;
+    private _destroyed;
+    private _maintainRatio;
+    private _aspectRatio;
+    private _preferNew;
     private static CONST_DEFAULT_CONFIG;
     private _config;
-    config: any;
-    constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader);
+    config: NgGridConfig;
+    constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer, _loader: DynamicComponentLoader, _containerRef: ViewContainerRef);
     ngOnInit(): void;
-    setConfig(config: any): void;
+    ngOnDestroy(): void;
+    setConfig(config: NgGridConfig): void;
     getItemPosition(index: number): {
         col: number;
         row: number;
@@ -65,6 +95,11 @@ export declare class NgGrid implements OnInit, DoCheck {
     disableResize(): void;
     addItem(ngItem: NgGridItem): void;
     removeItem(ngItem: NgGridItem): void;
+    updateItem(ngItem: NgGridItem): void;
+    triggerCascade(): void;
+    private _calculateColWidth();
+    private _calculateRowHeight();
+    private _updateRatio();
     private _onResize(e);
     private _applyChanges(changes);
     private _onMouseDown(e);
@@ -79,11 +114,14 @@ export declare class NgGrid implements OnInit, DoCheck {
     private _maxGridSize(w, h);
     private _calculateGridSize(width, height);
     private _calculateGridPosition(left, top);
-    private _checkGridCollision(pos, dims);
+    private _hasGridCollision(pos, dims);
     private _getCollisions(pos, dims);
     private _fixGridCollisions(item);
     private _cascadeGrid(pos?, dims?);
     private _fixGridPosition(pos, dims);
+    private _isWithinBoundsX(pos, dims);
+    private _isWithinBoundsY(pos, dims);
+    private _isWithinBounds(pos, dims);
     private _addToGrid(item);
     private _removeFromGrid(item);
     private _updateSize(col?, row?);
@@ -93,28 +131,52 @@ export declare class NgGrid implements OnInit, DoCheck {
     private _getMousePosition(e);
     private _getAbsoluteMousePosition(e);
     private _getItemFromPosition(position);
-    private _createPlaceholder(pos, dims);
+    private _createPlaceholder(item);
+}
+export interface NgGridItemConfig {
+    col?: number;
+    row?: number;
+    sizex?: number;
+    sizey?: number;
+    drag_handle?: string;
+    resize_handle?: string;
+    fixed?: boolean;
+    can_cascade?: boolean;
+    can_drag?: boolean;
+    can_resize?: boolean;
+    border_size?: number;
+}
+export interface NgGridItemEvent {
+    col: number;
+    row: number;
+    sizex: number;
+    sizey: number;
+    width: number;
+    height: number;
+    left: number;
+    top: number;
 }
 export declare class NgGridItem implements OnInit, OnDestroy {
+    private _differs;
     private _ngEl;
     private _renderer;
     private _ngGrid;
-    itemChange: EventEmitter<any>;
-    dragStart: EventEmitter<any>;
-    drag: EventEmitter<any>;
-    dragStop: EventEmitter<any>;
-    resizeStart: EventEmitter<any>;
-    resize: EventEmitter<any>;
-    resizeStop: EventEmitter<any>;
+    containerRef: ViewContainerRef;
+    onItemChange: EventEmitter<NgGridItemEvent>;
+    onDragStart: EventEmitter<NgGridItemEvent>;
+    onDrag: EventEmitter<NgGridItemEvent>;
+    onDragStop: EventEmitter<NgGridItemEvent>;
+    onDragAny: EventEmitter<NgGridItemEvent>;
+    onResizeStart: EventEmitter<NgGridItemEvent>;
+    onResize: EventEmitter<NgGridItemEvent>;
+    onResizeStop: EventEmitter<NgGridItemEvent>;
+    onResizeAny: EventEmitter<NgGridItemEvent>;
+    onChangeStart: EventEmitter<NgGridItemEvent>;
+    onChange: EventEmitter<NgGridItemEvent>;
+    onChangeStop: EventEmitter<NgGridItemEvent>;
+    onChangeAny: EventEmitter<NgGridItemEvent>;
+    ngGridItemChange: EventEmitter<NgGridItemConfig>;
     private static CONST_DEFAULT_CONFIG;
-    gridPosition: {
-        'col': number;
-        'row': number;
-    };
-    gridSize: {
-        'x': number;
-        'y': number;
-    };
     canCascade: boolean;
     isDragEnabled: boolean;
     isResizeEnabled: boolean;
@@ -132,8 +194,16 @@ export declare class NgGridItem implements OnInit, OnDestroy {
     private _elemLeft;
     private _elemTop;
     private _added;
-    config: any;
-    constructor(_ngEl: ElementRef, _renderer: Renderer, _ngGrid: NgGrid);
+    private _differ;
+    config: NgGridItemConfig;
+    constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer, _ngGrid: NgGrid, containerRef: ViewContainerRef);
+    onResizeStartEvent(): void;
+    onResizeEvent(): void;
+    onResizeStopEvent(): void;
+    onDragStartEvent(): void;
+    onDragEvent(): void;
+    onDragStopEvent(): void;
+    onCascadeEvent(): void;
     ngOnInit(): void;
     canDrag(e: any): boolean;
     canResize(e: any): string;
@@ -158,9 +228,11 @@ export declare class NgGridItem implements OnInit, OnDestroy {
         col: number;
         row: number;
     };
-    setConfig(config: any): void;
-    setSize(x: number, y: number): void;
-    setGridPosition(col: number, row: number): void;
+    setConfig(config: NgGridItemConfig): void;
+    ngDoCheck(): boolean;
+    setSize(x: number, y: number, update?: boolean): void;
+    setGridPosition(col: number, row: number, update?: boolean): void;
+    getEventOutput(): NgGridItemEvent;
     setPosition(x: number, y: number): void;
     setDimensions(w: number, h: number): void;
     startMoving(): void;
@@ -169,16 +241,18 @@ export declare class NgGridItem implements OnInit, OnDestroy {
     private _recalculatePosition();
     private _recalculateDimensions();
     private _getMousePosition(e);
+    private _applyChanges(changes);
 }
 export declare class NgGridPlaceholder implements OnInit {
     private _ngEl;
     private _renderer;
-    private _ngGrid;
     private _sizex;
     private _sizey;
     private _col;
     private _row;
-    constructor(_ngEl: ElementRef, _renderer: Renderer, _ngGrid: NgGrid);
+    private _ngGrid;
+    constructor(_ngEl: ElementRef, _renderer: Renderer);
+    registerGrid(ngGrid: NgGrid): void;
     ngOnInit(): void;
     setSize(x: number, y: number): void;
     setGridPosition(col: number, row: number): void;
