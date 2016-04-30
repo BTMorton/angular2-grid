@@ -82,31 +82,31 @@ The defaults for the grid item are:
 Both the `NgGrid` and `NgGridItem` throw events when an item is moved or resized. The grid has the following:
 
 ```javascript
-dragStart(item)     //  When an item starts being dragged. Returns reference to corresponding NgGridItem
-drag(item)          //  When an item moves while dragging. Returns reference to corresponding NgGridItem
-dragStop(item)      //  When an item stops being dragged. Returns reference to corresponding NgGridItem
-resizeStart(item)   //  When an item starts being resized. Returns reference to corresponding NgGridItem
-resize(item)        //  When an item is resized. Returns reference to corresponding NgGridItem
-resizeStop(item)    //  When an item stops being resized. Returns reference to corresponding NgGridItem
-itemChange(items)   //  When any item stops being dragged or resized. Returns an array of NgGridItemEvents in the order in which each item was added to the grid
+onDragStart(item)     //  When an item starts being dragged. Returns reference to corresponding NgGridItem
+onDrag(item)          //  When an item moves while dragging. Returns reference to corresponding NgGridItem
+onDragStop(item)      //  When an item stops being dragged. Returns reference to corresponding NgGridItem
+onResizeStart(item)   //  When an item starts being resized. Returns reference to corresponding NgGridItem
+onResize(item)        //  When an item is resized. Returns reference to corresponding NgGridItem
+onResizeStop(item)    //  When an item stops being resized. Returns reference to corresponding NgGridItem
+onItemChange(items)   //  When any item stops being dragged or resized. Returns an array of NgGridItemEvents in the order in which each item was added to the grid
 ```
 
 The individual items will also throw the following events:
 
 ```javascript
-dragStart()     //  When the item starts being dragged.
-drag()          //  When the item moves while dragging.
-dragStop()      //  When the item stops being dragged.
-dragAny()       //  When the item starts/stops/is being dragged.
-resizeStart()   //  When the item starts being resized.
-resize()        //  When the item is resized.
-resizeStop()    //  When the item stops being resized.
-resizeAny()     //  When the item starts/stops/is being resized.
-changeStart()   //  When the item starts being dragged or resized.
-change()        //  When the item is dragged or resized.
-changeStop()    //  When the item stops being dragged or resized.
-changeAny()     //  When the item starts/stops/is being dragged or resized.
-itemChange()    //  When either the item's grid size or position is changed.
+onDragStart()     //  When the item starts being dragged.
+onDrag()          //  When the item moves while dragging.
+onDragStop()      //  When the item stops being dragged.
+onDragAny()       //  When the item starts/stops/is being dragged.
+onResizeStart()   //  When the item starts being resized.
+onResize()        //  When the item is resized.
+onResizeStop()    //  When the item stops being resized.
+onResizeAny()     //  When the item starts/stops/is being resized.
+onChangeStart()   //  When the item starts being dragged or resized.
+onChange()        //  When the item is dragged or resized.
+onChangeStop()    //  When the item stops being dragged or resized.
+onChangeAny()     //  When the item starts/stops/is being dragged or resized.
+onItemChange()    //  When either the item's grid size or position is changed.
 ```
 
 Each event will also provide the following object to any callback functions:

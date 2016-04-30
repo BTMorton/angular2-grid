@@ -1,4 +1,4 @@
-import { Component, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef } from 'angular2/core';
+import { Component, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from 'angular2/core';
 
 //	Default config
 export interface NgGridConfig {
@@ -36,18 +36,17 @@ export interface NgGridConfig {
 		'(window:resize)': '_onResize($event)',
 		'(document:mousemove)': '_onMouseMove($event)',
 		'(document:mouseup)': '_onMouseUp($event)'
-	},
-	outputs: ['itemChange', 'dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
+	}
 })
 export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	//	Event Emitters
-	public dragStart: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
-	public drag: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
-	public dragStop: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
-	public resizeStart: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
-	public resize: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
-	public resizeStop: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
-	public itemChange: EventEmitter<Array<NgGridItemEvent>> = new EventEmitter<Array<NgGridItemEvent>>();
+	@Output() public onDragStart: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
+	@Output() public onDrag: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
+	@Output() public onDragStop: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
+	@Output() public onResizeStart: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
+	@Output() public onResize: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
+	@Output() public onResizeStop: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
+	@Output() public onItemChange: EventEmitter<Array<NgGridItemEvent>> = new EventEmitter<Array<NgGridItemEvent>>();
 
 	//	Public variables
 	public colWidth: number = 250;
@@ -461,8 +460,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._createPlaceholder(item);
 			this.isResizing = true;
 
-			this.resizeStart.emit(item);
-			item.onResizeStart();
+			this.onResizeStart.emit(item);
+			item.onResizeStartEvent();
 		}
 	}
 
@@ -480,8 +479,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._createPlaceholder(item);
 			this.isDragging = true;
 
-			this.dragStart.emit(item);
-			item.onDragStart();
+			this.onDragStart.emit(item);
+			item.onDragStartEvent();
 		}
 	}
 
@@ -521,7 +520,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				gridPos.row = this._maxRows - (dims.y - 1);
 
 			if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
-				this._draggingItem.setGridPosition(gridPos.col, gridPos.row);
+				this._draggingItem.setGridPosition(gridPos.col, gridPos.row, false);
 				this._placeholderRef.instance.setGridPosition(gridPos.col, gridPos.row);
 
 				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
@@ -533,8 +532,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				this._draggingItem.setPosition(newL, newT);
 			}
 
-			this.drag.emit(this._draggingItem);
-			this._draggingItem.onDrag();
+			this.onDrag.emit(this._draggingItem);
+			this._draggingItem.onDragEvent();
 		}
 	}
 
@@ -562,7 +561,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				calcSize.y = (this._maxRows - iGridPos.row) + 1;
 
 			if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
-				this._resizingItem.setSize(calcSize.x, calcSize.y);
+				this._resizingItem.setSize(calcSize.x, calcSize.y, false);
 				this._placeholderRef.instance.setSize(calcSize.x, calcSize.y);
 
 				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
@@ -579,8 +578,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
 			if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
 
-			this.resize.emit(this._resizingItem);
-			this._resizingItem.onResize();
+			this.onResize.emit(this._resizingItem);
+			this._resizingItem.onResizeEvent();
 		}
 	}
 
@@ -608,13 +607,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._cascadeGrid();
 
 			this._draggingItem.stopMoving();
-			this._draggingItem.onDragStop();
-			this.dragStop.emit(this._draggingItem);
+			this._draggingItem.onDragStopEvent();
+			this.onDragStop.emit(this._draggingItem);
 			this._draggingItem = null;
 			this._posOffset = null;
 			this._placeholderRef.destroy();
 			
-			this.itemChange.emit(this._items.map(item => item.getEventOutput()));
+			this.onItemChange.emit(this._items.map(item => item.getEventOutput()));
 		}
 	}
 
@@ -630,13 +629,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._cascadeGrid();
 
 			this._resizingItem.stopMoving();
-			this._resizingItem.onResizeStop();
-			this.resizeStop.emit(this._resizingItem);
+			this._resizingItem.onResizeStopEvent();
+			this.onResizeStop.emit(this._resizingItem);
 			this._resizingItem = null;
 			this._resizeDirection = null;
 			this._placeholderRef.destroy();
 			
-			this.itemChange.emit(this._items.map(item => item.getEventOutput()));
+			this.onItemChange.emit(this._items.map(item => item.getEventOutput()));
 		}
 	}
 
@@ -1048,24 +1047,23 @@ export interface NgGridItemEvent {
 
 @Directive({
 	selector: '[ngGridItem]',
-	inputs: ['config: ngGridItem', 'gridPosition: ngGridPosition', 'gridSize: ngGridSize'],
-	outputs: ['itemChange', 'dragStart', 'drag', 'dragStop', 'resizeStart', 'resize', 'resizeStop']
+	inputs: ['config: ngGridItem', 'gridPosition: ngGridPosition', 'gridSize: ngGridSize']
 })
 export class NgGridItem implements OnInit, OnDestroy {
 	//	Event Emitters
-	public itemChange: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>(false);
-	public dragStart: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public drag: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public dragStop: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public dragAny: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public resizeStart: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public resize: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public resizeStop: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public resizeAny: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public changeStart: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public change: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public changeStop: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
-	public changeAny: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onItemChange: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>(false);
+	@Output() public onDragStart: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onDrag: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onDragStop: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onDragAny: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onResizeStart: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onResize: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onResizeStop: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onResizeAny: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onChangeStart: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onChange: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onChangeStop: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
+	@Output() public onChangeAny: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG:NgGridItemConfig = {
@@ -1124,47 +1122,47 @@ export class NgGridItem implements OnInit, OnDestroy {
 	//	Constructor
 	constructor(private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid: NgGrid, public containerRef: ViewContainerRef) { }
 
-	public onResizeStart(): void {
+	public onResizeStartEvent(): void {
 		var event = this.getEventOutput();
-		this.resizeStart.emit(event);
-		this.resizeAny.emit(event);
-		this.changeStart.emit(event);
-		this.changeAny.emit(event);
+		this.onResizeStart.emit(event);
+		this.onResizeAny.emit(event);
+		this.onChangeStart.emit(event);
+		this.onChangeAny.emit(event);
 	}
-	public onResize(): void {
+	public onResizeEvent(): void {
 		var event = this.getEventOutput();
-		this.resize.emit(event);
-		this.resizeAny.emit(event);
-		this.change.emit(event);
-		this.changeAny.emit(event);
+		this.onResize.emit(event);
+		this.onResizeAny.emit(event);
+		this.onChange.emit(event);
+		this.onChangeAny.emit(event);
 	}
-	public onResizeStop(): void {
+	public onResizeStopEvent(): void {
 		var event = this.getEventOutput();
-		this.resizeStop.emit(event);
-		this.resizeAny.emit(event);
-		this.changeStop.emit(event);
-		this.changeAny.emit(event);
+		this.onResizeStop.emit(event);
+		this.onResizeAny.emit(event);
+		this.onChangeStop.emit(event);
+		this.onChangeAny.emit(event);
 	}
-	public onDragStart(): void {
+	public onDragStartEvent(): void {
 		var event = this.getEventOutput();
-		this.dragStart.emit(event);
-		this.dragAny.emit(event);
-		this.changeStart.emit(event);
-		this.changeAny.emit(event);
+		this.onDragStart.emit(event);
+		this.onDragAny.emit(event);
+		this.onChangeStart.emit(event);
+		this.onChangeAny.emit(event);
 	}
-	public onDrag(): void {
+	public onDragEvent(): void {
 		var event = this.getEventOutput();
-		this.drag.emit(event);
-		this.dragAny.emit(event);
-		this.change.emit(event);
-		this.changeAny.emit(event);
+		this.onDrag.emit(event);
+		this.onDragAny.emit(event);
+		this.onChange.emit(event);
+		this.onChangeAny.emit(event);
 	}
-	public onDragStop(): void {
+	public onDragStopEvent(): void {
 		var event = this.getEventOutput();
-		this.dragStop.emit(event);
-		this.dragAny.emit(event);
-		this.changeStop.emit(event);
-		this.changeAny.emit(event);
+		this.onDragStop.emit(event);
+		this.onDragAny.emit(event);
+		this.onChangeStop.emit(event);
+		this.onChangeAny.emit(event);
 	}
 
 	public ngOnInit(): void {
@@ -1294,23 +1292,23 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this._recalculateDimensions();
 	}
 
-	public setSize(x: number, y: number): void {
+	public setSize(x: number, y: number, update: boolean = true): void {
 		this._sizex = x;
 		this._sizey = y;
 		this.gridSize = { 'x': this._sizex, 'y': this._sizey };
-		this._recalculateDimensions();
+		if (update) this._recalculateDimensions();
 
-		this.itemChange.emit(this.getEventOutput());
+		this.onItemChange.emit(this.getEventOutput());
 	}
 
-	public setGridPosition(col: number, row: number): void {
+	public setGridPosition(col: number, row: number, update: boolean = true): void {
 		this._col = col;
 		this._row = row;
 		this.gridPosition = { 'col': this._col, 'row': this._row };
 
-		this._recalculatePosition();
+		if (update) this._recalculatePosition();
 
-		this.itemChange.emit(this.getEventOutput());
+		this.onItemChange.emit(this.getEventOutput());
 	}
 
 	public getEventOutput(): NgGridItemEvent {
