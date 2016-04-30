@@ -425,11 +425,14 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._calculateRowHeight();
 		
 		this._updateRatio();
-
+		
 		for (var x in this._items) {
+			this._removeFromGrid(this._items[x]);
 			this._items[x].recalculateSelf();
+			this._addToGrid(this._items[x]);
 		}
-
+		
+		this._cascadeGrid();
 		this._updateSize();
 	}
 
@@ -779,7 +782,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 							if (pos && (c + itemDims.x) > pos.col && c < (pos.col + dims.x)) {          //	If our element is in one of the item's columns
 								if ((r >= pos.row && r < (pos.row + dims.y)) ||                         //	If this row is occupied by our element
-									((itemDims.y > (pos.row - lowest)) &&                           //	Or the item can't fit above our element
+									((itemDims.y > (pos.row - lowest)) &&                               //	Or the item can't fit above our element
 										(r >= (pos.row + dims.y) && lowest < (pos.row + dims.y)))) {    //		And this row is below our element, but we haven't caught it
 									lowest = Math.max(lowest, pos.row + dims.y);                        //	Set the lowest row to be below it
 								}
@@ -829,7 +832,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 							if (pos && (r + itemDims.y) > pos.row && r < (pos.row + dims.y)) {          //	If our element is in one of the item's rows
 								if ((c >= pos.col && c < (pos.col + dims.x)) ||                         //	If this col is occupied by our element
-									((itemDims.x > (pos.col - lowest)) &&                           //	Or the item can't fit above our element
+									((itemDims.x > (pos.col - lowest)) &&                               //	Or the item can't fit above our element
 										(c >= (pos.col + dims.x) && lowest < (pos.col + dims.x)))) {    //		And this col is below our element, but we haven't caught it
 									lowest = Math.max(lowest, pos.col + dims.x);                        //	Set the lowest col to be below it
 								}

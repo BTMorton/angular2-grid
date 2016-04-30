@@ -7,7 +7,7 @@ import { NgGrid, NgGridConfig, NgGridItem, NgGridItemConfig, NgGridItemEvent } f
 @Component({
 	selector: 'my-app',
 	templateUrl: 'app.html',
-	styleUrls: ['app.css', 'NgGrid.css'],
+	styleUrls: ['app.css', 'NgGrid.css', 'NgGrid_FixSmall.css'],
 	directives: [CORE_DIRECTIVES, NgGrid, NgGridItem, FORM_DIRECTIVES],
 	encapsulation: ViewEncapsulation.None
 })
