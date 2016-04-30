@@ -1249,9 +1249,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 	public onMouseMove(e: any): void {
 		if (this._ngGrid.autoStyle) {
-			if (this._ngGrid.dragEnable && this.canDrag(e)) {
-				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'move');
-			} else if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
+			if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
 				var mousePos = this._getMousePosition(e);
 
 				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
@@ -1261,11 +1259,15 @@ export class NgGridItem implements OnInit, OnDestroy {
 					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ew-resize');
 				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ns-resize');
+				} else if (this._ngGrid.dragEnable && this.canDrag(e)) {
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'move');
 				} else {
 					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'default');
 				}
 			} else if (this._ngGrid.resizeEnable && this.canResize(e)) {
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'nwse-resize');
+			} else if (this._ngGrid.dragEnable && this.canDrag(e)) {
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'move');
 			} else {
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'default');
 			}
