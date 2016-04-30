@@ -15,7 +15,7 @@ import { NgGrid, NgGridConfig, NgGridItem, NgGridItemConfig, NgGridItemEvent } f
 class MyAppComponent {
 	private boxes = [];
 	private rgb = '#efefef';
-	private curNum: number = 4;
+	private curNum: number = 5;
 	private gridConfig = <NgGridConfig>{
 		'margins': [5],
 		'draggable': true,
