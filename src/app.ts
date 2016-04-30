@@ -13,9 +13,9 @@ import { NgGrid, NgGridConfig, NgGridItem, NgGridItemConfig, NgGridItemEvent } f
 })
 // Component controller
 class MyAppComponent {
-	private boxes = [1, 2, 3, 4];
+	private boxes = [];
 	private rgb = '#efefef';
-	private curNum: number = 5;
+	private curNum: number = 4;
 	private gridConfig = <NgGridConfig>{
 		'margins': [5],
 		'draggable': true,
@@ -37,14 +37,14 @@ class MyAppComponent {
 		'maintain_ratio': false,
 		'prefer_new': false
 	};
-	private curItem = {
-		'col': 0,
-		'row': 0,
-		'sizex': 0,
-		'sizey': 0
-	}
-	private curItemCheck:number = 0;
+	private curItemCheck: number = 0;
 	private itemPositions: Array<any> = [];
+	
+	constructor() {
+		for (var i = 0; i < 4; i++) {
+			this.boxes[i] = { id: i + 1, config: this._generateDefaultItemConfig() };
+		}
+	}
 	
 	get ratioDisabled(): boolean {
 		return (this.gridConfig.max_rows > 0 && this.gridConfig.visible_cols > 0) ||
@@ -54,12 +54,15 @@ class MyAppComponent {
 	
 	get itemCheck() { return this.curItemCheck; }
 	set itemCheck(v: number) {
-		this.curItem = this.itemPositions[v];
 		this.curItemCheck = v;
 	}
 	
+	get curItem() {
+		return this.boxes[this.curItemCheck].config;
+	}
+	
 	addBox() {
-		this.boxes.push(this.curNum++);
+		this.boxes.push({ id: this.curNum++, config: this._generateDefaultItemConfig() });
 	}
 	
 	removeBox() {
@@ -67,8 +70,7 @@ class MyAppComponent {
 	}
 	
 	updateItem(index: number, pos: { col: number, row: number, sizex: number, sizey: number }) {
-		this.itemPositions[index] = pos;
-		if (this.curItemCheck == index) this.curItem = pos;
+		// Do something here
 	}
 	
 	onDrag(index: number, pos: { left: number, top: number }) {
@@ -77,6 +79,17 @@ class MyAppComponent {
 	
 	onResize(index: number, dims: { width: number, height: number }) {
 		// Do something here
+	}
+	
+	private _generateDefaultItemConfig(): any {
+		return { 'dragHandle': '.handle', 'col': 1, 'row': 1, 'sizex': 1, 'sizey': 1 };
+	}
+	
+	private _randomise() {
+		for (var x in this.boxes) {
+			this.boxes[x].config.col = Math.floor(Math.random() * 6) + 1;
+			this.boxes[x].config.row = 1;
+		}
 	}
 }
 

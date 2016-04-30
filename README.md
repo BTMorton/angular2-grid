@@ -154,9 +154,11 @@ NOTE: The grid system sets the values `width, height, left, top` in CSS to move 
 #### Example
 ------------
 
+The `NgGrid` and `NgGridItem` can be configured by binding directly to the directive. The `NgGridItem` supports two-way binding so you don't need to bind to any of the above events. The `NgGridItemChange` event emits under the same conditions as `onChangeStop`. The only config values that will change are `col`, `row`, `sizex` and `sizey`; the rest of your configuration will persist. You can then use these values for serialization of the grid. By binding the configuration this way, you are able to update the values on the fly. Here is an example template of the grid with two-way item bindings:
+
 ```html
 <div [ngGrid]="{'resizeable': false, 'margins': [5, 10]}">
-	<div *ngFor="#box of boxes" [ngGridItem]="{'dragHandle': '.title'}">
+	<div *ngFor="#box of boxes" [(ngGridItem)]="box.config">
 		<div class="title">{{box.title}}</div>
 		<p>{{box.text}}</p>
 	</div>

@@ -136,7 +136,7 @@
 				<label>
 					Get Item Position &amp; Size
 					<select name="itemCheck" class="form-control" ngControl="item_check" [(ngModel)]="itemCheck">
-						<option *ngFor="#box of boxes; #i = index" [attr.value]="i">{{box}}</option>
+						<option *ngFor="let box of boxes; let i = index" [attr.value]="i">{{box.id}}</option>
 					</select>
 				</label>
 				
@@ -144,13 +144,15 @@
 				<a (click)="removeBox()" class="btn btn-primary">Remove Box</a>
 			</div>
 		</form>
+		
+		<a (click)="_randomise()" class="btn btn-primary pull-right">Randomise Boxes</a>
 		<a (click)="addBox()" class="btn btn-primary pull-right">Add Box</a>
 	</div>
 </div>
 <div [ngGrid]="gridConfig">
-	<div *ngFor="#box of boxes; #i = index" [ngGridItem]="{'dragHandle': '.handle', 'col': 1, 'row': 1, 'sizex': 1, 'sizey': 1}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<div *ngFor="let box of boxes; let i = index" [(ngGridItem)]="box.config" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
-		{{box}}
+		{{box.id}}
 	</div>
 	<div [ngGridItem]="{'dragHandle': '.handle', 'fixed': true, 'col': 2, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
