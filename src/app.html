@@ -154,24 +154,32 @@
 		<div class="handle"></div>
 		{{box.id}}
 	</div>
-	<div [ngGridItem]="{'dragHandle': '.handle', 'canCascade': false, 'col': 2, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<div [ngGridItem]="{'drag_handle': '.handle', 'can_cascade': false, 'col': 2, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		Doesn't cascade, can drag, can resize
 	</div>
-	<div [ngGridItem]="{'dragHandle': '.handle', 'canCascade': false, 'canDrag': false, 'col': 1, 'row': 5}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<div [ngGridItem]="{'drag_handle': '.handle', 'can_cascade': false, 'can_drag': false, 'col': 1, 'row': 5}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		Doesn't cascade, can't drag, can resize
 	</div>
-	<div [ngGridItem]="{'dragHandle': '.handle', 'canCascade': false, 'canResize': false, 'col': 5, 'row': 2}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<div [ngGridItem]="{'drag_handle': '.handle', 'can_cascade': false, 'can_resize': false, 'col': 5, 'row': 2}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		Doesn't cascade, can drag, can't resize
 	</div>
-	<div [ngGridItem]="{'dragHandle': '.handle', 'canCascade': false, 'canResize': false, 'canDrag': false, 'col': 3, 'row': 4}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<div [ngGridItem]="{'drag_handle': '.handle', 'can_cascade': false, 'can_resize': false, 'can_drag': false, 'col': 3, 'row': 4}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		Doesn't cascade, can't drag, can't resize
 	</div>
-	<div [ngGridItem]="{'dragHandle': '.handle', 'fixed': true, 'canResize': false, 'canDrag': false, 'col': 4, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<div [ngGridItem]="{'drag_handle': '.handle', 'fixed': true, 'can_resize': false, 'can_drag': false, 'col': 4, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
-		Fixed, doesn't cascade, can't drag, can't resize
+		Fixed, can't drag, can't resize
+	</div>
+	<div [ngGridItem]="{'drag_handle': '.handle', 'fixed': true, 'can_resize': false, 'col': 4, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed, can drag, can't resize
+	</div>
+	<div [ngGridItem]="{'drag_handle': '.handle', 'fixed': true, 'can_drag': false, 'col': 4, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed, can't drag, can resize
 	</div>
 </div>

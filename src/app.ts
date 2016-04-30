@@ -82,7 +82,7 @@ class MyAppComponent {
 	}
 	
 	private _generateDefaultItemConfig(): any {
-		return { 'dragHandle': '.handle', 'col': 1, 'row': 1, 'sizex': 1, 'sizey': 1 };
+		return { 'drag_handle': '.handle', 'col': 1, 'row': 1, 'sizex': 1, 'sizey': 1 };
 	}
 	
 	private _randomise() {
