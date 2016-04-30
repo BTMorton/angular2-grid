@@ -182,4 +182,8 @@
 		<div class="handle"></div>
 		Fixed, can't drag, can resize
 	</div>
+	<div [ngGridItem]="{'drag_handle': '.handle', 'fixed': true, 'col': 4, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed, can drag, can resize
+	</div>
 </div>
