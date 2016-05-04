@@ -39,10 +39,12 @@
     "dist/NgGrid*"
   ],
   "peerDependencies": {
-    "angular2": "^2.0.0-beta.16"
+    "@angular/core": "^2.0.0-rc.0"
   },
   "devDependencies": {
-    "angular2": "^2.0.0-beta.16",
+    "@angular/common": "^2.0.0-rc.0",
+    "@angular/core": "^2.0.0-rc.0",
+    "@angular/platform-browser-dynamic": "^2.0.0-rc.0",
     "del": "^1.2.1",
     "es6-promise": "^3.0.2",
     "es6-shim": "^0.35.0",
@@ -65,7 +67,7 @@
     "rxjs": "^5.0.0-beta.6",
     "systemjs": "^0.19.4",
     "typescript": "^1.6.2",
-    "zone.js": "^0.6.6"
+    "zone.js": "^0.6.12"
   },
   "dependencies": {}
 }

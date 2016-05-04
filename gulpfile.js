@@ -28,23 +28,11 @@ var PATHS = {
 		test: 'test/*.ts',
 		typings: 'src/*.d.ts'
 	},
-	libs: [
-		'bower_components/bootstrap/dist/css/bootstrap.min.css',
-		'bower_components/bootstrap/dist/css/bootstrap-theme.min.css',
-		'node_modules/angular2/bundles/angular2.js',
-		'node_modules/angular2/bundles/angular2-polyfills.min.js',
-		'node_modules/systemjs/dist/system.js',
-		'node_modules/systemjs/dist/system-polyfills.js',
-		'node_modules/es6-shim/es6-shim.min.js',
-		'node_modules/reflect-metadata/Reflect.js',
-		'node_modules/rxjs/bundles/Rx.min.js'
-	],
-	rx: 'node_modules/rxjs/**/*.js',
 	typings: [
-		'node_modules/angular2/typings/**/*.d.ts',
+		'typings/browser.d.ts',
 	],
 	testTypings: [
-		'node_modules/angular2/typings/**/*.d.ts',
+		'typings/browser.d.ts',
 		'dist/*.d.ts'
 	],
 };
@@ -107,15 +95,18 @@ gulp.task('css', function () {
 	return gulp.src(PATHS.src.css).pipe(gulp.dest('dist'));
 });
 
-gulp.task('rx', function () {
-	return gulp.src(PATHS.rx, {base: 'node_modules/'}).pipe(gulp.dest('dist/'));
+gulp.task('libs', function () {
+	return merge([
+		gulp.src('node_modules/').pipe(symlink('dist/node_modules')),
+		gulp.src('bower_components/').pipe(symlink('dist/bower_components'))
+	]);
 });
 
-gulp.task('libs', ['rx'], function () {
-	return gulp.src(PATHS.libs).pipe(gulp.dest('dist/lib'));
+gulp.task('clean', function(done) {
+	return del(['dist'], done);
 });
 
-gulp.task('build', function() {
+gulp.task('build', ['clean'], function() {
 	return gulp.start('libs', 'html', 'css', 'ts');
 });
 

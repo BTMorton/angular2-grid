@@ -158,7 +158,7 @@ The `NgGrid` and `NgGridItem` can be configured by binding directly to the direc
 
 ```html
 <div [ngGrid]="{'resizeable': false, 'margins': [5, 10]}">
-	<div *ngFor="#box of boxes" [(ngGridItem)]="box.config">
+	<div *ngFor="let box of boxes" [(ngGridItem)]="box.config">
 		<div class="title">{{box.title}}</div>
 		<p>{{box.text}}</p>
 	</div>

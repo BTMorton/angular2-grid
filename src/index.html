@@ -2,12 +2,11 @@
 <html>
 	<head>
 		<title>Angular 2 Grid Demo</title>
-		<link rel="stylesheet" href="lib/bootstrap.min.css" />
-		<script src="lib/es6-shim.min.js"></script>
-		<script src="lib/angular2-polyfills.min.js"></script>
-		<script src="lib/system.js"></script>
-		<script src="lib/Rx.min.js"></script>
-		<script src="lib/angular2.js"></script>
+		<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+		<script src="node_modules/es6-shim/es6-shim.min.js"></script>
+		<script src="node_modules/zone.js/dist/zone.js"></script>
+		<script src="node_modules/reflect-metadata/Reflect.js"></script>
+		<script src="node_modules/systemjs/dist/system.js"></script>
 	</head>
 	<body>
 		<my-app></my-app>
@@ -16,9 +15,17 @@
 			System.config({
 				defaultJSExtensions: true,
 				packages: {
-					'angular2': {
-						defaultExtension: false
-					}
+					'@angular/common': { main: 'index.js', defaultExtension: 'js' },
+					'@angular/core': { main: 'index.js', defaultExtension: 'js' },
+					'@angular/platform-browser-dynamic': { main: 'index.js', defaultExtension: 'js' },
+					'@angular/platform-browser': { main: 'index.js', defaultExtension: 'js' },
+					'@angular/compiler': { main: 'index.js', defaultExtension: 'js' },
+					'rxjs': { defaultExtension: 'js' },
+					'app': { defaultExtension: 'js' }
+				},
+				map: {
+					'@angular': 'node_modules/@angular',
+					'rxjs': 'node_modules/rxjs'
 				}
 			});
 			System.import('app');

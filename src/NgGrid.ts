@@ -1,4 +1,4 @@
-import { Component, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from 'angular2/core';
+import { Component, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
 
 //	Default config
 export interface NgGridConfig {
@@ -82,7 +82,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _setHeight: number = 250;
 	private _posOffset: { left: number, top: number } = null;
 	private _adding: boolean = false;
-	private _placeholderRef: ComponentRef = null;
+	private _placeholderRef: ComponentRef<NgGridPlaceholder> = null;
 	private _fixToGrid: boolean = false;
 	private _autoResize: boolean = false;
 	private _differ: KeyValueDiffer;

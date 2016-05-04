@@ -1,6 +1,6 @@
-import { Component, ViewEncapsulation, enableProdMode } from 'angular2/core';
-import { CORE_DIRECTIVES, FORM_DIRECTIVES } from 'angular2/common';
-import { bootstrap } from 'angular2/platform/browser';
+import { Component, ViewEncapsulation, enableProdMode } from '@angular/core';
+import { CORE_DIRECTIVES, FORM_DIRECTIVES } from '@angular/common';
+import { bootstrap } from '@angular/platform-browser-dynamic';
 import { NgGrid, NgGridConfig, NgGridItem, NgGridItemConfig, NgGridItemEvent } from "./NgGrid";
 
 // Annotation section

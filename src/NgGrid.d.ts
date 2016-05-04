@@ -1,4 +1,4 @@
-import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef } from 'angular2/core';
+import { ElementRef, Renderer, EventEmitter, DynamicComponentLoader, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef } from '@angular/core';
 export interface NgGridConfig {
     margins?: number[];
     draggable?: boolean;
