@@ -184,9 +184,9 @@ to your typescript imports, and ensuring that your `@Component` annotation looks
 As of the Angular 2 Release Candidate you will now need to have the following in your System.js configuration, assuming that you are following the same format as the [Angular 2 Quick Start](https://angular.io/docs/ts/latest/quickstart.html):
 
 ```
-    map: {
-      'angular2-grid': 'node_modules/angular2-grid/dist/NgGrid'
-    }
+map: {
+    'angular2-grid': 'node_modules/angular2-grid/dist/NgGrid'
+}
 ```
 
 To see a working typescript example project, check the [demo folder in the source](https://github.com/BTMorton/angular2-grid/tree/master/demo).
