@@ -4,23 +4,26 @@
     <title>Angular 2 QuickStart</title>
 
     <!-- 1. Load libraries -->
-    <script src="node_modules/angular2/bundles/angular2-polyfills.js"></script>
+    <script src="node_modules/zone.js/dist/zone.js"></script>
+    <script src="node_modules/reflect-metadata/Reflect.js"></script>
     <script src="node_modules/systemjs/dist/system.src.js"></script>
-    <script src="node_modules/rxjs/bundles/Rx.js"></script>
-    <script src="node_modules/angular2/bundles/angular2.dev.js"></script>
     <link rel="stylesheet" href="style.css" />
 
     <!-- 2. Configure SystemJS -->
     <script>
       System.config({
-      	paths: {
-      		'angular2-grid': 'node_modules/angular2-grid/dist/NgGrid.js'
-      	},
-        packages: {        
-          app: {
-            format: 'register',
-            defaultExtension: 'js'
-          }
+      	defaultJSExtensions: true,
+        packages: {
+          '@angular/compiler': { main: 'index.js', defaultExtension: 'js' },
+          '@angular/common': { main: 'index.js', defaultExtension: 'js' },
+          '@angular/core': { main: 'index.js', defaultExtension: 'js' },
+          '@angular/platform-browser-dynamic': { main: 'index.js', defaultExtension: 'js' },
+          '@angular/platform-browser': { main: 'index.js', defaultExtension: 'js' }
+        },
+        map: {
+          '@angular': 'node_modules/@angular',
+          'angular2-grid': 'node_modules/angular2-grid/dist/NgGrid',
+          'rxjs': 'node_modules/rxjs'
         }
       });
       System.import('app/boot')

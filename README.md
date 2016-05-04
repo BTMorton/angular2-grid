@@ -113,14 +113,14 @@ Each event will also provide the following object to any callback functions:
 
 ```javascript
 interface NgGridItemEvent {
-	col: number,    //  The item's column position within the grid
-	row: number,    //  The item's row position within the grid
-	sizex: number,  //  The item's column size within the grid
-	sizey: number,  //  The item's row size within the grid
-	width: number,  //  The item's raw width value
-	height: number, //  The item's raw height value
-	left: number,   //  The item's offset left value
-	top: number     //  The item's offset top value
+    col: number,    //  The item's column position within the grid
+    row: number,    //  The item's row position within the grid
+    sizex: number,  //  The item's column size within the grid
+    sizey: number,  //  The item's row size within the grid
+    width: number,  //  The item's raw width value
+    height: number, //  The item's raw height value
+    left: number,   //  The item's offset left value
+    top: number     //  The item's offset top value
 }
 ```
 
@@ -131,19 +131,19 @@ There are three elements that can be styled with angular2-grid, the grid itself 
 
 ```css
 .grid {
-	position: relative;
+    position: relative;
 }
 
 .grid-item {
-	position: absolute;
+    position: absolute;
 }
 
 .grid-item.moving {
-	z-index: z-index + 1;
+    z-index: z-index + 1;
 }
 
 .placeholder {
-	position: absolute;
+    position: absolute;
 }
 ```
 
@@ -158,10 +158,10 @@ The `NgGrid` and `NgGridItem` can be configured by binding directly to the direc
 
 ```html
 <div [ngGrid]="{'resizeable': false, 'margins': [5, 10]}">
-	<div *ngFor="let box of boxes" [(ngGridItem)]="box.config">
-		<div class="title">{{box.title}}</div>
-		<p>{{box.text}}</p>
-	</div>
+    <div *ngFor="let box of boxes" [(ngGridItem)]="box.config">
+        <div class="title">{{box.title}}</div>
+        <p>{{box.text}}</p>
+    </div>
 </div>
 ```
 
@@ -181,4 +181,12 @@ to your typescript imports, and ensuring that your `@Component` annotation looks
 })
 ```
 
-To see a working typescript example project, check the demo folder in the source.
+As of the Angular 2 Release Candidate you will now need to have the following in your System.js configuration, assuming that you are following the same format as the [Angular 2 Quick Start](https://angular.io/docs/ts/latest/quickstart.html):
+
+```
+    map: {
+      'angular2-grid': 'node_modules/angular2-grid/dist/NgGrid'
+    }
+```
+
+To see a working typescript example project, check the [demo folder in the source](https://github.com/BTMorton/angular2-grid/tree/master/demo).
