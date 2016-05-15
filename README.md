@@ -38,7 +38,7 @@ To configure the grid with your own options, it is as easy as adding them as the
 {
     'margins': [10],            //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
     'draggable': true,          //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
-    'resizeable': true,         //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
+    'resizable': true,         //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
     'max_cols': 0,              //  The maximum number of columns allowed. Set to 0 for infinite. Cannot be used with max_rows
     'max_rows': 0,              //  The maximum number of rows allowed. Set to 0 for infinite. Cannot be used with max_cols
     'visible_cols': 0,          //  The number of columns shown on screen when auto_resize is set to true. Set to 0 to not auto_resize. Will be overriden by max_cols
