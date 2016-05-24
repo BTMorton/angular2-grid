@@ -233,26 +233,26 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				}
 			}
 
-			for (var x in this._items) {
-				var pos = this._items[x].getGridPosition();
-				var dims = this._items[x].getSize();
+			for (let item of this._items) {
+				var pos = item.getGridPosition();
+				var dims = item.getSize();
 
-				this._removeFromGrid(this._items[x]);
+				this._removeFromGrid(item);
 
 				if (this._maxCols > 0 && dims.x > this._maxCols) {
 					dims.x = this._maxCols;
-					this._items[x].setSize(dims.x, dims.y);
+					item.setSize(dims.x, dims.y);
 				} else if (this._maxRows > 0 && dims.y > this._maxRows) {
 					dims.y = this._maxRows;
-					this._items[x].setSize(dims.x, dims.y);
+					item.setSize(dims.x, dims.y);
 				}
 
 				if (this._hasGridCollision(pos, dims) || !this._isWithinBounds(pos, dims)) {
 					var newPosition = this._fixGridPosition(pos, dims);
-					this._items[x].setGridPosition(newPosition.col, newPosition.row);
+					item.setGridPosition(newPosition.col, newPosition.row);
 				}
 
-				this._addToGrid(this._items[x]);
+				this._addToGrid(item);
 			}
 
 			this._cascadeGrid();
@@ -275,10 +275,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		
 		this._updateRatio();
 		
-		for (var x in this._items) {
-			this._removeFromGrid(this._items[x]);
-			this._items[x].recalculateSelf();
-			this._addToGrid(this._items[x]);
+		for (let item of this._items) {
+			this._removeFromGrid(item);
+			item.recalculateSelf();
+			this._addToGrid(item);
 		}
 
 		this._cascadeGrid();
@@ -426,10 +426,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		
 		this._updateRatio();
 		
-		for (var x in this._items) {
-			this._removeFromGrid(this._items[x]);
-			this._items[x].recalculateSelf();
-			this._addToGrid(this._items[x]);
+		for (let item of this._items) {
+			this._removeFromGrid(item);
+			item.recalculateSelf();
+			this._addToGrid(item);
 		}
 		
 		this._cascadeGrid();
@@ -1012,13 +1012,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _getItemFromPosition(position: { left: number, top: number }): NgGridItem {
-		for (var x in this._items) {
-			var size = this._items[x].getDimensions();
-			var pos = this._items[x].getPosition();
+		for (let item of this._items) {
+			var size = item.getDimensions();
+			var pos = item.getPosition();
 
 			if (position.left > (pos.left + this.marginLeft) && position.left < (pos.left + this.marginLeft + size.width) &&
 				position.top > (pos.top + this.marginTop) && position.top < (pos.top + this.marginTop + size.height)) {
-				return this._items[x];
+				return item;
 			}
 		}
 
