@@ -3,7 +3,7 @@
   "version": "0.7.0",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
   "main": "dist/NgGrid.js",
-  "typings": "dist/NgGrid.d.ts",
+  "typings": "dist/main.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -36,7 +36,11 @@
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "files": [
     "src/NgGrid.ts",
-    "dist/NgGrid*"
+    "dist/NgGrid*",
+    "dist/main*",
+    "dist/components/*",
+    "dist/directives/*",
+    "dist/interfaces/*"
   ],
   "peerDependencies": {
     "@angular/core": "^2.0.0-rc.0"
