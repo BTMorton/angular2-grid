@@ -1,13 +1,14 @@
 {
 	"compilerOptions": {
-		"target": "es5",
+		"target": "ES5",
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"sourceMap": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"noImplicitAny": false,
-		"declarationFiles": true
+		"declarationFiles": true,
+		"rootDir": "./src"
 	},
 	"exclude": [
 		"bower",

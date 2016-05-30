@@ -2,7 +2,7 @@
   "name": "angular2-grid",
   "version": "0.8.0",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
-  "main": "dist/NgGrid.js",
+  "main": "dist/main.js",
   "typings": "dist/main.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -49,12 +49,13 @@
     "@angular/common": "^2.0.0-rc.0",
     "@angular/core": "^2.0.0-rc.0",
     "@angular/platform-browser-dynamic": "^2.0.0-rc.0",
-    "browserify": "^13.0.1",
     "del": "^1.2.1",
     "es6-promise": "^3.0.2",
     "es6-shim": "^0.35.0",
     "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
     "gulp-rename": "^1.2.2",
+    "gulp-rollup": "^1.9.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-symlink": "^2.1.4",
     "gulp-typescript": "^2.9.2",
