@@ -1,7 +1,7 @@
 import { Component, ViewEncapsulation, enableProdMode } from '@angular/core';
 import { CORE_DIRECTIVES, FORM_DIRECTIVES } from '@angular/common';
 import { bootstrap } from '@angular/platform-browser-dynamic';
-import { NgGrid, NgGridConfig, NgGridItem, NgGridItemConfig, NgGridItemEvent } from "./NgGrid";
+import { NgGrid, NgGridConfig, NgGridItem, NgGridItemConfig, NgGridItemEvent } from "./main";
 
 // Annotation section
 @Component({
@@ -44,6 +44,10 @@ class MyAppComponent {
 		for (var i = 0; i < 4; i++) {
 			this.boxes[i] = { id: i + 1, config: this._generateDefaultItemConfig() };
 		}
+	}
+	
+	onClick() {
+		alert("CLICK EVENT!");
 	}
 	
 	get ratioDisabled(): boolean {

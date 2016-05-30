@@ -1,5 +1,6 @@
 var del = require('del');
 var gulp = require('gulp');
+var browserify = require('browserify');
 var typescript = require('gulp-typescript');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
@@ -8,6 +9,8 @@ var sourcemaps = require('gulp-sourcemaps');
 var runSequence = require('run-sequence');
 var merge = require('merge2');
 var KarmaServer = require('karma').Server;
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 
 var tsProject = typescript.createProject({
 	"target": "ES5",
@@ -22,7 +25,7 @@ var tsProject = typescript.createProject({
 
 var PATHS = {
 	src: {
-		ts: ['!src/*.d.ts', 'src/*.ts'],
+		ts: ['!src/*.d.ts', 'src/**/*.ts'],
 		html: 'src/*.html',
 		css: 'src/*.css',
 		test: 'test/*.ts',
@@ -47,9 +50,24 @@ gulp.task('ts', function () {
 		.pipe(typescript(tsProject));
 
 	return merge([
-		tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('dist')).pipe(uglify()).pipe(rename({extname: '.min.js'})).pipe(gulp.dest('dist')),
-		tsResult.dts.pipe(gulp.dest('src')).pipe(gulp.dest('dist'))
+		tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('dist')),
+		tsResult.dts.pipe(gulp.dest('dist'))
 	]);
+});
+
+gulp.task('browserify', function() {
+	var b = browserify({
+		entries: './dist/main.js',
+		bundleExternal: false
+	});
+	
+	return b.bundle()
+		.pipe(source("NgGrid.js"))
+		.pipe(buffer())
+		.pipe(gulp.dest('./dist/'))
+		.pipe(uglify())
+		.pipe(rename({extname: '.min.js'}))
+		.pipe(gulp.dest('./dist/'));
 });
 
 gulp.task('test-clean-build', function(done) {
@@ -106,8 +124,8 @@ gulp.task('clean', function(done) {
 	return del(['dist'], done);
 });
 
-gulp.task('build', ['clean'], function() {
-	return gulp.start('libs', 'html', 'css', 'ts');
+gulp.task('build', ['clean'], function(done) {
+	runSequence(['libs', 'html', 'css', 'ts'], 'browserify', done);
 });
 
 gulp.task('rebuild', ['clean'], function() {
