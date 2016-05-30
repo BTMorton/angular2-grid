@@ -18,6 +18,7 @@ export interface NgGridConfig {
 	auto_resize?: boolean;
 	maintain_ratio?: boolean;
 	prefer_new?: boolean;
+	zoom_on_drag?: boolean;
 }
 
 export interface NgGridItemConfig {

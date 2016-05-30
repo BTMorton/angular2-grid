@@ -35,7 +35,8 @@ class MyAppComponent {
 		'auto_style': true,
 		'auto_resize': true,
 		'maintain_ratio': false,
-		'prefer_new': false
+		'prefer_new': false,
+		'zoom_on_drag': false
 	};
 	private curItemCheck: number = 0;
 	private itemPositions: Array<any> = [];

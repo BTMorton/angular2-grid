@@ -70,6 +70,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _maintainRatio: boolean = false;
 	private _aspectRatio: number;
 	private _preferNew: boolean = false;
+	private _zoomOnDrag: boolean = false;
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: NgGridConfig = {
@@ -89,7 +90,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		auto_style: true,
 		auto_resize: false,
 		maintain_ratio: false,
-		prefer_new: false
+		prefer_new: false,
+		zoom_on_drag: false
 	};
 	private _config = NgGrid.CONST_DEFAULT_CONFIG;
 
@@ -171,6 +173,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					break;
 				case 'min_width':
 					this.minWidth = intVal;
+					break;
+				case 'zoom_on_drag':
+					this._zoomOnDrag = val ? true : false;
 					break;
 				case 'cascade':
 					if (this.cascade != val) {
@@ -291,6 +296,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	public setMargins(margins: Array<string>): void {
 		this.marginTop = parseInt(margins[0]);
 		this.marginRight = margins.length >= 2 ? parseInt(margins[1]) : this.marginTop;
+		this.marginBottom = margins.length >= 3 ? parseInt(margins[2]) : this.marginTop;
 		this.marginBottom = margins.length >= 3 ? parseInt(margins[2]) : this.marginTop;
 		this.marginLeft = margins.length >= 4 ? parseInt(margins[3]) : this.marginRight;
 	}
@@ -476,7 +482,19 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 			this.onDragStart.emit(item);
 			item.onDragStartEvent();
+			
+			if (this._zoomOnDrag) {
+				this._zoomOut();
+			}
 		}
+	}
+	
+	private _zoomOut() {
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'transform', "scale(0.5, 0.5)");
+	}
+	
+	private _resetZoom() {
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'transform', "");
 	}
 
 	private _onMouseMove(e: any): void {
@@ -609,6 +627,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._placeholderRef.destroy();
 
 			this.onItemChange.emit(this._items.map(item => item.getEventOutput()));
+
+			if (this._zoomOnDrag) {
+				this._resetZoom();
+			}
 		}
 	}
 
@@ -975,7 +997,12 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 		if (this.cascade == "down") top = refPos.top + refPos.height - e.clientY;
 		if (this.cascade == "right") left = refPos.left + refPos.width - e.clientX;
-
+		
+		if (this.isDragging && this._zoomOnDrag) {
+			left *= 2;
+			top *= 2;
+		}
+		
 		return {
 			left: left,
 			top: top
