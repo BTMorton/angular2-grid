@@ -42,6 +42,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public isResizable: boolean = true;
 
 	//	Private variables
+	private _payload: any;
 	private _col: number = 1;
 	private _row: number = 1;
 	private _sizex: number = 1;
@@ -254,6 +255,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public setConfig(config: NgGridItemConfig): void {
 		this._config = config;
 
+		this._payload = config.payload,
 		this._col = config.col ? config.col : NgGridItem.CONST_DEFAULT_CONFIG.col;
 		this._row = config.row ? config.row : NgGridItem.CONST_DEFAULT_CONFIG.row;
 		this._sizex = config.sizex ? config.sizex : NgGridItem.CONST_DEFAULT_CONFIG.sizex;
@@ -305,6 +307,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 	public getEventOutput(): NgGridItemEvent {
 		return <NgGridItemEvent>{
+			payload: this._payload,
 			col: this._col,
 			row: this._row,
 			sizex: this._sizex,

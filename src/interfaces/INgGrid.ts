@@ -22,6 +22,7 @@ export interface NgGridConfig {
 }
 
 export interface NgGridItemConfig {
+	payload?: any,
 	col?: number;
 	row?: number;
 	sizex?: number;
