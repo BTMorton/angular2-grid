@@ -16,8 +16,7 @@ To use the Angular 2 Grid system, simply run `npm install angular2-grid` and the
 If you want to help with development or try the demo, it's less simple, but not hard. First you'll need to install [Node](http://nodejs.org) and check out a copy of the repo. Then run:
 
 ```shell
-$ npm install --dev
-$ bower install
+$ npm install
 $ gulp build
 ```
 
@@ -67,7 +66,7 @@ The defaults for the grid item are:
     'sizex': 1,             //  The start width in terms of columns for the item
     'sizey': 1,             //  The start height in terms of rows for the item
     'dragHandle': null,     //  The selector to be used for the drag handle. If null, uses the whole item
-    'resizeHandle': null,   //  The selector to be used for the resize handle. If null, uses 'borderSize' pixels from the right for horizontal resize, 
+    'resizeHandle': null,   //  The selector to be used for the resize handle. If null, uses 'borderSize' pixels from the right for horizontal resize,
                             //    'borderSize' pixels from the bottom for vertical, and the square in the corner bottom-right for both
     'borderSize': 15,
     'fixed': false,         //  If the grid item should be cascaded or not. If yes, manual movement is required
@@ -165,7 +164,7 @@ The `NgGrid` and `NgGridItem` can be configured by binding directly to the direc
 </div>
 ```
 
-In order to include the relevant files, you will need to import `NgGrid` and `NgGridItem` to your app and add them to the `@View` directives. This can be achieved by adding: 
+In order to include the relevant files, you will need to import `NgGrid` and `NgGridItem` to your app and add them to the `@View` directives. This can be achieved by adding:
 
 ```typescript
 import { NgGrid, NgGridItem } from 'angular2-grid';

@@ -5,6 +5,7 @@
   "main": "dist/main.js",
   "typings": "dist/main.d.ts",
   "scripts": {
+    "postinstall": "bower install && typings install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -43,12 +44,13 @@
     "dist/interfaces/*"
   ],
   "peerDependencies": {
-    "@angular/core": "^2.0.0-rc.1"
+    "@angular/core": "^2.0.0-rc.0"
   },
   "devDependencies": {
-    "@angular/common": "^2.0.0-rc.1",
-    "@angular/core": "^2.0.0-rc.1",
-    "@angular/platform-browser-dynamic": "^2.0.0-rc.1",
+    "@angular/common": "^2.0.0-rc.0",
+    "@angular/core": "^2.0.0-rc.0",
+    "@angular/platform-browser-dynamic": "^2.0.0-rc.0",
+    "bower": "^1.7.9",
     "browserify": "^13.0.1",
     "del": "^2.2.0",
     "es6-promise": "^3.2.1",
@@ -74,6 +76,7 @@
     "rxjs": "5.0.0-beta.6",
     "systemjs": "^0.19.29",
     "typescript": "^1.8.10",
+    "typings": "^1.0.4",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "zone.js": "^0.6.12"
