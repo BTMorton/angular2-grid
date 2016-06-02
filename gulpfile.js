@@ -13,7 +13,7 @@ var KarmaServer = require('karma').Server;
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 
-var tsProject = typescript.createProject("tsconfig.json");
+var tsProject = typescript.createProject('tsconfig.json');
 
 var PATHS = {
 	src: {
@@ -24,10 +24,10 @@ var PATHS = {
 		typings: 'src/*.d.ts'
 	},
 	typings: [
-		'typings/browser.d.ts',
+		'typings/index.d.ts',
 	],
 	testTypings: [
-		'typings/browser.d.ts',
+		'typings/index.d.ts',
 		'dist/*.d.ts'
 	],
 };
