@@ -49,6 +49,7 @@
     "@angular/common": "^2.0.0-rc.0",
     "@angular/core": "^2.0.0-rc.0",
     "@angular/platform-browser-dynamic": "^2.0.0-rc.0",
+    "browserify": "^13.0.1",
     "del": "^1.2.1",
     "es6-promise": "^3.0.2",
     "es6-shim": "^0.35.0",
