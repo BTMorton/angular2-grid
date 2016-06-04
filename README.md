@@ -185,7 +185,11 @@ As of the Angular 2 Release Candidate you will now need to have the following in
 
 ```
 map: {
-    'angular2-grid': 'node_modules/angular2-grid/dist/NgGrid'
+    'angular2-grid': 'node_modules/angular2-grid/dist'
+}
+
+packages: {
+    'angular2-grid': { main: 'main.js',  defaultExtension: 'js' }
 }
 ```
 
