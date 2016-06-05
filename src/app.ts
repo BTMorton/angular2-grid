@@ -36,7 +36,8 @@ class MyAppComponent {
 		'auto_resize': true,
 		'maintain_ratio': false,
 		'prefer_new': false,
-		'zoom_on_drag': false
+		'zoom_on_drag': false,
+		'limit_to_screen': false
 	};
 	private curItemCheck: number = 0;
 	private itemPositions: Array<any> = [];
@@ -59,19 +60,23 @@ class MyAppComponent {
 	
 	get itemCheck() { return this.curItemCheck; }
 	set itemCheck(v: number) {
+		console.log(v);
 		this.curItemCheck = v;
 	}
 	
 	get curItem() {
-		return this.boxes[this.curItemCheck].config;
+		return this.boxes[this.curItemCheck] ? this.boxes[this.curItemCheck].config : {};
 	}
 	
 	addBox() {
-		this.boxes.push({ id: this.curNum++, config: this._generateDefaultItemConfig() });
+		let conf = this._generateDefaultItemConfig();
+		conf.payload = this.curNum++;
+		this.boxes.push({ id: conf.payload, config: conf });
 	}
 	
 	removeBox() {
 		if (this.boxes[this.curItemCheck]) this.boxes.splice(this.curItemCheck, 1);
+		
 	}
 	
 	updateItem(index: number, pos: { col: number, row: number, sizex: number, sizey: number }) {

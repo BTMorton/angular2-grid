@@ -19,6 +19,7 @@ export interface NgGridConfig {
 	maintain_ratio?: boolean;
 	prefer_new?: boolean;
 	zoom_on_drag?: boolean;
+	limit_to_screen?: boolean;
 }
 
 export interface NgGridItemConfig {

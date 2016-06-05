@@ -123,6 +123,12 @@
 						<input type="checkbox" class="form-control" name="zoom_on_drag" ngControl="zoom_on_drag" [(ngModel)]="gridConfig.zoom_on_drag" />
 					</label>
 				</div>
+				<div class="form-group">
+					<label>
+						Limit to Screen
+						<input type="checkbox" class="form-control" name="limit_to_screen" ngControl="limit_to_screen" [(ngModel)]="gridConfig.limit_to_screen" />
+					</label>
+				</div>
 			</div>
 			<div class="form-inline">
 				<div class="form-group">
@@ -156,11 +162,7 @@
 	</div>
 </div>
 <div [ngGrid]="gridConfig">
-	<div *ngFor="let box of boxes; let i = index" [(ngGridItem)]="box.config" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
-		<div class="handle"></div>
-		{{box.id}}
-	</div>
-	<div [ngGridItem]="{'dragHandle': '.handle', 'maxCols': 2, 'maxRows': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<!-- <div [ngGridItem]="{'dragHandle': '.handle', 'maxCols': 2, 'maxRows': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle">
 			<div class="childHandle">
 				<span>Child handle</span>
@@ -186,8 +188,12 @@
 		</div>
 		Min Cols/Rows - 2<br />
 		Max Cols/Rows - 3<br />
+	</div> -->
+	<div *ngFor="let box of boxes; let i = index" [(ngGridItem)]="box.config" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		{{box.id}}
 	</div>
-	<div [ngGridItem]="{'dragHandle': '.handle', 'fixed': true, 'col': 2, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<!-- <div [ngGridItem]="{'dragHandle': '.handle', 'fixed': true, 'col': 2, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		Fixed - moveable, resizable
 	</div>
@@ -202,5 +208,5 @@
 	<div [ngGridItem]="{'dragHandle': '.handle', 'fixed': true, 'resizable': false, 'draggable': false, 'col': 3, 'row': 4}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		Fixed - not moveable, not resizable
-	</div>
+	</div> -->
 </div>
