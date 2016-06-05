@@ -33,6 +33,10 @@ export interface NgGridItemConfig {
 	draggable?: boolean;
 	resizable?: boolean;
 	borderSize?: number;
+	maxCols?: number;
+	minCols?: number;
+	maxRows?: number;
+	minRows?: number;
 }
 
 export interface NgGridItemEvent {
@@ -44,4 +48,14 @@ export interface NgGridItemEvent {
 	height: number;
 	left: number;
 	top: number;
+}
+
+export interface NgGridItemSize {
+	x: number;
+	y: number;
+}
+
+export interface NgGridItemPosition {
+	col: number;
+	row: number;
 }

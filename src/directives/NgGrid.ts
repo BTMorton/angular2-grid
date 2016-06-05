@@ -226,15 +226,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 				if (this._maxCols > 0 && dims.x > this._maxCols) {
 					dims.x = this._maxCols;
-					item.setSize(dims.x, dims.y);
+					item.setSize(dims);
 				} else if (this._maxRows > 0 && dims.y > this._maxRows) {
 					dims.y = this._maxRows;
-					item.setSize(dims.x, dims.y);
+					item.setSize(dims);
 				}
 
 				if (this._hasGridCollision(pos, dims) || !this._isWithinBounds(pos, dims)) {
 					var newPosition = this._fixGridPosition(pos, dims);
-					item.setGridPosition(newPosition.col, newPosition.row);
+					item.setGridPosition(newPosition);
 				}
 
 				this._addToGrid(item);
@@ -321,7 +321,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		ngItem.setCascadeMode(this.cascade);
 		if (!this._preferNew) {
 			var newPos = this._fixGridPosition(ngItem.getGridPosition(), ngItem.getSize());
-			ngItem.setGridPosition(newPos.col, newPos.row);
+			ngItem.savePosition(newPos);
 		}
 		this._items.push(ngItem);
 		this._addToGrid(ngItem);
@@ -533,8 +533,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				gridPos.row = this._maxRows - (dims.y - 1);
 
 			if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
-				this._draggingItem.setGridPosition(gridPos.col, gridPos.row, false);
-				this._placeholderRef.instance.setGridPosition(gridPos.col, gridPos.row);
+				this._draggingItem.setGridPosition(gridPos, false);
+				this._placeholderRef.instance.setGridPosition(gridPos);
 
 				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
 					this._fixGridCollisions(gridPos, dims);
@@ -573,9 +573,11 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			if (!this._isWithinBoundsY(iGridPos, calcSize))
 				calcSize.y = (this._maxRows - iGridPos.row) + 1;
 
+			calcSize = this._resizingItem.fixResize(calcSize);
+			
 			if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
-				this._resizingItem.setSize(calcSize.x, calcSize.y, false);
-				this._placeholderRef.instance.setSize(calcSize.x, calcSize.y);
+				this._resizingItem.setSize(calcSize, false);
+				this._placeholderRef.instance.setSize(calcSize);
 
 				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
 					this._fixGridCollisions(iGridPos, calcSize);
@@ -614,7 +616,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 			var itemPos = this._draggingItem.getGridPosition();
 
-			this._draggingItem.setGridPosition(itemPos.col, itemPos.row);
+			this._draggingItem.savePosition(itemPos);
 			this._addToGrid(this._draggingItem);
 
 			this._cascadeGrid();
@@ -640,7 +642,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 			var itemDims = this._resizingItem.getSize();
 
-			this._resizingItem.setSize(itemDims.x, itemDims.y);
+			this._resizingItem.setSize(itemDims);
 			this._addToGrid(this._resizingItem);
 
 			this._cascadeGrid();
@@ -735,14 +737,14 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					break;
 			}
 
-			collisions[0].setGridPosition(itemPos.col, itemPos.row);
+			collisions[0].setGridPosition(itemPos);
 			this._fixGridCollisions(itemPos, itemDims);
 			this._addToGrid(collisions[0]);
 			collisions[0].onCascadeEvent();
 		}
 	}
 
-	private _cascadeGrid(pos?: { col: number, row: number }, dims?: { x: number, y: number }): void {
+	private _cascadeGrid(pos?: { col: number, row: number }, dims?: { x: number, y: number }, shouldSave = true): void {
 		if (this._destroyed) return;
 		if (pos && !dims) throw new Error("Cannot cascade with only position and not dimensions");
 
@@ -794,7 +796,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 							if (lowest != itemPos.row) {	//	If the item is not already on this row move it up
 								this._removeFromGrid(item);
-								item.setGridPosition(c, lowest);
+								
+								if (shouldSave) {
+									item.savePosition({ col: c, row: lowest });
+								} else {
+									item.setGridPosition({ col: c, row: lowest });
+								}
+								
 								item.onCascadeEvent();
 								this._addToGrid(item);
 							}
@@ -844,7 +852,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 							if (lowest != itemPos.col) {	//	If the item is not already on this col move it up
 								this._removeFromGrid(item);
-								item.setGridPosition(lowest, r);
+								
+								if (shouldSave) {
+									item.savePosition({ col: c, row: lowest });
+								} else {
+									item.setGridPosition({ col: lowest, row: r });
+								}
+								
 								item.onCascadeEvent();
 								this._addToGrid(item);
 							}
@@ -1043,8 +1057,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			var placeholder = componentRef.instance;
 			placeholder.registerGrid(me);
 			placeholder.setCascadeMode(this.cascade);
-			placeholder.setGridPosition(pos.col, pos.row);
-			placeholder.setSize(dims.x, dims.y);
+			placeholder.setGridPosition({ col: pos.col, row: pos.row });
+			placeholder.setSize({ x: dims.x, y: dims.y });
 		});
 	}
 }
