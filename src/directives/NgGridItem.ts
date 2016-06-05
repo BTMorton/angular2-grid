@@ -163,21 +163,29 @@ export class NgGridItem implements OnInit, OnDestroy {
 		if (!this.isDraggable) return false;
 
 		if (this._dragHandle) {
-			var parent = e.target.parentElement;
-
-			return parent.querySelector(this._dragHandle) == e.target;
+			return this.findHandle(this._dragHandle, e.target);
 		}
 
 		return true;
+	}
+	
+	public findHandle(handleSelector: string, startElement: HTMLElement): boolean {
+		let targetElem = startElement;
+		
+		while (targetElem && targetElem != this._ngEl.nativeElement) {
+			if (targetElem.matches(handleSelector)) return true;
+			
+			targetElem = targetElem.parentElement;
+		}
+		
+		return false;
 	}
 
 	public canResize(e: any): string {
 		if (!this.isResizable) return null;
 
 		if (this._resizeHandle) {
-			var parent = e.target.parentElement;
-
-			return parent.querySelector(this._resizeHandle) == e.target ? 'both' : null;
+			return this.findHandle(this._resizeHandle, e.target) ? 'both' : null;
 		}
 
 		var mousePos = this._getMousePosition(e);

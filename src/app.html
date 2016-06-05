@@ -161,17 +161,29 @@
 		{{box.id}}
 	</div>
 	<div [ngGridItem]="{'dragHandle': '.handle', 'maxCols': 2, 'maxRows': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
-		<div class="handle"></div>
+		<div class="handle">
+			<div class="childHandle">
+				<span>Child handle</span>
+			</div>
+		</div>
 		Max Cols - 2<br />
 		Max Rows - 3<br />
 	</div>
 	<div [ngGridItem]="{'dragHandle': '.handle', 'minCols': 2, 'minRows': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
-		<div class="handle"></div>
+		<div class="handle">
+			<div class="childHandle">
+				<span>Child handle</span>
+			</div>
+		</div>
 		Min Cols - 2<br />
 		Min Rows - 3<br />
 	</div>
 	<div [ngGridItem]="{'dragHandle': '.handle', 'minCols': 2, 'minRows': 2, 'maxCols': 4, 'maxRows': 4}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
-		<div class="handle"></div>
+		<div class="handle">
+			<div class="childHandle">
+				<span>Child handle</span>
+			</div>
+		</div>
 		Min Cols/Rows - 2<br />
 		Max Cols/Rows - 3<br />
 	</div>
