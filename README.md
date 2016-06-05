@@ -54,6 +54,7 @@ To configure the grid with your own options, it is as easy as adding them as the
     'auto_resize': false,       //  Automatically set col_width/row_height so that max_cols/max_rows fills the screen. Only has effect is max_cols or max_rows is set
     'maintain_ratio': false,    //  Attempts to maintain aspect ratio based on the colWidth/rowHeight values set in the config
     'prefer_new': false,        //  When adding new items, will use that items position ahead of existing items
+    'limit_to_screen': false,   //  When resizing the screen, with this true and auto_resize false, the grid will re-arrange to fit the screen size
 }
 ```
 
@@ -190,6 +191,12 @@ map: {
 packages: {
     'angular2-grid': { main: 'main.js',  defaultExtension: 'js' }
 }
+```
+
+To use with [angular-cli](https://cli.angular.io/), you will also need to add the following to the `vendorNpmFiles` array in `angular-cli-build.js`:
+
+```
+'angular2-grid/dist/**/*.js'
 ```
 
 To see a working typescript example project, check the [demo folder in the source](https://github.com/BTMorton/angular2-grid/tree/master/demo).
