@@ -72,6 +72,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _preferNew: boolean = false;
 	private _zoomOnDrag: boolean = false;
 	private _limitToScreen: boolean = false;
+	private _curMaxRow: number = 0;
+	private _curMaxCol: number = 0;
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: NgGridConfig = {
@@ -725,12 +727,24 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _getCollisions(pos: { col: number, row: number }, dims: { x: number, y: number }): Array<NgGridItem> {
 		var returns: Array<NgGridItem> = [];
-
-		for (var j = 0; j < dims.y; j++)
-			if (this._itemGrid[pos.row + j] != null)
-				for (var i = 0; i < dims.x; i++)
-					if (this._itemGrid[pos.row + j][pos.col + i] != null)
-						returns.push(this._itemGrid[pos.row + j][pos.col + i]);
+		
+		for (var j = 0; j < dims.y; j++) {
+			if (this._itemGrid[pos.row + j] != null) {
+				for (var i = 0; i < dims.x; i++) {
+					if (this._itemGrid[pos.row + j][pos.col + i] != null) {
+						let item = this._itemGrid[pos.row + j][pos.col + i];
+						
+						if (returns.indexOf(item) < 0)
+							returns.push(item);
+						
+						let itemPos = item.getGridPosition();
+						let itemDims = item.getSize();
+						
+						i = itemPos.col + itemDims.y - pos.col;
+					}
+				}
+			}
+		}
 
 		return returns;
 	}
@@ -749,17 +763,23 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				case "up":
 				case "down":
 				default:
-					if (!this._isWithinBoundsY(itemPos, itemDims))
-						itemPos.col++;
-					else
-						itemPos.row++;
+					let oldRow = itemPos.row;
+					itemPos.row = pos.row + dims.y;
+					console.log(this._isWithinBoundsY(itemPos, itemDims));
+					if (!this._isWithinBoundsY(itemPos, itemDims)) {
+						itemPos.col = pos.col + dims.x;
+						itemPos.row = oldRow;
+					}
 					break;
 				case "left":
 				case "right":
-					if (!this._isWithinBoundsX(itemPos, itemDims))
-						itemPos.row++;
-					else
-						itemPos.col++;
+					let oldCol = itemPos.col;
+					itemPos.col = pos.col + dims.x;
+					
+					if (!this._isWithinBoundsX(itemPos, itemDims)) {
+						itemPos.col = oldCol;
+						itemPos.row = pos.row + dims.y;
+					}
 					break;
 			}
 
@@ -876,13 +896,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			case "down":
 				var lowRow: Array<number> = [0];
 
-				for (var i: number = 1; i <= this._getMaxCol(); i++)
+				for (var i: number = 1; i <= this._curMaxCol; i++)
 					lowRow[i] = 1;
 
-				for (var r: number = 1; r <= this._getMaxRow(); r++) {
+				for (var r: number = 1; r <= this._curMaxRow; r++) {
 					if (this._itemGrid[r] == undefined) continue;
 
-					for (var c: number = 1; c <= this._getMaxCol(); c++) {
+					for (var c: number = 1; c <= this._curMaxCol; c++) {
 						if (this._itemGrid[r] == undefined) break;
 						if (r < lowRow[c]) continue;
 
@@ -934,13 +954,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			case "right":
 				var lowCol: Array<number> = [0];
 
-				for (var i: number = 1; i <= this._getMaxRow(); i++)
+				for (var i: number = 1; i <= this._curMaxRow; i++)
 					lowCol[i] = 1;
 
-				for (var r: number = 1; r <= this._getMaxRow(); r++) {
+				for (var r: number = 1; r <= this._curMaxRow; r++) {
 					if (this._itemGrid[r] == undefined) continue;
 
-					for (var c: number = 1; c <= this._getMaxCol(); c++) {
+					for (var c: number = 1; c <= this._curMaxCol; c++) {
 						if (this._itemGrid[r] == undefined) break;
 						if (c < lowCol[r]) continue;
 
@@ -1066,14 +1086,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 		var maxRow = Math.max(this._getMaxRow(), row);
 		var maxCol = Math.max(this._getMaxCol(), col);
+		this._curMaxRow = maxRow;
+		this._curMaxCol = maxCol;
 
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', "100%");//(maxCol * (this.colWidth + this.marginLeft + this.marginRight))+"px");
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', (maxRow * (this.rowHeight + this.marginTop + this.marginBottom)) + "px");
 	}
 
 	private _filterGrid(): void {
-		var curMaxCol = this._getMaxCol();
-		var curMaxRow = this._getMaxRow();
+		var curMaxCol = this._curMaxCol;
+		var curMaxRow = this._curMaxRow;
 		var maxCol = 0;
 		var maxRow = 0;
 
