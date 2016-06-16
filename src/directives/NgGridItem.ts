@@ -173,7 +173,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		let targetElem = startElement;
 		
 		while (targetElem && targetElem != this._ngEl.nativeElement) {
-			if (targetElem.matches(handleSelector)) return true;
+			if (this.elementMatches(targetElem, handleSelector)) return true;
 			
 			targetElem = targetElem.parentElement;
 		}
@@ -431,6 +431,19 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	//	Private methods
+	private elementMatches(element: any, selector: string): boolean {
+		if (element.matches) return element.matches(selector);
+		if (element.oMatchesSelector) return element.oMatchesSelector(selector);
+		if (element.msMatchesSelector) return element.msMatchesSelector(selector);
+		if (element.mozMatchesSelector) return element.mozMatchesSelector(selector);
+		if (element.webkitMatchesSelector) return element.webkitMatchesSelector(selector);
+		
+		const matches = (element.document || element.ownerDocument).querySelectorAll(selector);
+		let i = matches.length;
+		while (--i >= 0 && matches.item(i) !== element) { }
+		return i > -1;
+	}
+
 	private _recalculatePosition(): void {
 		var x = (this._ngGrid.colWidth + this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._currentPosition.col - 1) + this._ngGrid.marginLeft;
 		var y = (this._ngGrid.rowHeight + this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._currentPosition.row - 1) + this._ngGrid.marginTop;
