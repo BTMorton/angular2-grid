@@ -6,28 +6,28 @@
 		<form>
 			<div class="form-inline">
 				<div class="form-group">
-					<label>
+					<label for="fix_to_grid">
 						Fix to Grid
 					</label>
-					<input type="checkbox" name="fix_to_grid" ngControl="fix_to_grid" [(ngModel)]="gridConfig.fix_to_grid" />
+					<input type="checkbox" name="fix_to_grid" id="fix_to_grid" ngControl="fix_to_grid" [(ngModel)]="gridConfig.fix_to_grid" />
 				</div>
 				<div class="form-group">
-					<label>
+					<label for="draggable">
 						Draggable
 					</label>
-					<input type="checkbox" name="draggable" ngControl="draggable" [(ngModel)]="gridConfig.draggable" />
+					<input type="checkbox" name="draggable" id="draggable" ngControl="draggable" [(ngModel)]="gridConfig.draggable" />
 				</div>
 				<div class="form-group">
-					<label>
+					<label for="resizable">
 						Resizable
 					</label>
-					<input type="checkbox" name="resizable" ngControl="resizable" [(ngModel)]="gridConfig.resizable" />
+					<input type="checkbox" name="resizable" id="resizable" ngControl="resizable" [(ngModel)]="gridConfig.resizable" />
 				</div>
 				<div class="form-group">
-					<label>
+					<label for="auto_resize">
 						Auto-Resize Rows/Columns
 					</label>
-					<input type="checkbox" name="auto_resize" ngControl="auto_resize" [(ngModel)]="gridConfig.auto_resize" />
+					<input type="checkbox" name="auto_resize" id="auto_resize" ngControl="auto_resize" [(ngModel)]="gridConfig.auto_resize" />
 				</div>
 				<div class="form-group">
 					<label>
@@ -106,28 +106,28 @@
 			</div>
 			<div class="form-inline">
 				<div class="form-group">
-					<label>
+					<label for="maintain_ratio">
 						Maintain Aspect Ratio
-						<input type="checkbox" class="form-control" name="maintain_ratio" ngControl="maintain_ratio" [(ngModel)]="gridConfig.maintain_ratio" [disabled]="ratioDisabled" />
 					</label>
+					<input type="checkbox" name="maintain_ratio" id="maintain_ratio" ngControl="maintain_ratio" [(ngModel)]="gridConfig.maintain_ratio" [disabled]="ratioDisabled" />
 				</div>
 				<div class="form-group">
-					<label>
+					<label for="prefer_new">
 						Prefer New Items
-						<input type="checkbox" class="form-control" name="prefer_new" ngControl="prefer_new" [(ngModel)]="gridConfig.prefer_new" />
 					</label>
+					<input type="checkbox" name="prefer_new" id="prefer_new" ngControl="prefer_new" [(ngModel)]="gridConfig.prefer_new" />
 				</div>
 				<div class="form-group">
-					<label>
+					<label for="zoom_on_drag">
 						Zoom Out When Dragging
-						<input type="checkbox" class="form-control" name="zoom_on_drag" ngControl="zoom_on_drag" [(ngModel)]="gridConfig.zoom_on_drag" />
 					</label>
+					<input type="checkbox" name="zoom_on_drag" id="zoom_on_drag" ngControl="zoom_on_drag" [(ngModel)]="gridConfig.zoom_on_drag" />
 				</div>
 				<div class="form-group">
-					<label>
+					<label for="limit_to_screen">
 						Limit to Screen
-						<input type="checkbox" class="form-control" name="limit_to_screen" ngControl="limit_to_screen" [(ngModel)]="gridConfig.limit_to_screen" />
 					</label>
+					<input type="checkbox" name="limit_to_screen" id="limit_to_screen" ngControl="limit_to_screen" [(ngModel)]="gridConfig.limit_to_screen" />
 				</div>
 			</div>
 			<div class="form-inline">

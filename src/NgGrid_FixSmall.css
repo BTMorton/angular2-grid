@@ -8,6 +8,7 @@
 		position: static !important;
 		width: 100% !important;
 		margin-bottom: 10px;
+		transform: none !important;
 	}
 	.grid-item:last-child {
 		margin-bottom: 0;
