@@ -189,7 +189,7 @@
 		Min Cols/Rows - 2<br />
 		Max Cols/Rows - 3<br />
 	</div> -->
-	<div *ngFor="let box of boxes; let i = index" [(ngGridItem)]="box.config" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+	<div *ngFor="let box of boxes; let i = index" [(ngGridItem)]="box.config" (onItemChange)="updateItem(i, $event)" (onResize)="onResize(i, $event)" (onDrag)="onDrag(i, $event)">
 		<div class="handle"></div>
 		{{box.id}}
 	</div>

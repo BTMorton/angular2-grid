@@ -8,7 +8,7 @@ var symlink = require('gulp-symlink');
 var sourcemaps = require('gulp-sourcemaps');
 var runSequence = require('run-sequence');
 var merge = require('merge2');
-var KarmaServer = require('karma').Server;
+// var KarmaServer = require('karma').Server;
 
 var tsProject = typescript.createProject('tsconfig.json');
 
@@ -89,8 +89,8 @@ gulp.task('css', function () {
 
 gulp.task('libs', function () {
 	return merge([
-		gulp.src('node_modules/').pipe(symlink('dist/node_modules')),
-		gulp.src('bower_components/').pipe(symlink('dist/bower_components'))
+		gulp.src('node_modules').pipe(symlink('dist/node_modules', {force: true})),
+		gulp.src('bower_components').pipe(symlink('dist/bower_components', {force: true}))
 	]);
 });
 
