@@ -347,8 +347,6 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	public setGridPosition(gridPosition: NgGridItemPosition, update: boolean = true): void {
-		console.log("Saving position: ", gridPosition);
-		console.log("payload: ", this._payload);
 		this._currentPosition = gridPosition;
 		if (update) this._recalculatePosition();
 
@@ -356,10 +354,6 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	public savePosition(newPosition: NgGridItemPosition): void {
-		console.log("Saving position: ", newPosition);
-		//console.log("was: ", newPosition);
-		console.log("payload: ", this._payload);
-		//console.trace();
 		this._position = newPosition;
 		this._currentPosition = newPosition;
 		
