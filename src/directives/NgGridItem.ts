@@ -40,6 +40,8 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public isFixed: boolean = false;
 	public isDraggable: boolean = true;
 	public isResizable: boolean = true;
+	public minWidth: number = 0;
+	public minHeight: number = 0;
 
 	//	Private variables
 	private _payload: any;
@@ -311,6 +313,9 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this._maxRows = !isNaN(config.maxRows) && isFinite(config.maxRows) ? config.maxRows : 0;
 		this._minRows = !isNaN(config.minRows) && isFinite(config.minRows) ? config.minRows : 0;
 		
+		this.minWidth = !isNaN(config.minWidth) && isFinite(config.minWidth) ? config.minWidth : 0;
+		this.minHeight = !isNaN(config.minHeight) && isFinite(config.minHeight) ? config.minHeight : 0;
+		
 		if (this._minCols > 0 && this._maxCols > 0 && this._minCols > this._maxCols) this._minCols = 0;
 		if (this._minRows > 0 && this._maxRows > 0 && this._minRows > this._maxRows) this._minRows = 0;
 		
@@ -390,6 +395,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'transform', 'translate(' + x + 'px, ' + -y + 'px)');
 				break;
 		}
+		
 		this._elemLeft = x;
 		this._elemTop = y;
 	}
@@ -421,8 +427,12 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	public setDimensions(w: number, h: number): void {
+		if (w < this.minWidth) w = this.minWidth;
+		if (h < this.minHeight) h = this.minHeight;
+		
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', w + "px");
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', h + "px");
+		
 		this._elemWidth = w;
 		this._elemHeight = h;
 	}
@@ -450,6 +460,12 @@ export class NgGridItem implements OnInit, OnDestroy {
 		
 		if (this._minCols > 0 && newSize.x < this._minCols) newSize.x = this._minCols;
 		if (this._minRows > 0 && newSize.y < this._minRows) newSize.y = this._minRows;
+		
+		const itemWidth = (newSize.x * this._ngGrid.colWidth) + ((this._ngGrid.marginLeft + this._ngGrid.marginRight) * (newSize.x - 1));
+		if (itemWidth < this.minWidth) newSize.x = Math.ceil((this.minWidth + this._ngGrid.marginRight + this._ngGrid.marginLeft) / (this._ngGrid.colWidth + this._ngGrid.marginRight + this._ngGrid.marginLeft));
+		
+		const itemHeight = (newSize.y * this._ngGrid.rowHeight) + ((this._ngGrid.marginTop + this._ngGrid.marginBottom) * (newSize.y - 1));
+		if (itemHeight < this.minHeight) newSize.y = Math.ceil((this.minHeight + this._ngGrid.marginBottom + this._ngGrid.marginTop) / (this._ngGrid.rowHeight + this._ngGrid.marginBottom + this._ngGrid.marginTop));
 		
 		return newSize;
 	}
@@ -479,11 +495,11 @@ export class NgGridItem implements OnInit, OnDestroy {
 		if (this._size.x < this._ngGrid.minCols) this._size.x = this._ngGrid.minCols;
 		if (this._size.y < this._ngGrid.minRows) this._size.y = this._ngGrid.minRows;
 
-		const newWidth: number = Math.max(this._ngGrid.minWidth, this._ngGrid.colWidth * this._size.x);
-		const newHeight: number = Math.max(this._ngGrid.minHeight, this._ngGrid.rowHeight * this._size.y);
-
-		const w: number = newWidth + ((this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._size.x - 1));
-		const h: number = newHeight + ((this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._size.y - 1));
+		const newWidth: number = (this._ngGrid.colWidth * this._size.x) + ((this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._size.x - 1));
+		const newHeight: number = (this._ngGrid.rowHeight * this._size.y) + ((this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._size.y - 1));
+		
+		const w: number = Math.max(this.minWidth, this._ngGrid.minWidth, newWidth);
+		const h: number = Math.max(this.minHeight, this._ngGrid.minHeight, newHeight);
 
 		this.setDimensions(w, h);
 	}

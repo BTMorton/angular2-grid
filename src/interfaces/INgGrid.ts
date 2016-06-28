@@ -38,6 +38,8 @@ export interface NgGridItemConfig {
 	minCols?: number;
 	maxRows?: number;
 	minRows?: number;
+	minWidth?: number;
+	minHeight?: number;
 }
 
 export interface NgGridItemEvent {

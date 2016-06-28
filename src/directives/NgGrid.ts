@@ -441,8 +441,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._addToGrid(item);
 			item.recalculateSelf();
 		}
-
-		this._cascadeGrid(null, null, false);
+		
 		this._updateSize();
 	}
 
@@ -565,7 +564,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				this._placeholderRef.instance.setGridPosition(gridPos);
 
 				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(gridPos, dims);
+					this._fixGridCollisions(gridPos, dims, true);
 					this._cascadeGrid(gridPos, dims);
 				}
 			}
@@ -590,6 +589,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				newW = this.minWidth;
 			if (newH < this.minHeight)
 				newH = this.minHeight;
+			if (newW < this._resizingItem.minWidth)
+				newW = this._resizingItem.minWidth;
+			if (newH < this._resizingItem.minHeight)
+				newH = this._resizingItem.minHeight;
 
 			var calcSize = this._calculateGridSize(newW, newH);
 			var itemSize = this._resizingItem.getSize();
@@ -608,7 +611,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				this._placeholderRef.instance.setSize(calcSize);
 
 				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(iGridPos, calcSize);
+					this._fixGridCollisions(iGridPos, calcSize, true);
 					this._cascadeGrid(iGridPos, calcSize);
 				}
 			}
@@ -749,7 +752,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		return returns;
 	}
 
-	private _fixGridCollisions(pos: NgGridItemPosition, dims: NgGridItemSize): void {
+	private _fixGridCollisions(pos: NgGridItemPosition, dims: NgGridItemSize, shouldSave: boolean = false): void {
 		while (this._hasGridCollision(pos, dims)) {
 			const collisions: Array<NgGridItem> = this._getCollisions(pos, dims);
 
@@ -781,9 +784,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					}
 					break;
 			}
-
-			collisions[0].savePosition(itemPos);
-			this._fixGridCollisions(itemPos, itemDims);
+			
+			if (shouldSave) {
+				collisions[0].savePosition(itemPos);
+			} else {
+				collisions[0].setGridPosition(itemPos);
+			}
+			this._fixGridCollisions(itemPos, itemDims, shouldSave);
 			this._addToGrid(collisions[0]);
 			collisions[0].onCascadeEvent();
 		}
@@ -928,7 +935,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 						columnMax[i] = item.currentRow + item.sizey;
 					}
 				}
-			} else if (currentItems.length == 0 && columns.length == 1) {	//	Only one block, but no items fit. Means the next item is too large
+			} else if (currentItems.length === 0 && columns.length === 1 && columns[0].length >= maxCols) {	//	Only one block, but no items fit. Means the next item is too large
 				const item: NgGridItem = items.shift();
 				
 				item.setGridPosition({ col: 1, row: currentRow });

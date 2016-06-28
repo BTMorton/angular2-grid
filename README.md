@@ -37,7 +37,7 @@ To configure the grid with your own options, it is as easy as adding them as the
 {
     'margins': [10],            //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
     'draggable': true,          //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
-    'resizable': true,         //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
+    'resizable': true,          //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
     'max_cols': 0,              //  The maximum number of columns allowed. Set to 0 for infinite. Cannot be used with max_rows
     'max_rows': 0,              //  The maximum number of rows allowed. Set to 0 for infinite. Cannot be used with max_cols
     'visible_cols': 0,          //  The number of columns shown on screen when auto_resize is set to true. Set to 0 to not auto_resize. Will be overriden by max_cols
@@ -54,7 +54,7 @@ To configure the grid with your own options, it is as easy as adding them as the
     'auto_resize': false,       //  Automatically set col_width/row_height so that max_cols/max_rows fills the screen. Only has effect is max_cols or max_rows is set
     'maintain_ratio': false,    //  Attempts to maintain aspect ratio based on the colWidth/rowHeight values set in the config
     'prefer_new': false,        //  When adding new items, will use that items position ahead of existing items
-    'limit_to_screen': false,   //  When resizing the screen, with this true and auto_resize false, the grid will re-arrange to fit the screen size
+    'limit_to_screen': false,   //  When resizing the screen, with this true and auto_resize false, the grid will re-arrange to fit the screen size. Please note, at present this only works with cascade direction up.
 }
 ```
 
@@ -72,7 +72,14 @@ The defaults for the grid item are:
     'borderSize': 15,
     'fixed': false,         //  If the grid item should be cascaded or not. If yes, manual movement is required
     'draggable': true,      //  If the grid item can be dragged. If this or the global setting is set to false, the item cannot be dragged.
-    'resizable': true       //  If the grid item can be resized. If this or the global setting is set to false, the item cannot be resized.
+    'resizable': true,      //  If the grid item can be resized. If this or the global setting is set to false, the item cannot be resized.
+    'payload': null,        //  An optional custom payload (string/number/object) to be used to identify the item for serialization
+    'maxCols': 0,           //  The maximum number of columns for a particular item. This value will only override the value from the grid (if set) if it is smaller
+    'minCols': 0,           //  The minimum number of columns for a particular item. This value will only override the value from the grid if larger
+    'maxRows': 0,           //  The maximum number of rows for a particular item. This value will only override the value from the grid (if set) if it is smaller
+    'minRows': 0,           //  The minimum number of rows for a particular item. This value will only override the value from the grid if larger
+    'minWidth': 0,          //  The minimum width of a particular item. This value will override the value from the grid, as well as the minimum columns if the resulting size is larger
+    'minHeight': 0,         //  The minimum height of a particular item. This value will override the value from the grid, as well as the minimum rows if the resulting size is larger
 }
 ```
 
