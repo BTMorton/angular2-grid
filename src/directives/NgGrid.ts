@@ -920,6 +920,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					const item: NgGridItem = currentItems.shift();
 					
 					for (let j = 0; j < columns.length; j++) {
+						if (columns[j].length < item.sizex) continue;
 						if (minPosition > columns[j].end) continue;
 						if (minPosition > columns[j].start && (columns[j].end - minPosition) < item.sizex) continue;
 						if (minPosition <  columns[j].start) minPosition = columns[j].start;
@@ -953,7 +954,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				}
 			}
 			
-			currentRow = newRow == 0 ? currentRow + 1 : newRow;
+			currentRow = newRow <= currentRow ? currentRow + 1 : newRow;
 		}
 	}
 
