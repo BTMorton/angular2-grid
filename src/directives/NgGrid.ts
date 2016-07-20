@@ -461,12 +461,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			if (this.resizeEnable && item.canResize(e) != null) {
 				this._resizeStart(e);
 				return false;
-			} else if (this.dragEnable && item.canDrag(e)) {
-				this._dragStart(e);
-				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -519,6 +515,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _onMouseMove(e: any): void {
+		var mousePos = this._getMousePosition(e);
+		var item = this._getItemFromPosition(mousePos);
+		
+		if (item != null) {
+		    if (e.buttons == 1 && !this.isDragging && !this.isResizing && this.dragEnable && item.canDrag(e)) {
+		        this._dragStart(e);
+		        return false;
+		    }
+		}
+		
 		if (e.buttons == 0 && this.isDragging) {
 			this._dragStop(e);
 		} else if (e.buttons == 0 && this.isResizing) {
