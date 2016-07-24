@@ -1,6 +1,6 @@
 {
   "name": "angular2-grid",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "authors": [
     "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
@@ -34,6 +34,6 @@
     "url": "git://github.com/BTMorton/angular2-grid.git"
   },
   "dependencies": {
-    "bootstrap": "~3.3.5"
+    "bootstrap": "~3.3.6"
   }
 }
