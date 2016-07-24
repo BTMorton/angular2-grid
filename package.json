@@ -1,6 +1,6 @@
 {
   "name": "angular2-grid",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
   "main": "dist/main.js",
   "typings": "dist/main.d.ts",
@@ -29,6 +29,7 @@
     "Chris Morabito (https://github.com/morabitowoolpert)",
     "Carlos Esteban Lopez Jaramillo (https://github.com/Luchillo)",
     "Niklas Berg (https://github.com/nkholski)"
+    "Wouter (https://github.com/wuhkuh)"
   ],
   "license": "MIT",
   "bugs": {
@@ -44,12 +45,12 @@
     "dist/interfaces/*"
   ],
   "peerDependencies": {
-    "@angular/core": "^2.0.0-rc.0"
+    "@angular/core": "^2.0.0-rc.4"
   },
   "devDependencies": {
-    "@angular/common": "^2.0.0-rc.0",
-    "@angular/core": "^2.0.0-rc.0",
-    "@angular/platform-browser-dynamic": "^2.0.0-rc.0",
+    "@angular/common": "^2.0.0-rc.4",
+    "@angular/core": "^2.0.0-rc.4",
+    "@angular/platform-browser-dynamic": "^2.0.0-rc.4",
     "bower": "^1.7.9",
     "del": "^2.2.0",
     "es6-shim": "^0.35.1",
@@ -73,7 +74,7 @@
     "rxjs": "5.0.0-beta.6",
     "systemjs": "^0.19.29",
     "typescript": "^1.8.10",
-    "typings": "^1.0.4",
+    "typings": "^1.3.1",
     "zone.js": "^0.6.12"
   },
   "dependencies": {}
