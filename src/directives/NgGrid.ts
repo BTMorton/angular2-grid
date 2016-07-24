@@ -792,13 +792,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			}
 			
 			if (shouldSave) {
-				collisions[0].savePosition(itemPos);
+				const newItemPos = this._fixGridPosition(itemPos, itemDims);
+				collisions[0].savePosition(newItemPos.col, newItemPos.row);
 			} else {
-				collisions[0].setGridPosition(itemPos);
+		                const newItemPos = this._fixGridPosition(itemPos, itemDims);
+		                collisions[0].setGridPosition(newItemPos.col, newItemPos.row);
 			}
 			this._fixGridCollisions(itemPos, itemDims, shouldSave);
 			this._addToGrid(collisions[0]);
 			collisions[0].onCascadeEvent();
+			this._cascadeGrid();
 		}
 	}
 	
