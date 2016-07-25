@@ -200,7 +200,7 @@ packages: {
 }
 ```
 
-To use with [angular-cli](https://cli.angular.io/), you will also need to add the following to the `vendorNpmFiles` array in `angular-cli-build.js`:
+To use with [angular-cli](https://cli.angular.io/), you will need to add the above system.js configs to the respective user configuration objects in `system-config.ts`, and add the following to the `vendorNpmFiles` array in `angular-cli-build.js`:
 
 ```
 'angular2-grid/dist/**/*.js'

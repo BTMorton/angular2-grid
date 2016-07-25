@@ -515,14 +515,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _onMouseMove(e: any): void {
-		var mousePos = this._getMousePosition(e);
-		var item = this._getItemFromPosition(mousePos);
 		
-		if (item != null) {
-		    if (e.buttons == 1 && !this.isDragging && !this.isResizing && this.dragEnable && item.canDrag(e)) {
-		        this._dragStart(e);
-		        return false;
-		    }
+		if (e.buttons == 1 && this.dragEnable && !this.isDragging && !this.isResizing) {
+			var mousePos = this._getMousePosition(e);
+			var item = this._getItemFromPosition(mousePos);
+			
+			if (item != null && item.canDrag(e)) {
+				this._dragStart(e);
+				return false;
+			}
 		}
 		
 		if (e.buttons == 0 && this.isDragging) {
@@ -792,16 +793,14 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			}
 			
 			if (shouldSave) {
-				const newItemPos = this._fixGridPosition(itemPos, itemDims);
-				collisions[0].savePosition(newItemPos.col, newItemPos.row);
+				collisions[0].savePosition(itemPos);
 			} else {
-		                const newItemPos = this._fixGridPosition(itemPos, itemDims);
-		                collisions[0].setGridPosition(newItemPos.col, newItemPos.row);
+				collisions[0].setGridPosition(itemPos);
 			}
+			
 			this._fixGridCollisions(itemPos, itemDims, shouldSave);
 			this._addToGrid(collisions[0]);
 			collisions[0].onCascadeEvent();
-			this._cascadeGrid();
 		}
 	}
 	
