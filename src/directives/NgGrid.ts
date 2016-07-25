@@ -1017,7 +1017,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 								}
 							}
 
-							if (lowest != itemPos.row) {	//	If the item is not already on this row move it up
+							if (lowest != itemPos.row && this._isWithinBoundsY({c, lowest}, itemDims))) {	//	If the item is not already on this row move it up
 								this._removeFromGrid(item);
 								
 								if (shouldSave) {
@@ -1072,11 +1072,11 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 								}
 							}
 
-							if (lowest != itemPos.col) {	//	If the item is not already on this col move it up
+							if (lowest != itemPos.col && this._isWithinBoundsX({lowest, r}, itemDims))) {	//	If the item is not already on this col move it up
 								this._removeFromGrid(item);
 								
 								if (shouldSave) {
-									item.savePosition({ col: c, row: lowest });
+									item.savePosition({ col: lowest, row: r });
 								} else {
 									item.setGridPosition({ col: lowest, row: r });
 								}
