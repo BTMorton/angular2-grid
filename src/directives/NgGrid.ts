@@ -514,8 +514,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'transform', '');
 	}
 
-	private _onMouseMove(e: any): void {
-		
+	private _onMouseMove(e: any): boolean {
 		if (e.buttons == 1 && this.dragEnable && !this.isDragging && !this.isResizing) {
 			var mousePos = this._getMousePosition(e);
 			var item = this._getItemFromPosition(mousePos);
@@ -542,6 +541,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				item.onMouseMove(e);
 			}
 		}
+		
+		return true;
 	}
 
 	private _drag(e: any): void {
@@ -1015,14 +1016,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 									lowest = Math.max(lowest, pos.row + dims.y);                        //	Set the lowest row to be below it
 								}
 							}
-
-							if (lowest != itemPos.row && this._isWithinBoundsY({c, lowest}, itemDims))) {	//	If the item is not already on this row move it up
+							
+							const newPos: NgGridItemPosition = { col: c, row: lowest };
+							
+							if (lowest != itemPos.row && this._isWithinBoundsY(newPos, itemDims)) {	//	If the item is not already on this row move it up
 								this._removeFromGrid(item);
 								
 								if (shouldSave) {
-									item.savePosition({ col: c, row: lowest });
+									item.savePosition(newPos);
 								} else {
-									item.setGridPosition({ col: c, row: lowest });
+									item.setGridPosition(newPos);
 								}
 								
 								item.onCascadeEvent();
@@ -1070,14 +1073,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 									lowest = Math.max(lowest, pos.col + dims.x);                        //	Set the lowest col to be below it
 								}
 							}
-
-							if (lowest != itemPos.col && this._isWithinBoundsX({lowest, r}, itemDims))) {	//	If the item is not already on this col move it up
+							
+							const newPos: NgGridItemPosition = { col: lowest, row: r };
+							
+							if (lowest != itemPos.col && this._isWithinBoundsX(newPos, itemDims)) {	//	If the item is not already on this col move it up
 								this._removeFromGrid(item);
 								
 								if (shouldSave) {
-									item.savePosition({ col: lowest, row: r });
+									item.savePosition(newPos);
 								} else {
-									item.setGridPosition({ col: lowest, row: r });
+									item.setGridPosition(newPos);
 								}
 								
 								item.onCascadeEvent();
