@@ -461,12 +461,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			if (this.resizeEnable && item.canResize(e) != null) {
 				this._resizeStart(e);
 				return false;
-			} else if (this.dragEnable && item.canDrag(e)) {
-				this._dragStart(e);
-				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -519,6 +515,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _onMouseMove(e: any): void {
+		var mousePos = this._getMousePosition(e);
+		var item = this._getItemFromPosition(mousePos);
+		
+		if (item != null) {
+		    if (e.buttons == 1 && !this.isDragging && !this.isResizing && this.dragEnable && item.canDrag(e)) {
+		        this._dragStart(e);
+		        return false;
+		    }
+		}
+		
 		if (e.buttons == 0 && this.isDragging) {
 			this._dragStop(e);
 		} else if (e.buttons == 0 && this.isResizing) {
@@ -786,13 +792,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			}
 			
 			if (shouldSave) {
-				collisions[0].savePosition(itemPos);
+				const newItemPos = this._fixGridPosition(itemPos, itemDims);
+				collisions[0].savePosition(newItemPos.col, newItemPos.row);
 			} else {
-				collisions[0].setGridPosition(itemPos);
+		                const newItemPos = this._fixGridPosition(itemPos, itemDims);
+		                collisions[0].setGridPosition(newItemPos.col, newItemPos.row);
 			}
 			this._fixGridCollisions(itemPos, itemDims, shouldSave);
 			this._addToGrid(collisions[0]);
 			collisions[0].onCascadeEvent();
+			this._cascadeGrid();
 		}
 	}
 	
@@ -1008,7 +1017,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 								}
 							}
 
-							if (lowest != itemPos.row) {	//	If the item is not already on this row move it up
+							if (lowest != itemPos.row && this._isWithinBoundsY({c, lowest}, itemDims))) {	//	If the item is not already on this row move it up
 								this._removeFromGrid(item);
 								
 								if (shouldSave) {
@@ -1063,11 +1072,11 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 								}
 							}
 
-							if (lowest != itemPos.col) {	//	If the item is not already on this col move it up
+							if (lowest != itemPos.col && this._isWithinBoundsX({lowest, r}, itemDims))) {	//	If the item is not already on this col move it up
 								this._removeFromGrid(item);
 								
 								if (shouldSave) {
-									item.savePosition({ col: c, row: lowest });
+									item.savePosition({ col: lowest, row: r });
 								} else {
 									item.setGridPosition({ col: lowest, row: r });
 								}
