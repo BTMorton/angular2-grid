@@ -16,8 +16,7 @@ To use the Angular 2 Grid system, simply run `npm install angular2-grid` and the
 If you want to help with development or try the demo, it's less simple, but not hard. First you'll need to install [Node](http://nodejs.org) and check out a copy of the repo. Then run:
 
 ```shell
-$ npm install --dev
-$ bower install
+$ npm install
 $ gulp build
 ```
 
@@ -38,7 +37,7 @@ To configure the grid with your own options, it is as easy as adding them as the
 {
     'margins': [10],            //  The size of the margins of each item. Supports up to four values in the same way as CSS margins. Can be updated using setMargins()
     'draggable': true,          //  Whether the items can be dragged. Can be updated using enableDrag()/disableDrag()
-    'resizable': true,         //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
+    'resizable': true,          //  Whether the items can be resized. Can be updated using enableResize()/disableResize()
     'max_cols': 0,              //  The maximum number of columns allowed. Set to 0 for infinite. Cannot be used with max_rows
     'max_rows': 0,              //  The maximum number of rows allowed. Set to 0 for infinite. Cannot be used with max_cols
     'visible_cols': 0,          //  The number of columns shown on screen when auto_resize is set to true. Set to 0 to not auto_resize. Will be overriden by max_cols
@@ -55,6 +54,7 @@ To configure the grid with your own options, it is as easy as adding them as the
     'auto_resize': false,       //  Automatically set col_width/row_height so that max_cols/max_rows fills the screen. Only has effect is max_cols or max_rows is set
     'maintain_ratio': false,    //  Attempts to maintain aspect ratio based on the colWidth/rowHeight values set in the config
     'prefer_new': false,        //  When adding new items, will use that items position ahead of existing items
+    'limit_to_screen': false,   //  When resizing the screen, with this true and auto_resize false, the grid will re-arrange to fit the screen size. Please note, at present this only works with cascade direction up.
 }
 ```
 
@@ -67,12 +67,19 @@ The defaults for the grid item are:
     'sizex': 1,             //  The start width in terms of columns for the item
     'sizey': 1,             //  The start height in terms of rows for the item
     'dragHandle': null,     //  The selector to be used for the drag handle. If null, uses the whole item
-    'resizeHandle': null,   //  The selector to be used for the resize handle. If null, uses 'borderSize' pixels from the right for horizontal resize, 
+    'resizeHandle': null,   //  The selector to be used for the resize handle. If null, uses 'borderSize' pixels from the right for horizontal resize,
                             //    'borderSize' pixels from the bottom for vertical, and the square in the corner bottom-right for both
     'borderSize': 15,
     'fixed': false,         //  If the grid item should be cascaded or not. If yes, manual movement is required
     'draggable': true,      //  If the grid item can be dragged. If this or the global setting is set to false, the item cannot be dragged.
-    'resizable': true       //  If the grid item can be resized. If this or the global setting is set to false, the item cannot be resized.
+    'resizable': true,      //  If the grid item can be resized. If this or the global setting is set to false, the item cannot be resized.
+    'payload': null,        //  An optional custom payload (string/number/object) to be used to identify the item for serialization
+    'maxCols': 0,           //  The maximum number of columns for a particular item. This value will only override the value from the grid (if set) if it is smaller
+    'minCols': 0,           //  The minimum number of columns for a particular item. This value will only override the value from the grid if larger
+    'maxRows': 0,           //  The maximum number of rows for a particular item. This value will only override the value from the grid (if set) if it is smaller
+    'minRows': 0,           //  The minimum number of rows for a particular item. This value will only override the value from the grid if larger
+    'minWidth': 0,          //  The minimum width of a particular item. This value will override the value from the grid, as well as the minimum columns if the resulting size is larger
+    'minHeight': 0,         //  The minimum height of a particular item. This value will override the value from the grid, as well as the minimum rows if the resulting size is larger
 }
 ```
 
@@ -165,7 +172,7 @@ The `NgGrid` and `NgGridItem` can be configured by binding directly to the direc
 </div>
 ```
 
-In order to include the relevant files, you will need to import `NgGrid` and `NgGridItem` to your app and add them to the `@View` directives. This can be achieved by adding: 
+In order to include the relevant files, you will need to import `NgGrid` and `NgGridItem` to your app and add them to the `@View` directives. This can be achieved by adding:
 
 ```typescript
 import { NgGrid, NgGridItem } from 'angular2-grid';
@@ -185,8 +192,18 @@ As of the Angular 2 Release Candidate you will now need to have the following in
 
 ```
 map: {
-    'angular2-grid': 'node_modules/angular2-grid/dist/NgGrid'
+    'angular2-grid': 'node_modules/angular2-grid/dist'
 }
+
+packages: {
+    'angular2-grid': { main: 'main.js',  defaultExtension: 'js' }
+}
+```
+
+To use with [angular-cli](https://cli.angular.io/), you will need to add the above system.js configs to the respective user configuration objects in `system-config.ts`, and add the following to the `vendorNpmFiles` array in `angular-cli-build.js`:
+
+```
+'angular2-grid/dist/**/*.js'
 ```
 
 To see a working typescript example project, check the [demo folder in the source](https://github.com/BTMorton/angular2-grid/tree/master/demo).

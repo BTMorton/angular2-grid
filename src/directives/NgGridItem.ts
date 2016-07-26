@@ -1,5 +1,5 @@
 import { NgGrid } from "./NgGrid"
-import { NgGridItemConfig, NgGridItemEvent } from "../interfaces/INgGrid"
+import { NgGridItemConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions } from "../interfaces/INgGrid"
 import { Component, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
 
 @Directive({
@@ -40,13 +40,14 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public isFixed: boolean = false;
 	public isDraggable: boolean = true;
 	public isResizable: boolean = true;
+	public minWidth: number = 0;
+	public minHeight: number = 0;
 
 	//	Private variables
 	private _payload: any;
-	private _col: number = 1;
-	private _row: number = 1;
-	private _sizex: number = 1;
-	private _sizey: number = 1;
+	private _position: NgGridItemPosition = { col: 1, row: 1 };
+	private _currentPosition: NgGridItemPosition = { col: 1, row: 1 };
+	private _size: NgGridItemSize = { x: 1, y: 1 };
 	private _config = NgGridItem.CONST_DEFAULT_CONFIG;
 	private _dragHandle: string;
 	private _resizeHandle: string;
@@ -58,12 +59,16 @@ export class NgGridItem implements OnInit, OnDestroy {
 	private _added: boolean = false;
 	private _differ: KeyValueDiffer;
 	private _cascadeMode: string;
+	private _maxCols: number = 0;
+	private _minCols: number = 0;
+	private _maxRows: number = 0;
+	private _minRows: number = 0;
 
 	//	[ng-grid-item] handler
 	set config(v: NgGridItemConfig) {
-		var defaults = NgGridItem.CONST_DEFAULT_CONFIG;
+		const defaults = NgGridItem.CONST_DEFAULT_CONFIG;
 
-		for (var x in defaults)
+		for (let x in defaults)
 			if (v[x] == null)
 				v[x] = defaults[x];
 
@@ -81,65 +86,89 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this._recalculateDimensions();
 		this._recalculatePosition();
 	}
+	
+	get sizex(): number {
+		return this._size.x;
+	}
+	
+	get sizey(): number {
+		return this._size.y;
+	}
+	
+	get col(): number {
+		return this._position.col;
+	}
+	
+	get row(): number {
+		return this._position.row;
+	}
+	
+	get currentCol(): number {
+		return this._currentPosition.col;
+	}
+	
+	get currentRow(): number {
+		return this._currentPosition.row;
+	}
 
 	//	Constructor
 	constructor(private _differs: KeyValueDiffers, private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid: NgGrid, public containerRef: ViewContainerRef) { }
 
 	public onResizeStartEvent(): void {
-		var event = this.getEventOutput();
+		const event: NgGridItemEvent = this.getEventOutput();
 		this.onResizeStart.emit(event);
 		this.onResizeAny.emit(event);
 		this.onChangeStart.emit(event);
 		this.onChangeAny.emit(event);
 	}
 	public onResizeEvent(): void {
-		var event = this.getEventOutput();
+		const event: NgGridItemEvent = this.getEventOutput();
 		this.onResize.emit(event);
 		this.onResizeAny.emit(event);
 		this.onChange.emit(event);
 		this.onChangeAny.emit(event);
 	}
 	public onResizeStopEvent(): void {
-		var event = this.getEventOutput();
+		const event: NgGridItemEvent = this.getEventOutput();
 		this.onResizeStop.emit(event);
 		this.onResizeAny.emit(event);
 		this.onChangeStop.emit(event);
 		this.onChangeAny.emit(event);
 
-		this._config.sizex = this._sizex;
-		this._config.sizey = this._sizey;
+		this._config.sizex = this._size.x;
+		this._config.sizey = this._size.y;
 		this.ngGridItemChange.emit(this._config);
 	}
 	public onDragStartEvent(): void {
-		var event = this.getEventOutput();
+		const event: NgGridItemEvent = this.getEventOutput();
 		this.onDragStart.emit(event);
 		this.onDragAny.emit(event);
 		this.onChangeStart.emit(event);
 		this.onChangeAny.emit(event);
 	}
 	public onDragEvent(): void {
-		var event = this.getEventOutput();
+		const event: NgGridItemEvent = this.getEventOutput();
 		this.onDrag.emit(event);
 		this.onDragAny.emit(event);
 		this.onChange.emit(event);
 		this.onChangeAny.emit(event);
 	}
 	public onDragStopEvent(): void {
-		var event = this.getEventOutput();
+		const event: NgGridItemEvent = this.getEventOutput();
 		this.onDragStop.emit(event);
 		this.onDragAny.emit(event);
 		this.onChangeStop.emit(event);
 		this.onChangeAny.emit(event);
 
-		this._config.col = this._col;
-		this._config.row = this._row;
+		this._config.col = this._position.col;
+		this._config.row = this._position.row;
 		this.ngGridItemChange.emit(this._config);
 	}
 	public onCascadeEvent(): void {
-		this._config.sizex = this._sizex;
-		this._config.sizey = this._sizey;
-		this._config.col = this._col;
-		this._config.row = this._row;
+		this._config.sizex = this._size.x;
+		this._config.sizey = this._size.y;
+		this._config.col = this._position.col;
+		this._config.row = this._position.row;
 		this.ngGridItemChange.emit(this._config);
 	}
 
@@ -160,24 +189,32 @@ export class NgGridItem implements OnInit, OnDestroy {
 		if (!this.isDraggable) return false;
 
 		if (this._dragHandle) {
-			var parent = e.target.parentElement;
-
-			return parent.querySelector(this._dragHandle) == e.target;
+			return this.findHandle(this._dragHandle, e.target);
 		}
 
 		return true;
+	}
+	
+	public findHandle(handleSelector: string, startElement: HTMLElement): boolean {
+		let targetElem: any = startElement;
+		
+		while (targetElem && targetElem != this._ngEl.nativeElement) {
+			if (this.elementMatches(targetElem, handleSelector)) return true;
+			
+			targetElem = targetElem.parentElement;
+		}
+		
+		return false;
 	}
 
 	public canResize(e: any): string {
 		if (!this.isResizable) return null;
 
 		if (this._resizeHandle) {
-			var parent = e.target.parentElement;
-
-			return parent.querySelector(this._resizeHandle) == e.target ? 'both' : null;
+			return this.findHandle(this._resizeHandle, e.target) ? 'both' : null;
 		}
 
-		var mousePos = this._getMousePosition(e);
+		const mousePos: NgGridRawPosition = this._getMousePosition(e);
 
 		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
@@ -194,7 +231,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public onMouseMove(e: any): void {
 		if (this._ngGrid.autoStyle) {
 			if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
-				var mousePos = this._getMousePosition(e);
+				const mousePos: NgGridRawPosition = this._getMousePosition(e);
 
 				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
@@ -235,41 +272,58 @@ export class NgGridItem implements OnInit, OnDestroy {
 		return this._resizeHandle;
 	}
 
-	public getDimensions(): { width: number, height: number } {
+	public getDimensions(): NgGridItemDimensions {
 		return { 'width': this._elemWidth, 'height': this._elemHeight }
 	}
 
-	public getSize(): { x: number, y: number } {
-		return { 'x': this._sizex, 'y': this._sizey }
+	public getSize(): NgGridItemSize {
+		return this._size;
 	}
 
-	public getPosition(): { left: number, top: number } {
+	public getPosition(): NgGridRawPosition {
 		return { 'left': this._elemLeft, 'top': this._elemTop }
 	}
 
-	public getGridPosition(): { col: number, row: number } {
-		return { 'col': this._col, 'row': this._row }
+	public getGridPosition(): NgGridItemPosition {
+		return this._currentPosition;
+	}
+
+	public getSavedPosition(): NgGridItemPosition {
+		return this._position;
 	}
 
 	//	Setters
 	public setConfig(config: NgGridItemConfig): void {
 		this._config = config;
 
-		this._payload = config.payload,
-		this._col = config.col ? config.col : NgGridItem.CONST_DEFAULT_CONFIG.col;
-		this._row = config.row ? config.row : NgGridItem.CONST_DEFAULT_CONFIG.row;
-		this._sizex = config.sizex ? config.sizex : NgGridItem.CONST_DEFAULT_CONFIG.sizex;
-		this._sizey = config.sizey ? config.sizey : NgGridItem.CONST_DEFAULT_CONFIG.sizey;
+		this._payload = config.payload;
+		this._position.col = this._currentPosition.col = config.col ? config.col : NgGridItem.CONST_DEFAULT_CONFIG.col;
+		this._position.row = this._currentPosition.row = config.row ? config.row : NgGridItem.CONST_DEFAULT_CONFIG.row;
+		this._size.x = config.sizex ? config.sizex : NgGridItem.CONST_DEFAULT_CONFIG.sizex;
+		this._size.y = config.sizey ? config.sizey : NgGridItem.CONST_DEFAULT_CONFIG.sizey;
 		this._dragHandle = config.dragHandle;
 		this._resizeHandle = config.resizeHandle;
 		this._borderSize = config.borderSize;
 		this.isDraggable = config.draggable ? true : false;
 		this.isResizable = config.resizable ? true : false;
 		this.isFixed = config.fixed ? true : false;
-
+		
+		this._maxCols = !isNaN(config.maxCols) && isFinite(config.maxCols) ? config.maxCols : 0;
+		this._minCols = !isNaN(config.minCols) && isFinite(config.minCols) ? config.minCols : 0;
+		this._maxRows = !isNaN(config.maxRows) && isFinite(config.maxRows) ? config.maxRows : 0;
+		this._minRows = !isNaN(config.minRows) && isFinite(config.minRows) ? config.minRows : 0;
+		
+		this.minWidth = !isNaN(config.minWidth) && isFinite(config.minWidth) ? config.minWidth : 0;
+		this.minHeight = !isNaN(config.minHeight) && isFinite(config.minHeight) ? config.minHeight : 0;
+		
+		if (this._minCols > 0 && this._maxCols > 0 && this._minCols > this._maxCols) this._minCols = 0;
+		if (this._minRows > 0 && this._maxRows > 0 && this._minRows > this._maxRows) this._minRows = 0;
+		
 		if (this._added) {
 			this._ngGrid.updateItem(this);
 		}
+		
+		this._size = this.fixResize(this._size);
 
 		this._recalculatePosition();
 		this._recalculateDimensions();
@@ -277,7 +331,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 	public ngDoCheck(): boolean {
 		if (this._differ != null) {
-			var changes = this._differ.diff(this._config);
+			const changes: any = this._differ.diff(this._config);
 
 			if (changes != null) {
 				this._applyChanges(changes);
@@ -289,29 +343,37 @@ export class NgGridItem implements OnInit, OnDestroy {
 		return false;
 	}
 
-	public setSize(x: number, y: number, update: boolean = true): void {
-		this._sizex = x;
-		this._sizey = y;
+	public setSize(newSize: NgGridItemSize, update: boolean = true): void {
+		newSize = this.fixResize(newSize);
+		this._size = newSize;
 		if (update) this._recalculateDimensions();
 
 		this.onItemChange.emit(this.getEventOutput());
 	}
 
-	public setGridPosition(col: number, row: number, update: boolean = true): void {
-		this._col = col;
-		this._row = row;
+	public setGridPosition(gridPosition: NgGridItemPosition, update: boolean = true): void {
+		this._currentPosition = gridPosition;
 		if (update) this._recalculatePosition();
 
+		this.onItemChange.emit(this.getEventOutput());
+	}
+
+	public savePosition(newPosition: NgGridItemPosition): void {
+		this._position = newPosition;
+		this._currentPosition = newPosition;
+		
+		this._recalculatePosition();
+		
 		this.onItemChange.emit(this.getEventOutput());
 	}
 
 	public getEventOutput(): NgGridItemEvent {
 		return <NgGridItemEvent>{
 			payload: this._payload,
-			col: this._col,
-			row: this._row,
-			sizex: this._sizex,
-			sizey: this._sizey,
+			col: this._currentPosition.col,
+			row: this._currentPosition.row,
+			sizex: this._size.x,
+			sizey: this._size.y,
 			width: this._elemWidth,
 			height: this._elemHeight,
 			left: this._elemLeft,
@@ -333,6 +395,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'transform', 'translate(' + x + 'px, ' + -y + 'px)');
 				break;
 		}
+		
 		this._elemLeft = x;
 		this._elemTop = y;
 	}
@@ -364,21 +427,25 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	public setDimensions(w: number, h: number): void {
+		if (w < this.minWidth) w = this.minWidth;
+		if (h < this.minHeight) h = this.minHeight;
+		
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', w + "px");
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', h + "px");
+		
 		this._elemWidth = w;
 		this._elemHeight = h;
 	}
 
 	public startMoving(): void {
 		this._renderer.setElementClass(this._ngEl.nativeElement, 'moving', true);
-		var style = window.getComputedStyle(this._ngEl.nativeElement);
+		const style: any = window.getComputedStyle(this._ngEl.nativeElement);
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'z-index', (parseInt(style.getPropertyValue('z-index')) + 1).toString());
 	}
 
 	public stopMoving(): void {
 		this._renderer.setElementClass(this._ngEl.nativeElement, 'moving', false);
-		var style = window.getComputedStyle(this._ngEl.nativeElement);
+		const style: any = window.getComputedStyle(this._ngEl.nativeElement);
 		if (this._ngGrid.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'z-index', (parseInt(style.getPropertyValue('z-index')) - 1).toString());
 	}
 
@@ -386,35 +453,64 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this._recalculatePosition();
 		this._recalculateDimensions();
 	}
+	
+	public fixResize(newSize: NgGridItemSize): NgGridItemSize {
+		if (this._maxCols > 0 && newSize.x > this._maxCols) newSize.x = this._maxCols;
+		if (this._maxRows > 0 && newSize.y > this._maxRows) newSize.y = this._maxRows;
+		
+		if (this._minCols > 0 && newSize.x < this._minCols) newSize.x = this._minCols;
+		if (this._minRows > 0 && newSize.y < this._minRows) newSize.y = this._minRows;
+		
+		const itemWidth = (newSize.x * this._ngGrid.colWidth) + ((this._ngGrid.marginLeft + this._ngGrid.marginRight) * (newSize.x - 1));
+		if (itemWidth < this.minWidth) newSize.x = Math.ceil((this.minWidth + this._ngGrid.marginRight + this._ngGrid.marginLeft) / (this._ngGrid.colWidth + this._ngGrid.marginRight + this._ngGrid.marginLeft));
+		
+		const itemHeight = (newSize.y * this._ngGrid.rowHeight) + ((this._ngGrid.marginTop + this._ngGrid.marginBottom) * (newSize.y - 1));
+		if (itemHeight < this.minHeight) newSize.y = Math.ceil((this.minHeight + this._ngGrid.marginBottom + this._ngGrid.marginTop) / (this._ngGrid.rowHeight + this._ngGrid.marginBottom + this._ngGrid.marginTop));
+		
+		return newSize;
+	}
 
 	//	Private methods
+	private elementMatches(element: any, selector: string): boolean {
+		if (element.matches) return element.matches(selector);
+		if (element.oMatchesSelector) return element.oMatchesSelector(selector);
+		if (element.msMatchesSelector) return element.msMatchesSelector(selector);
+		if (element.mozMatchesSelector) return element.mozMatchesSelector(selector);
+		if (element.webkitMatchesSelector) return element.webkitMatchesSelector(selector);
+		
+		const matches: any = (element.document || element.ownerDocument).querySelectorAll(selector);
+		let i: number = matches.length;
+		while (--i >= 0 && matches.item(i) !== element) { }
+		return i > -1;
+	}
+
 	private _recalculatePosition(): void {
-		var x = (this._ngGrid.colWidth + this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._col - 1) + this._ngGrid.marginLeft;
-		var y = (this._ngGrid.rowHeight + this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._row - 1) + this._ngGrid.marginTop;
+		const x: number = (this._ngGrid.colWidth + this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._currentPosition.col - 1) + this._ngGrid.marginLeft;
+		const y: number = (this._ngGrid.rowHeight + this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._currentPosition.row - 1) + this._ngGrid.marginTop;
 
 		this.setPosition(x, y);
 	}
 
 	private _recalculateDimensions(): void {
-		if (this._sizex < this._ngGrid.minCols) this._sizex = this._ngGrid.minCols;
-		if (this._sizey < this._ngGrid.minRows) this._sizey = this._ngGrid.minRows;
+		if (this._size.x < this._ngGrid.minCols) this._size.x = this._ngGrid.minCols;
+		if (this._size.y < this._ngGrid.minRows) this._size.y = this._ngGrid.minRows;
 
-		var newWidth = Math.max(this._ngGrid.minWidth, this._ngGrid.colWidth * this._sizex);
-		var newHeight = Math.max(this._ngGrid.minHeight, this._ngGrid.rowHeight * this._sizey);
-
-		var w = newWidth + ((this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._sizex - 1));
-		var h = newHeight + ((this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._sizey - 1));
+		const newWidth: number = (this._ngGrid.colWidth * this._size.x) + ((this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._size.x - 1));
+		const newHeight: number = (this._ngGrid.rowHeight * this._size.y) + ((this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._size.y - 1));
+		
+		const w: number = Math.max(this.minWidth, this._ngGrid.minWidth, newWidth);
+		const h: number = Math.max(this.minHeight, this._ngGrid.minHeight, newHeight);
 
 		this.setDimensions(w, h);
 	}
 
-	private _getMousePosition(e: any): { left: number, top: number } {
+	private _getMousePosition(e: any): NgGridRawPosition {
 		if (e.originalEvent && e.originalEvent.touches) {
-			var oe = e.originalEvent;
+			const oe: any = e.originalEvent;
 			e = oe.touches.length ? oe.touches[0] : oe.changedTouches[0];
 		}
 
-		var refPos = this._ngEl.nativeElement.getBoundingClientRect();
+		const refPos: NgGridRawPosition = this._ngEl.nativeElement.getBoundingClientRect();
 
 		return {
 			left: e.clientX - refPos.left,

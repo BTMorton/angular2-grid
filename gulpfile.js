@@ -1,6 +1,5 @@
 var del = require('del');
 var gulp = require('gulp');
-var browserify = require('browserify');
 var typescript = require('gulp-typescript');
 var uglify = require('gulp-uglify');
 var concat = require('gulp-concat');
@@ -9,11 +8,9 @@ var symlink = require('gulp-symlink');
 var sourcemaps = require('gulp-sourcemaps');
 var runSequence = require('run-sequence');
 var merge = require('merge2');
-var KarmaServer = require('karma').Server;
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
+// var KarmaServer = require('karma').Server;
 
-var tsProject = typescript.createProject("tsconfig.json");
+var tsProject = typescript.createProject('tsconfig.json');
 
 var PATHS = {
 	src: {
@@ -24,10 +21,10 @@ var PATHS = {
 		typings: 'src/*.d.ts'
 	},
 	typings: [
-		'typings/browser.d.ts',
+		'typings/index.d.ts',
 	],
 	testTypings: [
-		'typings/browser.d.ts',
+		'typings/index.d.ts',
 		'dist/*.d.ts'
 	],
 };
@@ -92,8 +89,8 @@ gulp.task('css', function () {
 
 gulp.task('libs', function () {
 	return merge([
-		gulp.src('node_modules/').pipe(symlink('dist/node_modules')),
-		gulp.src('bower_components/').pipe(symlink('dist/bower_components'))
+		gulp.src('node_modules').pipe(symlink('dist/node_modules', {force: true})),
+		gulp.src('bower_components').pipe(symlink('dist/bower_components', {force: true}))
 	]);
 });
 
