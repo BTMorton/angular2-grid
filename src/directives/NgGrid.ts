@@ -545,6 +545,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _drag(e: any): void {
 		if (this.isDragging) {
+		        if (window.getSelection) {
+		            if (window.getSelection().empty) {
+		                window.getSelection().empty();
+		            } else if (window.getSelection().removeAllRanges) {
+		                window.getSelection().removeAllRanges();
+		            }
+		        } else if (document.selection) {
+		            document.selection.empty();
+		        };
 			var mousePos = this._getMousePosition(e);
 			var newL = (mousePos.left - this._posOffset.left);
 			var newT = (mousePos.top - this._posOffset.top);
@@ -585,6 +594,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _resize(e: any): void {
 		if (this.isResizing) {
+		        if (window.getSelection) {
+		            if (window.getSelection().empty) {
+		                window.getSelection().empty();
+		            } else if (window.getSelection().removeAllRanges) {
+		                window.getSelection().removeAllRanges();
+		            }
+		        } else if (document.selection) {
+		            document.selection.empty();
+		        };
 			var mousePos = this._getMousePosition(e);
 			var itemPos = this._resizingItem.getPosition();
 			var itemDims = this._resizingItem.getDimensions();
