@@ -120,6 +120,7 @@ Each event will also provide the following object to any callback functions:
 
 ```javascript
 interface NgGridItemEvent {
+    payload: any,   //  The item's optional custom payload (string/number/object) to be used to identify the item for serialization
     col: number,    //  The item's column position within the grid
     row: number,    //  The item's row position within the grid
     sizex: number,  //  The item's column size within the grid
