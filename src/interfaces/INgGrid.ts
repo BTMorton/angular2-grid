@@ -43,6 +43,7 @@ export interface NgGridItemConfig {
 }
 
 export interface NgGridItemEvent {
+	payload: any,
 	col: number;
 	row: number;
 	sizex: number;
