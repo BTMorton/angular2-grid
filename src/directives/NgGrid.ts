@@ -1,4 +1,4 @@
-import { Component, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
+import { Component, Directive, ElementRef, Renderer, EventEmitter, ComponentFactoryResolver, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
 import { NgGridConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions } from '../interfaces/INgGrid';
 import { NgGridItem } from './NgGridItem';
 import { NgGridPlaceholder } from '../components/NgGridPlaceholder';
@@ -16,7 +16,7 @@ import { NgGridPlaceholder } from '../components/NgGridPlaceholder';
 		'(window:resize)': '_onResize($event)',
 		'(document:mousemove)': '_onMouseMove($event)',
 		'(document:mouseup)': '_onMouseUp($event)'
-	}
+	},
 })
 export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	//	Event Emitters
@@ -108,7 +108,11 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	//	Constructor
-	constructor(private _differs: KeyValueDiffers, private _ngEl: ElementRef, private _renderer: Renderer, private _loader: DynamicComponentLoader, private _containerRef: ViewContainerRef) { }
+	constructor(private _differs: KeyValueDiffers,
+				private _ngEl: ElementRef,
+				private _renderer: Renderer,
+				private componentFactoryResolver: ComponentFactoryResolver,
+				private _containerRef: ViewContainerRef) {}
 
 	//	Public methods
 	public ngOnInit(): void {
@@ -1250,13 +1254,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		const pos: NgGridItemPosition = item.getGridPosition();
 		const dims: NgGridItemSize = item.getSize();
 
-		this._loader.loadNextToLocation((<Type>NgGridPlaceholder), item.containerRef).then((componentRef: ComponentRef<NgGridPlaceholder>) => {
-			this._placeholderRef = componentRef;
-			const placeholder: NgGridPlaceholder = componentRef.instance;
-			placeholder.registerGrid(this);
-			placeholder.setCascadeMode(this.cascade);
-			placeholder.setGridPosition({ col: pos.col, row: pos.row });
-			placeholder.setSize({ x: dims.x, y: dims.y });
-		});
+        const factory = this.componentFactoryResolver.resolveComponentFactory(NgGridPlaceholder);
+        var componentRef: ComponentRef<NgGridPlaceholder> = item.containerRef.createComponent(factory);
+        this._placeholderRef = componentRef;
+        const placeholder: NgGridPlaceholder = componentRef.instance;
+        placeholder.registerGrid(this);
+        placeholder.setCascadeMode(this.cascade);
+        placeholder.setGridPosition({ col: pos.col, row: pos.row });
+        placeholder.setSize({ x: dims.x, y: dims.y });
 	}
 }

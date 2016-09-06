@@ -1,11 +1,11 @@
-import { NgGrid } from "../directives/NgGrid"
-import { NgGridItem } from "../directives/NgGridItem"
-import { NgGridItemPosition, NgGridItemSize } from "../interfaces/INgGrid"
-import { Component, Directive, ElementRef, Renderer, EventEmitter, DynamicComponentLoader, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
+import { NgGrid } from '../directives/NgGrid';
+import { NgGridItem } from '../directives/NgGridItem';
+import { NgGridItemPosition, NgGridItemSize } from '../interfaces/INgGrid';
+import { Component, Directive, ElementRef, Renderer, EventEmitter, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
 
 @Component({
 	selector: 'div',
-	template: ""
+	template: ''
 })
 export class NgGridPlaceholder implements OnInit {
 	private _size: NgGridItemSize;
@@ -40,20 +40,20 @@ export class NgGridPlaceholder implements OnInit {
 			case 'up':
 			case 'left':
 			default:
-				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', "0px");
-				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', "0px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', '0px');
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', '0px');
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', null);
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', null);
 				break;
 			case 'right':
-				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', "0px");
-				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', "0px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', '0px');
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', '0px');
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', null);
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', null);
 				break;
 			case 'down':
-				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', "0px");
-				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', "0px");
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'left', '0px');
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'bottom', '0px');
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'right', null);
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'top', null);
 				break;
@@ -62,8 +62,8 @@ export class NgGridPlaceholder implements OnInit {
 
 	//	Private methods
 	private _setDimensions(w: number, h: number): void {
-		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', w + "px");
-		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', h + "px");
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', w + 'px');
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', h + 'px');
 	}
 
 	private _setPosition(x: number, y: number): void {

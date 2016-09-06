@@ -41,15 +41,19 @@
     "dist/main*",
     "dist/components/*",
     "dist/directives/*",
-    "dist/interfaces/*"
+    "dist/interfaces/*",
+    "dist/modules/*"
   ],
   "peerDependencies": {
-    "@angular/core": "^2.0.0-rc.4"
+    "@angular/core": "^2.0.0-rc.6"
   },
   "devDependencies": {
-    "@angular/common": "^2.0.0-rc.4",
-    "@angular/core": "^2.0.0-rc.4",
-    "@angular/platform-browser-dynamic": "^2.0.0-rc.4",
+    "@angular/common": "^2.0.0-rc.6",
+    "@angular/compiler": "^2.0.0-rc.6",
+    "@angular/core": "^2.0.0-rc.6",
+    "@angular/forms": "2.0.0-rc.6",
+    "@angular/platform-browser": "^2.0.0-rc.6",
+    "@angular/platform-browser-dynamic": "^2.0.0-rc.6",
     "bower": "^1.7.9",
     "del": "^2.2.0",
     "es6-shim": "^0.35.1",
