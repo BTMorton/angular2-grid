@@ -9,7 +9,7 @@ interface Box {
 // Annotation section
 @Component({
 	selector: 'my-app',
-	templateUrl: '/src/app2.component.html',
+	templateUrl: 'app.html',
 	styleUrls: ['app.css', 'NgGrid.css'],// 'NgGrid_FixSmall.css'],
 	encapsulation: ViewEncapsulation.None
 })
