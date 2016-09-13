@@ -6,7 +6,7 @@
   "typings": "dist/main.d.ts",
   "scripts": {
     "start": "npm run lite",
-    "lite": "lite-server",
+    "lite": "lite-server -c bs-config.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
