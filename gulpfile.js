@@ -88,10 +88,7 @@ gulp.task('css', function () {
 });
 
 gulp.task('libs', function () {
-	return merge([
-		gulp.src('node_modules').pipe(symlink('dist/node_modules', {force: true})),
-		gulp.src('bower_components').pipe(symlink('dist/bower_components', {force: true}))
-	]);
+	return gulp.src('node_modules').pipe(symlink('dist/node_modules', {force: true}));
 });
 
 gulp.task('clean', function(done) {
