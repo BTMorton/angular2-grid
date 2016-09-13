@@ -6,7 +6,15 @@
     "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
     "Martin Sikora (https://github.com/martinsik)",
     "Daniel Pastor de la Fuenta (https://github.com/aebsubis)",
-    "Frederik Schubert (https://github.com/frederikschubert)"
+    "Frederik Schubert (https://github.com/frederikschubert)",
+    "Matthew de Nobrega (https://github.com/matthewdenobrega)",
+    "Alex (https://github.com/lifecoderua)",
+    "pocmanu (https://github.com/pocmanu)",
+    "Chris Morabito (https://github.com/morabitowoolpert)",
+    "Carlos Esteban Lopez Jaramillo (https://github.com/Luchillo)",
+    "Niklas Berg (https://github.com/nkholski)",
+    "Wouter (https://github.com/wuhkuh)",
+    "Brian Ellis (https://github.com/OnlyAGhost)"
   ],
   "description": "Grid-based drag/drop/resize directive plugin for Angular 2",
   "main": "NgGrid.ts",
