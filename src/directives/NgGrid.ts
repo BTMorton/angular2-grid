@@ -74,6 +74,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _limitToScreen: boolean = false;
 	private _curMaxRow: number = 0;
 	private _curMaxCol: number = 0;
+	private _dragReady: boolean = false;
+	private _resizeReady: boolean = false;
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: NgGridConfig = {
@@ -462,11 +464,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		var item = this._getItemFromPosition(mousePos);
 
 		if (item != null) {
-			if (this.resizeEnable && item.canResize(e) != null) {
-				this._resizeStart(e);
-				return false;
+			if (this.resizeEnable && item.canResize(e)) {
+				this._resizeReady = true;
+			} else if (this.dragEnable && item.canDrag(e)) {
+				this._dragReady = true;
 			}
 		}
+		
 		return true;
 	}
 
@@ -481,6 +485,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._removeFromGrid(item);
 			this._createPlaceholder(item);
 			this.isResizing = true;
+			this._resizeReady = false;
 
 			this.onResizeStart.emit(item);
 			item.onResizeStartEvent();
@@ -500,6 +505,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._removeFromGrid(item);
 			this._createPlaceholder(item);
 			this.isDragging = true;
+			this._dragReady = false;
 
 			this.onDragStart.emit(item);
 			item.onDragStartEvent();
@@ -519,14 +525,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _onMouseMove(e: any): boolean {
-		if (e.buttons == 1 && this.dragEnable && !this.isDragging && !this.isResizing) {
-			var mousePos = this._getMousePosition(e);
-			var item = this._getItemFromPosition(mousePos);
-			
-			if (item != null && item.canDrag(e)) {
-				this._dragStart(e);
-				return false;
-			}
+		if (e.buttons == 1 && this._resizeReady) {
+			this._resizeStart(e);
+			return false;
+		} else if (e.buttons == 1 && this._dragReady) {
+			this._dragStart(e);
+			return false;
+		} else if (this._dragReady || this._resizeReady) {
+			this._dragReady = false;
+			this._resizeReady = false;
 		}
 		
 		if (e.buttons == 0 && this.isDragging) {
@@ -557,8 +564,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		            } else if (window.getSelection().removeAllRanges) {
 		                window.getSelection().removeAllRanges();
 		            }
-		        } else if (document.selection) {
-		            document.selection.empty();
+		        } else if ((<any>document).selection) {
+		            (<any>document).selection.empty();
 		        };
 			var mousePos = this._getMousePosition(e);
 			var newL = (mousePos.left - this._posOffset.left);
@@ -606,8 +613,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		            } else if (window.getSelection().removeAllRanges) {
 		                window.getSelection().removeAllRanges();
 		            }
-		        } else if (document.selection) {
-		            document.selection.empty();
+		        } else if ((<any>document).selection) {
+		            (<any>document).selection.empty();
 		        };
 			var mousePos = this._getMousePosition(e);
 			var itemPos = this._resizingItem.getPosition();

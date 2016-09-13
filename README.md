@@ -17,6 +17,7 @@ If you want to help with development or try the demo, it's less simple, but not 
 
 ```shell
 $ npm install
+$ typings install
 $ gulp build
 ```
 
