@@ -32,8 +32,5 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/BTMorton/angular2-grid.git"
-  },
-  "dependencies": {
-    "bootstrap": "~3.3.6"
   }
 }
