@@ -38,7 +38,6 @@
   },
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "files": [
-    "src/NgGrid.ts",
     "dist/NgGrid*",
     "dist/main*",
     "dist/components/*",
