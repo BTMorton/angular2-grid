@@ -12,22 +12,22 @@
     <!-- 2. Configure SystemJS -->
     <script>
       System.config({
-      	defaultJSExtensions: true,
+        defaultJSExtensions: true,
         packages: {
-          '@angular/compiler': { main: 'compiler.umd.js', defaultExtension: 'js' },
-          '@angular/common': { main: 'common.umd.js', defaultExtension: 'js' },
-          '@angular/core': { main: 'core.umd.js', defaultExtension: 'js' },
-          '@angular/platform-browser-dynamic': { main: 'platform-browser-dynamic.umd.js', defaultExtension: 'js' },
-          '@angular/platform-browser': { main: 'platform-browser.umd.js', defaultExtension: 'js' }
+          '@angular/compiler': { main: 'bundles/compiler.umd.min.js', defaultExtension: 'js' },
+          '@angular/common': { main: 'bundles/common.umd.min.js', defaultExtension: 'js' },
+          '@angular/core': { main: 'bundles/core.umd.min.js', defaultExtension: 'js' },
+          '@angular/platform-browser-dynamic': { main: 'bundles/platform-browser-dynamic.umd.min.js', defaultExtension: 'js' },
+          '@angular/platform-browser': { main: 'bundles/platform-browser.umd.min.js', defaultExtension: 'js' },
+          'angular2-grid': { main: 'main.js',  defaultExtension: 'js' },
         },
         map: {
           '@angular': 'node_modules/@angular',
-          'angular2-grid': 'node_modules/angular2-grid/dist/main',
+          'angular2-grid': 'node_modules/angular2-grid/dist',
           'rxjs': 'node_modules/rxjs'
         }
       });
-      System.import('app/boot')
-            .then(null, console.error.bind(console));
+      System.import('app/boot').catch(console.error.bind(console));
     </script>
 
   </head>
