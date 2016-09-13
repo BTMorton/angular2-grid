@@ -4,7 +4,7 @@ import { NgGridItemPosition, NgGridItemSize } from '../interfaces/INgGrid';
 import { Component, Directive, ElementRef, Renderer, EventEmitter, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
 
 @Component({
-	selector: 'div',
+	selector: 'ng-grid-placeholder',
 	template: ''
 })
 export class NgGridPlaceholder implements OnInit {
