@@ -6,7 +6,7 @@
   "typings": "dist/main.d.ts",
   "scripts": {
     "start": "npm run lite",
-    "lite": "lite-server",
+    "lite": "lite-server -c bs-config.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -30,7 +30,8 @@
     "Chris Morabito (https://github.com/morabitowoolpert)",
     "Carlos Esteban Lopez Jaramillo (https://github.com/Luchillo)",
     "Niklas Berg (https://github.com/nkholski)",
-    "Wouter (https://github.com/wuhkuh)"
+    "Wouter (https://github.com/wuhkuh)",
+    "Brian Ellis (https://github.com/OnlyAGhost)"
   ],
   "license": "MIT",
   "bugs": {
