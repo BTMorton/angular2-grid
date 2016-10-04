@@ -468,8 +468,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				this._resizeReady = true;
 			} else if (this.dragEnable && item.canDrag(e)) {
 				this._dragReady = true; 
-				// Prevent default behaviour (text selection) in safari
-				return false;
 			}
 		}
 		
@@ -527,7 +525,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _onMouseMove(e: MouseEvent): boolean {
-		if (e.buttons == 1 && this._resizeReady) {
+		if ((e.buttons == 1 || e.which == 1) && this._resizeReady) {
 			this._resizeStart(e);
 			return false;
 			// Safari doesn't support MouseEvent.buttons and uses the proprietary MouseEvent.which property instead.
@@ -540,9 +538,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._resizeReady = false;
 		}
 		
-		if (e.buttons == 0 && this.isDragging) {
+		if ((e.buttons == 0 || e.which == 0) && this.isDragging) {
 			this._dragStop(e);
-		} else if (e.buttons == 0 && this.isResizing) {
+		} else if ((e.buttons == 0 || e.which == 0)&& this.isResizing) {
 			this._resizeStop(e);
 		} else if (this.isDragging) {
 			this._drag(e);
