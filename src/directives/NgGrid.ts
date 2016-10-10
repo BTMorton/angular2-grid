@@ -459,7 +459,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this.setConfig(this._config);
 	}
 
-	private _onMouseDown(e: any): boolean {
+	private _onMouseDown(e: MouseEvent): boolean {
 		var mousePos = this._getMousePosition(e);
 		var item = this._getItemFromPosition(mousePos);
 
@@ -467,7 +467,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			if (this.resizeEnable && item.canResize(e)) {
 				this._resizeReady = true;
 			} else if (this.dragEnable && item.canDrag(e)) {
-				this._dragReady = true;
+				this._dragReady = true; 
 			}
 		}
 		
@@ -524,11 +524,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'transform', '');
 	}
 
-	private _onMouseMove(e: any): boolean {
-		if (e.buttons == 1 && this._resizeReady) {
+	private _onMouseMove(e: MouseEvent): boolean {
+		if ((e.buttons == 1 || e.which == 1) && this._resizeReady) {
 			this._resizeStart(e);
 			return false;
-		} else if (e.buttons == 1 && this._dragReady) {
+			// Safari doesn't support MouseEvent.buttons and uses the proprietary MouseEvent.which property instead.
+			// See here for details:  https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
+		} else if ((e.buttons == 1 || e.which == 1) && this._dragReady) {
 			this._dragStart(e);
 			return false;
 		} else if (this._dragReady || this._resizeReady) {
@@ -536,9 +538,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._resizeReady = false;
 		}
 		
-		if (e.buttons == 0 && this.isDragging) {
+		if ((e.buttons == 0 || e.which == 0) && this.isDragging) {
 			this._dragStop(e);
-		} else if (e.buttons == 0 && this.isResizing) {
+		} else if ((e.buttons == 0 || e.which == 0)&& this.isResizing) {
 			this._resizeStop(e);
 		} else if (this.isDragging) {
 			this._drag(e);
