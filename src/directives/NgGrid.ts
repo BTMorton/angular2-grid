@@ -344,6 +344,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._addToGrid(ngItem);
 		ngItem.recalculateSelf();
 		ngItem.onCascadeEvent();
+		this._emitOnItemChange();
 	}
 
 	public removeItem(ngItem: NgGridItem): void {
@@ -360,6 +361,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._cascadeGrid();
 		this._updateSize();
 		this._items.forEach((item: NgGridItem) => item.recalculateSelf());
+		this._emitOnItemChange();
 	}
 
 	public updateItem(ngItem: NgGridItem): void {
@@ -698,7 +700,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._posOffset = null;
 			this._placeholderRef.destroy();
 
-			this.onItemChange.emit(this._items.map((item: NgGridItem) => item.getEventOutput()));
+			this._emitOnItemChange();
 
 			if (this._zoomOnDrag) {
 				this._resetZoom();
@@ -724,7 +726,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._resizeDirection = null;
 			this._placeholderRef.destroy();
 
-			this.onItemChange.emit(this._items.map((item: NgGridItem) => item.getEventOutput()));
+			this._emitOnItemChange();
 		}
 	}
 
@@ -1209,10 +1211,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		if (maxCol != this._curMaxCol || maxRow != this._curMaxRow) {
 			this._curMaxCol = maxCol;
 			this._curMaxRow = maxRow;
-			
-			this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', '100%');//(maxCol * (this.colWidth + this.marginLeft + this.marginRight))+'px');
-			this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', (this._curMaxRow * (this.rowHeight + this.marginTop + this.marginBottom)) + 'px');
 		}
+
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', '100%');//(maxCol * (this.colWidth + this.marginLeft + this.marginRight))+'px');
+		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', (this._getMaxRow() * (this.rowHeight + this.marginTop + this.marginBottom)) + 'px');
 	}
 
 	private _getMaxRow(): number {
@@ -1289,5 +1291,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
         placeholder.setCascadeMode(this.cascade);
         placeholder.setGridPosition({ col: pos.col, row: pos.row });
         placeholder.setSize({ x: dims.x, y: dims.y });
+	}
+
+	private _emitOnItemChange() {
+		this.onItemChange.emit(this._items.map((item: NgGridItem) => item.getEventOutput()));
 	}
 }
