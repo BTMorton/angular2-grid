@@ -34,7 +34,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		fixed: false,
 		draggable: true,
 		resizable: true,
-		borderSize: 15
+		borderSize: 50
 	};
 
 	public isFixed: boolean = false;
@@ -208,6 +208,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	public canResize(e: any): string {
+		console.log(this.isResizable, this._resizeHandle);
 		if (!this.isResizable) return null;
 
 		if (this._resizeHandle) {
@@ -215,7 +216,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		}
 
 		const mousePos: NgGridRawPosition = this._getMousePosition(e);
-
+		console.log(mousePos, this._elemWidth, this._elemHeight, this._borderSize);
 		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 			return 'both';
@@ -507,8 +508,11 @@ export class NgGridItem implements OnInit, OnDestroy {
 	private _getMousePosition(e: any): NgGridRawPosition {
 		if (e.originalEvent && e.originalEvent.touches) {
 			const oe: any = e.originalEvent;
-			e = oe.touches.length ? oe.touches[0] : oe.changedTouches[0];
+			e = oe.touches.length ? oe.touches[0] : (oe.changedTouches.length ? oe.changedTouches[0] : e);
+		} else if (e.touches) {
+			e = e.touches.length ? e.touches[0] : (e.changedTouches.length ? e.changedTouches[0] : e);
 		}
+
 
 		const refPos: NgGridRawPosition = this._ngEl.nativeElement.getBoundingClientRect();
 

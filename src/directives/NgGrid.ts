@@ -459,15 +459,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this.setConfig(this._config);
 	}
 
-	private _onMouseDown(e: any): boolean {
+	private _onMouseDown(e: MouseEvent): boolean {
 		var mousePos = this._getMousePosition(e);
 		var item = this._getItemFromPosition(mousePos);
-
+		console.log(item, mousePos, item.canResize(e), this.resizeEnable, e);
 		if (item != null) {
 			if (this.resizeEnable && item.canResize(e)) {
 				this._resizeReady = true;
 			} else if (this.dragEnable && item.canDrag(e)) {
-				this._dragReady = true;
+				this._dragReady = true; 
 			}
 		}
 		
@@ -525,25 +525,20 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _onMouseMove(e: any): boolean {
-		if ((e.touches || e.buttons == 1) && this._resizeReady) {
+		if (this._resizeReady) {
 			this._resizeStart(e);
 			return false;
-		} else if ((e.touches || e.buttons == 1) && this._dragReady) {
+		} else if (this._dragReady) {
 			this._dragStart(e);
 			return false;
-		} else if (this._dragReady || this._resizeReady) {
-			this._dragReady = false;
-			this._resizeReady = false;
 		}
 		
-		if ((!e.touches && e.buttons == 0) && this.isDragging) {
-			this._dragStop(e);
-		} else if ((!e.touches && e.buttons == 0) && this.isResizing) {
-			this._resizeStop(e);
-		} else if (this.isDragging) {
+		if (this.isDragging) {
 			this._drag(e);
+			return false;
 		} else if (this.isResizing) {
 			this._resize(e);
+			return false;
 		} else {
 			var mousePos = this._getMousePosition(e);
 			var item = this._getItemFromPosition(mousePos);
@@ -558,15 +553,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _drag(e: any): void {
 		if (this.isDragging) {
-		        if (window.getSelection) {
-		            if (window.getSelection().empty) {
-		                window.getSelection().empty();
-		            } else if (window.getSelection().removeAllRanges) {
-		                window.getSelection().removeAllRanges();
-		            }
-		        } else if ((<any>document).selection) {
-		            (<any>document).selection.empty();
-		        };
+			if (window.getSelection) {
+				if (window.getSelection().empty) {
+					window.getSelection().empty();
+				} else if (window.getSelection().removeAllRanges) {
+					window.getSelection().removeAllRanges();
+				}
+			} else if ((<any>document).selection) {
+				(<any>document).selection.empty();
+			}
+
 			var mousePos = this._getMousePosition(e);
 			var newL = (mousePos.left - this._posOffset.left);
 			var newT = (mousePos.top - this._posOffset.top);
@@ -607,15 +603,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _resize(e: any): void {
 		if (this.isResizing) {
-		        if (window.getSelection) {
-		            if (window.getSelection().empty) {
-		                window.getSelection().empty();
-		            } else if (window.getSelection().removeAllRanges) {
-		                window.getSelection().removeAllRanges();
-		            }
-		        } else if ((<any>document).selection) {
-		            (<any>document).selection.empty();
-		        };
+			if (window.getSelection) {
+				if (window.getSelection().empty) {
+					window.getSelection().empty();
+				} else if (window.getSelection().removeAllRanges) {
+					window.getSelection().removeAllRanges();
+				}
+			} else if ((<any>document).selection) {
+				(<any>document).selection.empty();
+			}
+
 			var mousePos = this._getMousePosition(e);
 			var itemPos = this._resizingItem.getPosition();
 			var itemDims = this._resizingItem.getDimensions();
@@ -673,6 +670,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		} else if (this.isResizing) {
 			this._resizeStop(e);
 			return false;
+		} else if (this._dragReady || this._resizeReady) {
+			this._dragReady = false;
+			this._resizeReady = false;
 		}
 
 		return true;
