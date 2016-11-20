@@ -11,7 +11,7 @@ The demo included in this repo follows the [Angular 2 quick start](https://angul
 #### Setup
 ----------
 
-To use the Angular 2 Grid system, simply run `npm install angular2-grid` and then include NgGrid in your project (see Example for more details).
+To use the Angular 2 Grid system, simply run `npm install angular2-grid` and then include the `NgGridModule` in your project module imports (see Example for more details).
 
 If you want to help with development or try the demo, it's less simple, but not hard. First you'll need to install [Node](http://nodejs.org) and check out a copy of the repo. Then run:
 
@@ -174,19 +174,23 @@ The `NgGrid` and `NgGridItem` can be configured by binding directly to the direc
 </div>
 ```
 
-In order to include the relevant files, you will need to import `NgGrid` and `NgGridItem` to your app and add them to the `@View` directives. This can be achieved by adding:
+In order to include the relevant files, you will need to import the `NgGridModule` to your app and add them to the `@NgModule` imports. This can be achieved by adding:
 
 ```typescript
-import { NgGrid, NgGridItem } from 'angular2-grid';
+import { NgGridModule } from 'angular2-grid';
 ```
 
-to your typescript imports, and ensuring that your `@Component` annotation looks similar to the following:
+to your typescript imports, and ensuring that your `@NgModule` annotation looks similar to the following:
 
 ```typescript
-@Component({
-    selector: 'my-app',
-    templateUrl: 'app.html',
-    directives: [NgGrid, NgGridItem]
+@NgModule({
+    ...,
+    imports: [
+        ...,
+        NgGridModule,    
+        ...
+    ],
+    ...
 })
 ```
 

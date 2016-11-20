@@ -525,10 +525,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _onMouseMove(e: any): boolean {
-		if (e.buttons == 1 && this._resizeReady) {
+		if ((e.touches || e.buttons == 1) && this._resizeReady) {
 			this._resizeStart(e);
 			return false;
-		} else if (e.buttons == 1 && this._dragReady) {
+		} else if ((e.touches || e.buttons == 1) && this._dragReady) {
 			this._dragStart(e);
 			return false;
 		} else if (this._dragReady || this._resizeReady) {
@@ -536,9 +536,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._resizeReady = false;
 		}
 		
-		if (e.buttons == 0 && this.isDragging) {
+		if ((!e.touches && e.buttons == 0) && this.isDragging) {
 			this._dragStop(e);
-		} else if (e.buttons == 0 && this.isResizing) {
+		} else if ((!e.touches && e.buttons == 0) && this.isResizing) {
 			this._resizeStop(e);
 		} else if (this.isDragging) {
 			this._drag(e);
