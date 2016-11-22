@@ -34,7 +34,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		fixed: false,
 		draggable: true,
 		resizable: true,
-		borderSize: 50
+		borderSize: 25
 	};
 
 	public isFixed: boolean = false;
