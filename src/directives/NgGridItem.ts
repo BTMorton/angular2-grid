@@ -208,7 +208,6 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	public canResize(e: any): string {
-		console.log(this.isResizable, this._resizeHandle);
 		if (!this.isResizable) return null;
 
 		if (this._resizeHandle) {
@@ -216,7 +215,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		}
 
 		const mousePos: NgGridRawPosition = this._getMousePosition(e);
-		console.log(mousePos, this._elemWidth, this._elemHeight, this._borderSize);
+
 		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 			return 'both';
