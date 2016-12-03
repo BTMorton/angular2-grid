@@ -4,6 +4,7 @@ var typescript = require('gulp-typescript');
 var uglify = require('gulp-uglify');
 var concat = require('gulp-concat');
 var rename = require('gulp-rename');
+var exec = require('child_process').exec;
 var symlink = require('gulp-symlink');
 var sourcemaps = require('gulp-sourcemaps');
 var runSequence = require('run-sequence');
@@ -31,6 +32,14 @@ var PATHS = {
 
 gulp.task('clean', function (done) {
 	return del(['dist'], done);
+});
+
+gulp.task('ngc', function(done) {
+	exec('ngc -p tsconfig.aot.json', function (err, stdout, stderr) {
+	    console.log(stdout);
+	    console.log(stderr);
+	    done(err);
+	});
 });
 
 gulp.task('ts', function () {
@@ -97,6 +106,10 @@ gulp.task('clean', function(done) {
 
 gulp.task('build', ['clean'], function() {
 	return gulp.start('libs', 'html', 'css', 'ts');
+});
+
+gulp.task('build-aot', ['clean'], function() {
+	return gulp.start('css', 'ngc');
 });
 
 gulp.task('rebuild', ['clean'], function() {
