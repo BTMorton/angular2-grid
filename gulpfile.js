@@ -1,4 +1,5 @@
 var del = require('del');
+var path = require('path');
 var gulp = require('gulp');
 var typescript = require('gulp-typescript');
 var uglify = require('gulp-uglify');
@@ -21,12 +22,8 @@ var PATHS = {
 		test: 'test/*.ts',
 		typings: 'src/*.d.ts'
 	},
-	typings: [
-		'typings/index.d.ts',
-	],
 	testTypings: [
-		'typings/index.d.ts',
-		'dist/*.d.ts'
+		'dist/dts/*.d.ts'
 	],
 };
 
@@ -35,21 +32,21 @@ gulp.task('clean', function (done) {
 });
 
 gulp.task('ngc', function(done) {
-	exec('ngc -p tsconfig.aot.json', function (err, stdout, stderr) {
-	    console.log(stdout);
-	    console.log(stderr);
-	    done(err);
+	exec(path.join("node_modules", ".bin", "ngc") + ' -p tsconfig.aot.json', function (err, stdout, stderr) {
+		if (stdout) console.log(stdout);
+		if (stderr) console.error(stderr);
+		done(err);
 	});
 });
 
 gulp.task('ts', function () {
-	var tsResult = gulp.src(PATHS.src.ts.concat(PATHS.typings))
+	var tsResult = gulp.src(PATHS.src.ts)
 		.pipe(sourcemaps.init())
-		.pipe(typescript(tsProject));
+		.pipe(tsProject());
 
 	return merge([
-		tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('dist')),
-		tsResult.dts.pipe(gulp.dest('dist'))
+		tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest(path.join('dist', 'js'))),
+		tsResult.dts.pipe(gulp.dest(path.join('dist', 'dts')))
 	]);
 });
 
@@ -60,7 +57,7 @@ gulp.task('test-clean-build', function(done) {
 gulp.task('test-build', ['test-clean-build'], function () {
 	var tsResult = gulp.src([PATHS.src.test, PATHS.src.typings].concat(PATHS.testTypings))
 		.pipe(sourcemaps.init())
-		.pipe(typescript(tsProject));
+		.pipe(tsProject());
 
 	return tsResult.js.pipe(sourcemaps.write()).pipe(gulp.dest('test'));
 });
@@ -105,7 +102,7 @@ gulp.task('clean', function(done) {
 });
 
 gulp.task('build', ['clean'], function() {
-	return gulp.start('libs', 'html', 'css', 'ts');
+	return gulp.start('libs', 'html', 'css', 'ts', 'ngc');
 });
 
 gulp.task('build-aot', ['clean'], function() {

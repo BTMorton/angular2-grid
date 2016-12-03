@@ -9,16 +9,15 @@
 		"noImplicitAny": false,
 		"declaration": true,
 		"rootDir": "./src",
-		"outDir": "./dist",
+		"outDir": "./dist/aot",
 		"typeRoots": [
-            "node_modules/@types",
-            "typings"
-        ],
-        "types": [
-        	"core-js",
-        	"node",
-        	"jasmine"
-        ]
+			"node_modules/@types"
+		],
+		"types": [
+			"core-js",
+			"node",
+			"jasmine"
+		]
 	},
 	"exclude": [
 		"bower",
@@ -28,7 +27,7 @@
 		"./src/main.ts"
 	],
 	"angularCompilerOptions": {
-        "strictMetadataEmit": true,
-        "skipTemplateCodegen": true
-    }
+		"strictMetadataEmit": true,
+		"skipTemplateCodegen": true
+	}
 }

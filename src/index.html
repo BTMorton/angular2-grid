@@ -22,11 +22,12 @@
 					'@angular/compiler': { main: 'bundles/compiler.umd.js', defaultExtension: 'js' },
 					'@angular/forms': { main: 'bundles/forms.umd.js', defaultExtension: 'js' },
 					'rxjs': { defaultExtension: 'js' },
-					'app': { defaultExtension: 'js' }
+					'app': { main: 'app', defaultExtension: 'js' }
 				},
 				map: {
 					'@angular': 'node_modules/@angular',
-					'rxjs': 'node_modules/rxjs'
+					'rxjs': 'node_modules/rxjs',
+					'app': 'js'
 				}
 			});
 			System.import('app').catch(function(err){ console.error(err); });;
