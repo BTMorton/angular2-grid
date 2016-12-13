@@ -1,0 +1,41 @@
+<html>
+
+  <head>
+    <title>Angular 2 QuickStart</title>
+
+    <!-- 1. Load libraries -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script src="node_modules/zone.js/dist/zone.js"></script>
+    <script src="node_modules/reflect-metadata/Reflect.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- 2. Configure SystemJS -->
+    <script>
+      System.config({
+        defaultJSExtensions: true,
+        packages: {
+          '@angular/compiler': { main: 'bundles/compiler.umd.min.js', defaultExtension: 'js' },
+          '@angular/common': { main: 'bundles/common.umd.min.js', defaultExtension: 'js' },
+          '@angular/core': { main: 'bundles/core.umd.min.js', defaultExtension: 'js' },
+          '@angular/platform-browser-dynamic': { main: 'bundles/platform-browser-dynamic.umd.min.js', defaultExtension: 'js' },
+          '@angular/platform-browser': { main: 'bundles/platform-browser.umd.min.js', defaultExtension: 'js' },
+          'angular2-grid': { main: 'main.js',  defaultExtension: 'js' },
+        },
+        map: {
+          '@angular': 'node_modules/@angular',
+          'angular2-grid': 'node_modules/angular2-grid/dist',
+          'rxjs': 'node_modules/rxjs'
+        }
+      });
+      System.import('app/boot').catch(console.error.bind(console));
+    </script>
+
+  </head>
+
+  <!-- 3. Display the application -->
+  <body>
+    <my-app>Loading...</my-app>
+  </body>
+
+</html>

@@ -2,6 +2,9 @@ typings
 npm-debug.log
 dist/
 demo/**/*.js*
+demo/node-modules/
+demo-dashboard/**/*.js*
+demo-dashboard/node-modules/
 node_modules/
 bower_components/
 coverage/

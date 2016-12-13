@@ -1,0 +1,225 @@
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Brand</a>
+    </div>
+	<div class="nav navbar-nav navbar-right">
+	  <a (click)="addBox()" class="btn btn-primary pull-right navbar-btn" style='margin-right: 10px;'>Add Box</a>
+    </div>
+  </div>
+</nav>
+<div class="container">
+	<!--<div class="col-sm-12" style="margin-bottom: 20px;">
+		<h1>Angular 2 Grid Demo</h1>
+		<p>This is a simple demo used for creation/testing of <a href="https://github.com/BTMorton/angular2-grid">angular2-grid</a>, a grid-based drag/drop/resize plugin directive for <a href="http://angular.io">Angular 2</a>. It makes use of angular directives so that in order to include it, all you need to do is add an "[ngGrid]" attribute to your container and an "[ngGridItem]" to each of your grid items. It even works with the ngFor directive to add boxes on the fly!</p>
+		<br />
+		<form>
+			<div class="form-inline">
+				<div class="form-group">
+					<label for="fix_to_grid">
+						Fix to Grid
+					</label>
+					<input type="checkbox" name="fix_to_grid" id="fix_to_grid" ngControl="fix_to_grid" [(ngModel)]="gridConfig.fix_to_grid" />
+				</div>
+				<div class="form-group">
+					<label for="draggable">
+						Draggable
+					</label>
+					<input type="checkbox" name="draggable" id="draggable" ngControl="draggable" [(ngModel)]="gridConfig.draggable" />
+				</div>
+				<div class="form-group">
+					<label for="resizable">
+						Resizable
+					</label>
+					<input type="checkbox" name="resizable" id="resizable" ngControl="resizable" [(ngModel)]="gridConfig.resizable" />
+				</div>
+				<div class="form-group">
+					<label for="auto_resize">
+						Auto-Resize Rows/Columns
+					</label>
+					<input type="checkbox" name="auto_resize" id="auto_resize" ngControl="auto_resize" [(ngModel)]="gridConfig.auto_resize" />
+				</div>
+				<div class="form-group">
+					<label>
+						Cascade Direction
+					</label>
+					<select name="cascade" ngControl="cascade" [(ngModel)]="gridConfig.cascade">
+						<option value="">Off</option>
+						<option value="up">Up</option>
+						<option value="down">Down</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Column Width
+						<input type="number" class="form-control" name="col_width" ngControl="col_width" [(ngModel)]="gridConfig.col_width" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Row Height
+						<input type="number" class="form-control" name="row_height" ngControl="row_height" [(ngModel)]="gridConfig.row_height" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Margins
+						<input type="number" class="form-control" name="margins" ngControl="margins" [(ngModel)]="gridConfig.margins[0]" />
+					</label>
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Minimum Item Width
+						<input type="number" class="form-control" name="min_width" ngControl="min_width" [(ngModel)]="gridConfig.min_width" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Minimum Item Height
+						<input type="number" class="form-control" name="min_height" ngControl="min_height" [(ngModel)]="gridConfig.min_height" />
+					</label>
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Max Columns
+						<input type="number" class="form-control" name="max_cols" ngControl="max_cols" [(ngModel)]="gridConfig.max_cols" [disabled]="gridConfig.max_rows > 0" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Max Rows
+						<input type="number" class="form-control" name="max_rows" ngControl="max_rows" [(ngModel)]="gridConfig.max_rows"  [disabled]="gridConfig.max_cols > 0" />
+					</label>
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Visible Columns
+						<input type="number" class="form-control" name="visible_cols" ngControl="visible_cols" [(ngModel)]="gridConfig.visible_cols" [disabled]="gridConfig.max_cols > 0 || gridConfig.maintain_ratio" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Visible Rows
+						<input type="number" class="form-control" name="visible_rows" ngControl="visible_rows" [(ngModel)]="gridConfig.visible_rows"  [disabled]="gridConfig.max_rows > 0 || gridConfig.maintain_ratio" />
+					</label>
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label for="maintain_ratio">
+						Maintain Aspect Ratio
+					</label>
+					<input type="checkbox" name="maintain_ratio" id="maintain_ratio" ngControl="maintain_ratio" [(ngModel)]="gridConfig.maintain_ratio" [disabled]="ratioDisabled" />
+				</div>
+				<div class="form-group">
+					<label for="prefer_new">
+						Prefer New Items
+					</label>
+					<input type="checkbox" name="prefer_new" id="prefer_new" ngControl="prefer_new" [(ngModel)]="gridConfig.prefer_new" />
+				</div>
+				<div class="form-group">
+					<label for="zoom_on_drag">
+						Zoom Out When Dragging
+					</label>
+					<input type="checkbox" name="zoom_on_drag" id="zoom_on_drag" ngControl="zoom_on_drag" [(ngModel)]="gridConfig.zoom_on_drag" />
+				</div>
+				<div class="form-group">
+					<label for="limit_to_screen">
+						Limit to Screen
+					</label>
+					<input type="checkbox" name="limit_to_screen" id="limit_to_screen" ngControl="limit_to_screen" [(ngModel)]="gridConfig.limit_to_screen" />
+				</div>
+			</div>
+			<div class="form-inline">
+				<div class="form-group">
+					<label>
+						Min Columns
+						<input type="number" class="form-control" name="min_cols" ngControl="min_cols" [(ngModel)]="gridConfig.min_cols" />
+					</label>
+				</div>
+				<div class="form-group">
+					<label>
+						Min Rows
+						<input type="number" class="form-control" name="min_rows" ngControl="min_rows" [(ngModel)]="gridConfig.min_rows"  />
+					</label>
+				</div>
+			</div>
+			<div class="form-inline">
+				<label>
+					Get Item Position &amp; Size
+					<select name="itemCheck" class="form-control" ngControl="item_check" [(ngModel)]="itemCheck">
+						<option *ngFor="let box of boxes; let i = index" [attr.value]="i">{{box.id}}</option>
+					</select>
+				</label>
+				
+				Col: {{ curItem.col }}, Row: {{ curItem.row }}, Size X: {{ curItem.sizex }}, Size Y: {{ curItem.sizey }}
+				<a (click)="removeBox()" class="btn btn-primary">Remove Box</a>
+			</div>
+		</form>
+		
+		<a (click)="_randomise()" class="btn btn-primary pull-right">Randomise Boxes</a>
+		<a (click)="addBox()" class="btn btn-primary pull-right">Add Box</a>
+	</div>-->
+</div>
+<div [ngGrid]="gridConfig">
+	<!-- <div [ngGridItem]="{'dragHandle': '.handle', 'maxCols': 2, 'maxRows': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle">
+			<div class="childHandle">
+				<span>Child handle</span>
+			</div>
+		</div>
+		Max Cols - 2<br />
+		Max Rows - 3<br />
+	</div>
+	<div [ngGridItem]="{'dragHandle': '.handle', 'minCols': 2, 'minRows': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle">
+			<div class="childHandle">
+				<span>Child handle</span>
+			</div>
+		</div>
+		Min Cols - 2<br />
+		Min Rows - 3<br />
+	</div>
+	<div [ngGridItem]="{'dragHandle': '.handle', 'minCols': 2, 'minRows': 2, 'maxCols': 4, 'maxRows': 4}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle">
+			<div class="childHandle">
+				<span>Child handle</span>
+			</div>
+		</div>
+		Min Cols/Rows - 2<br />
+		Max Cols/Rows - 3<br />
+	</div> -->
+	<div *ngFor="let box of boxes; let i = index" [(ngGridItem)]="box.config" (onItemChange)="updateItem(i, $event)" (onResize)="onResize(i, $event)" (onDrag)="onDrag(i, $event)">
+		<div class="handle">Widget {{box.id}} <div class="box-header-btns pull-right">
+						<a title="Remove widget" (click)="removeWidget(i);">
+							<i class="glyphicon glyphicon-trash"></i>
+						</a>
+					</div></div>
+	</div>
+	<!-- <div [ngGridItem]="{'dragHandle': '.handle', 'fixed': true, 'col': 2, 'row': 3}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed - moveable, resizable
+	</div>
+	<div [ngGridItem]="{'dragHandle': '.handle', 'fixed': true, 'draggable': false, 'col': 1, 'row': 5}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed - not moveable, resizable
+	</div>
+	<div [ngGridItem]="{'dragHandle': '.handle', 'fixed': true, 'resizable': false, 'col': 5, 'row': 2}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed - moveable, not resizable
+	</div>
+	<div [ngGridItem]="{'dragHandle': '.handle', 'fixed': true, 'resizable': false, 'draggable': false, 'col': 3, 'row': 4}" (itemChange)="updateItem(i, $event)" (resize)="onResize(i, $event)" (drag)="onDrag(i, $event)">
+		<div class="handle"></div>
+		Fixed - not moveable, not resizable
+	</div> -->
+</div>
