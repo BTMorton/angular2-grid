@@ -4,14 +4,13 @@ import {NgGrid, NgGridItem} from 'angular2-grid';
 @Component({
     selector: 'my-app',
     templateUrl: 'app/app.html',
-    styleUrls: ['app/app.css'],//, 'NgGrid.css'],
+    styleUrls: ['app/app.css'],
 	encapsulation: ViewEncapsulation.None
-    //template: '<h1>My First Angular 2 App</h1><div class="grid" [ngGrid]="{\'max_cols\': 6, \'auto_resize\': true}"><div class="grid-item" [ngGridItem]="{\'sizex\': 2, \'sizey\': 3}"></div></div>',
 })
 export class AppComponent {
 	private boxes: Array<Box> = [];
 	private rgb: string = '#efefef';
-	private curNum: number = 5;
+	private curNum;
 	private gridConfig: NgGridConfig = <NgGridConfig>{
 		'margins': [5],
 		'draggable': true,
@@ -35,26 +34,22 @@ export class AppComponent {
 		'zoom_on_drag': false,
 		'limit_to_screen': true
 	};
-	private curItemCheck: number = 0;
 	private itemPositions: Array<any> = [];
 	
 	constructor() {
-		for (var i = 0; i < 4; i++) {
-			const conf = this._generateDefaultItemConfig();
+		const dashconf = this._generateDefaultDashConfig();
+		for (var i = 0; i < dashconf.length; i++) {
+			const conf = dashconf[i];
 			conf.payload = 1 + i;
 			this.boxes[i] = { id: i + 1, config: conf };
 		}
+		this.curNum = dashconf.length + 1;
 	}
 
 	addBox(): void {
 		const conf: NgGridItemConfig = this._generateDefaultItemConfig();
 		conf.payload = this.curNum++;
 		this.boxes.push({ id: conf.payload, config: conf });
-	}
-	removeBox(): void {
-		if (this.boxes[this.curItemCheck]) {
-			this.boxes.splice(this.curItemCheck, 1);
-		}
 	}
 	
 	removeWidget(index: number): void {
@@ -77,5 +72,14 @@ export class AppComponent {
 
 	private _generateDefaultItemConfig(): NgGridItemConfig {
 		return { 'dragHandle': '.handle', 'col': 1, 'row': 1, 'sizex': 1, 'sizey': 1 };
+	}
+
+	private _generateDefaultDashConfig(): NgGridItemConfig[] {
+		return [{ 'dragHandle': '.handle', 'col': 1, 'row': 1, 'sizex': 50, 'sizey': 40 },
+		{ 'dragHandle': '.handle', 'col': 1, 'row': 1, 'sizex': 1, 'sizey': 1 },
+		{ 'dragHandle': '.handle', 'col': 26, 'row': 1, 'sizex': 1, 'sizey': 1 },
+		{ 'dragHandle': '.handle', 'col': 51, 'row': 1, 'sizex': 75, 'sizey': 1 },
+		{ 'dragHandle': '.handle', 'col': 51, 'row': 26, 'sizex': 32, 'sizey': 40 },
+		{ 'dragHandle': '.handle', 'col': 83, 'row': 26, 'sizex': 1, 'sizey': 1 }];
 	}
 }
