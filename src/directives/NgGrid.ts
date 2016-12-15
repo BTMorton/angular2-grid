@@ -7,15 +7,15 @@ import { NgGridPlaceholder } from '../components/NgGridPlaceholder';
 	selector: '[ngGrid]',
 	inputs: ['config: ngGrid'],
 	host: {
-		'(mousedown)': '_onMouseDown($event)',
-		'(mousemove)': '_onMouseMove($event)',
-		'(mouseup)': '_onMouseUp($event)',
-		'(touchstart)': '_onMouseDown($event)',
-		'(touchmove)': '_onMouseMove($event)',
-		'(touchend)': '_onMouseUp($event)',
-		'(window:resize)': '_onResize($event)',
-		'(document:mousemove)': '_onMouseMove($event)',
-		'(document:mouseup)': '_onMouseUp($event)'
+		'(mousedown)': 'mouseDownEventHandler($event)',
+		'(mousemove)': 'mouseMoveEventHandler($event)',
+		'(mouseup)': 'mouseUpEventHandler($event)',
+		'(touchstart)': 'mouseDownEventHandler($event)',
+		'(touchmove)': 'mouseMoveEventHandler($event)',
+		'(touchend)': 'mouseUpEventHandler($event)',
+		'(window:resize)': 'resizeEventHandler($event)',
+		'(document:mousemove)': 'mouseMoveEventHandler($event)',
+		'(document:mouseup)': 'mouseUpEventHandler($event)'
 	},
 })
 export class NgGrid implements OnInit, DoCheck, OnDestroy {
@@ -376,7 +376,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._cascadeGrid(null, null, false);
 	}
 
-	public _onResize(e: any): void {
+	public resizeEventHandler(e: any): void {
 		this._calculateColWidth();
 		this._calculateRowHeight();
 
@@ -396,7 +396,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._updateSize();
 	}
 
-	public _onMouseDown(e: MouseEvent): boolean {
+	public mouseDownEventHandler(e: MouseEvent): boolean {
 		var mousePos = this._getMousePosition(e);
 		var item = this._getItemFromPosition(mousePos);
 
@@ -411,7 +411,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		return true;
 	}
 
-	public _onMouseUp(e: any): boolean {
+	public mouseUpEventHandler(e: any): boolean {
 		if (this.isDragging) {
 			this._dragStop(e);
 			return false;
@@ -426,7 +426,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		return true;
 	}
 
-	public _onMouseMove(e: any): boolean {
+	public mouseMoveEventHandler(e: any): boolean {
 		if (this._resizeReady) {
 			this._resizeStart(e);
 			return false;
