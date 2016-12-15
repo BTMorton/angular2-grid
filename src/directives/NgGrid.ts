@@ -7,15 +7,15 @@ import { NgGridPlaceholder } from '../components/NgGridPlaceholder';
 	selector: '[ngGrid]',
 	inputs: ['config: ngGrid'],
 	host: {
-		'(mousedown)': '_onMouseDown($event)',
-		'(mousemove)': '_onMouseMove($event)',
-		'(mouseup)': '_onMouseUp($event)',
-		'(touchstart)': '_onMouseDown($event)',
-		'(touchmove)': '_onMouseMove($event)',
-		'(touchend)': '_onMouseUp($event)',
-		'(window:resize)': '_onResize($event)',
-		'(document:mousemove)': '_onMouseMove($event)',
-		'(document:mouseup)': '_onMouseUp($event)'
+		'(mousedown)': 'mouseDownEventHandler($event)',
+		'(mousemove)': 'mouseMoveEventHandler($event)',
+		'(mouseup)': 'mouseUpEventHandler($event)',
+		'(touchstart)': 'mouseDownEventHandler($event)',
+		'(touchmove)': 'mouseMoveEventHandler($event)',
+		'(touchend)': 'mouseUpEventHandler($event)',
+		'(window:resize)': 'resizeEventHandler($event)',
+		'(document:mousemove)': 'mouseMoveEventHandler($event)',
+		'(document:mouseup)': 'mouseUpEventHandler($event)'
 	},
 })
 export class NgGrid implements OnInit, DoCheck, OnDestroy {
@@ -376,6 +376,83 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._cascadeGrid(null, null, false);
 	}
 
+	public resizeEventHandler(e: any): void {
+		this._calculateColWidth();
+		this._calculateRowHeight();
+
+		this._updateRatio();
+
+		for (let item of this._items) {
+			this._removeFromGrid(item);
+		}
+
+		this._updateLimit();
+
+		for (let item of this._items) {
+			this._addToGrid(item);
+			item.recalculateSelf();
+		}
+
+		this._updateSize();
+	}
+
+	public mouseDownEventHandler(e: MouseEvent): boolean {
+		var mousePos = this._getMousePosition(e);
+		var item = this._getItemFromPosition(mousePos);
+
+		if (item != null) {
+			if (this.resizeEnable && item.canResize(e)) {
+				this._resizeReady = true;
+			} else if (this.dragEnable && item.canDrag(e)) {
+				this._dragReady = true;
+			}
+		}
+
+		return true;
+	}
+
+	public mouseUpEventHandler(e: any): boolean {
+		if (this.isDragging) {
+			this._dragStop(e);
+			return false;
+		} else if (this.isResizing) {
+			this._resizeStop(e);
+			return false;
+		} else if (this._dragReady || this._resizeReady) {
+			this._dragReady = false;
+			this._resizeReady = false;
+		}
+
+		return true;
+	}
+
+	public mouseMoveEventHandler(e: any): boolean {
+		if (this._resizeReady) {
+			this._resizeStart(e);
+			return false;
+		} else if (this._dragReady) {
+			this._dragStart(e);
+			return false;
+		}
+
+		if (this.isDragging) {
+			this._drag(e);
+			return false;
+		} else if (this.isResizing) {
+			this._resize(e);
+			return false;
+		} else {
+			var mousePos = this._getMousePosition(e);
+			var item = this._getItemFromPosition(mousePos);
+
+			if (item) {
+				item.onMouseMove(e);
+			}
+		}
+
+		return true;
+	}
+
 	//	Private methods
 	private _calculateColWidth(): void {
 		if (this._autoResize) {
@@ -433,47 +510,12 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		}
 	}
 
-	private _onResize(e: any): void {
-		this._calculateColWidth();
-		this._calculateRowHeight();
-
-		this._updateRatio();
-
-		for (let item of this._items) {
-			this._removeFromGrid(item);
-		}
-
-		this._updateLimit();
-
-		for (let item of this._items) {
-			this._addToGrid(item);
-			item.recalculateSelf();
-		}
-
-		this._updateSize();
-	}
-
 	private _applyChanges(changes: any): void {
 		changes.forEachAddedItem((record: any) => { this._config[record.key] = record.currentValue; });
 		changes.forEachChangedItem((record: any) => { this._config[record.key] = record.currentValue; });
 		changes.forEachRemovedItem((record: any) => { delete this._config[record.key]; });
 
 		this.setConfig(this._config);
-	}
-
-	private _onMouseDown(e: MouseEvent): boolean {
-		var mousePos = this._getMousePosition(e);
-		var item = this._getItemFromPosition(mousePos);
-
-		if (item != null) {
-			if (this.resizeEnable && item.canResize(e)) {
-				this._resizeReady = true;
-			} else if (this.dragEnable && item.canDrag(e)) {
-				this._dragReady = true;
-			}
-		}
-
-		return true;
 	}
 
 	private _resizeStart(e: any): void {
@@ -524,33 +566,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _resetZoom(): void {
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'transform', '');
-	}
-
-	private _onMouseMove(e: any): boolean {
-		if (this._resizeReady) {
-			this._resizeStart(e);
-			return false;
-		} else if (this._dragReady) {
-			this._dragStart(e);
-			return false;
-		}
-
-		if (this.isDragging) {
-			this._drag(e);
-			return false;
-		} else if (this.isResizing) {
-			this._resize(e);
-			return false;
-		} else {
-			var mousePos = this._getMousePosition(e);
-			var item = this._getItemFromPosition(mousePos);
-
-			if (item) {
-				item.onMouseMove(e);
-			}
-		}
-
-		return true;
 	}
 
 	private _drag(e: any): void {
@@ -663,21 +678,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this.onResize.emit(this._resizingItem);
 			this._resizingItem.onResizeEvent();
 		}
-	}
-
-	private _onMouseUp(e: any): boolean {
-		if (this.isDragging) {
-			this._dragStop(e);
-			return false;
-		} else if (this.isResizing) {
-			this._resizeStop(e);
-			return false;
-		} else if (this._dragReady || this._resizeReady) {
-			this._dragReady = false;
-			this._resizeReady = false;
-		}
-
-		return true;
 	}
 
 	private _dragStop(e: any): void {
