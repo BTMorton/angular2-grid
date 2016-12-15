@@ -398,7 +398,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		if (this._autoResize) {
 			if (this._maxRows > 0 || this._visibleRows > 0) {
 				var maxRows = this._maxRows > 0 ? this._maxRows : this._visibleRows;
-				var maxHeight: number = window.innerHeight;
+				var maxHeight: number = window.innerHeight - this.marginTop - this.marginBottom;
 
 				var rowHeight: number = Math.max(Math.floor(maxHeight / maxRows), this.minHeight);
 				rowHeight -= (this.marginTop + this.marginBottom);
