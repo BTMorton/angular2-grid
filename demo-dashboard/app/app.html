@@ -1,0 +1,20 @@
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Brand</a>
+    </div>
+	<div class="nav navbar-nav navbar-right">
+	  <a (click)="addBox()" class="btn btn-primary pull-right navbar-btn" style='margin-right: 10px;'>Add Box</a>
+    </div>
+  </div>
+</nav>
+<div [ngGrid]="gridConfig">
+	
+	<div *ngFor="let box of boxes; let i = index" [(ngGridItem)]="box.config" (onItemChange)="updateItem(i, $event)" (onResize)="onResize(i, $event)" (onDrag)="onDrag(i, $event)">
+		<div class="handle">Widget {{box.id}} <div class="box-header-btns pull-right">
+						<a title="Remove widget" (click)="removeWidget(i);">
+							<i class="glyphicon glyphicon-trash"></i>
+						</a>
+					</div></div>
+	</div>
+</div>
