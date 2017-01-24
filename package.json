@@ -1,9 +1,9 @@
 {
   "name": "angular2-grid",
-  "version": "0.11.2",
+  "version": "1.0.1",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
-  "main": "dist/main.js",
-  "typings": "dist/main.d.ts",
+  "main": "dist/js/main.js",
+  "typings": "dist/typings/main.d.ts",
   "scripts": {
     "start": "npm run lite",
     "lite": "lite-server -c bs-config.json",
@@ -40,23 +40,22 @@
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "files": [
     "dist/NgGrid*",
-    "dist/main*",
-    "dist/components/*",
-    "dist/directives/*",
-    "dist/interfaces/*",
-    "dist/modules/*"
+    "dist/js/",
+    "dist/bundles/",
+    "dist/aot/",
+    "dist/typings/"
   ],
   "peerDependencies": {
-    "@angular/core": "2.1.1"
+    "@angular/core": "^2.0.0"
   },
   "devDependencies": {
-    "@angular/common": "2.1.1",
-    "@angular/compiler": "2.1.1",
-    "@angular/compiler-cli": "2.1.1",
-    "@angular/core": "2.1.1",
-    "@angular/forms": "2.1.1",
-    "@angular/platform-browser": "2.1.1",
-    "@angular/platform-browser-dynamic": "2.1.1",
+    "@angular/common": "^2.0.0",
+    "@angular/compiler": "^2.0.0",
+    "@angular/compiler-cli": "^2.0.0",
+    "@angular/core": "^2.0.0",
+    "@angular/forms": "^2.0.0",
+    "@angular/platform-browser": "^2.0.0",
+    "@angular/platform-browser-dynamic": "^2.0.0",
     "@types/core-js": "^0.9.35",
     "@types/jasmine": "^2.5.38",
     "@types/node": "0.0.2",

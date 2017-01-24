@@ -187,7 +187,7 @@ to your typescript imports, and ensuring that your `@NgModule` annotation looks 
     ...,
     imports: [
         ...,
-        NgGridModule,    
+        NgGridModule,
         ...
     ],
     ...
@@ -198,13 +198,15 @@ As of the Angular 2 Release Candidate you will now need to have the following in
 
 ```
 map: {
-    'angular2-grid': 'node_modules/angular2-grid/dist'
+    'angular2-grid': 'node_modules/angular2-grid/dist/js'
 }
 
 packages: {
     'angular2-grid': { main: 'main.js',  defaultExtension: 'js' }
 }
 ```
+
+Alternatively, you can use the bundled version by setting the `map` value to `'node_modules/angular2-grid/dist/bundles'` and the `main` value within packages to `NgGrid.min.js`.
 
 To use with [angular-cli](https://cli.angular.io/), you will need to add the above system.js configs to the respective user configuration objects in `system-config.ts`, and add the following to the `vendorNpmFiles` array in `angular-cli-build.js`:
 
