@@ -42,7 +42,7 @@
     "dist/NgGrid*",
     "dist/js/",
     "dist/bundles/",
-    "dist/aot/"
+    "dist/aot/",
     "dist/typings/"
   ],
   "peerDependencies": {
