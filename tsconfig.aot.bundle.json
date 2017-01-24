@@ -1,0 +1,31 @@
+{
+	"compilerOptions": {
+		"target": "es2015",
+		"module": "es2015",
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"noImplicitAny": false,
+		"rootDir": "./src",
+		"outDir": "./temp",
+		"typeRoots": [
+			"node_modules/@types"
+		],
+		"types": [
+			"node",
+			"jasmine"
+		]
+	},
+	"exclude": [
+		"bower",
+		"node_modules"
+	],
+	"files": [
+		"./src/main.ts"
+	],
+	"angularCompilerOptions": {
+		"strictMetadataEmit": true,
+		"skipTemplateCodegen": true
+	}
+}
