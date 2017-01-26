@@ -208,10 +208,4 @@ packages: {
 
 Alternatively, you can use the bundled version by setting the `map` value to `'node_modules/angular2-grid/dist/bundles'` and the `main` value within packages to `NgGrid.min.js`.
 
-To use with [angular-cli](https://cli.angular.io/), you will need to add the above system.js configs to the respective user configuration objects in `system-config.ts`, and add the following to the `vendorNpmFiles` array in `angular-cli-build.js`:
-
-```
-'angular2-grid/dist/**/*.js'
-```
-
-To see a working typescript example project, check the [demo folder in the source](https://github.com/BTMorton/angular2-grid/tree/master/demo).
+To see a working typescript example project, check the [dashboard demo folder in the source](https://github.com/BTMorton/angular2-grid/tree/master/demo-dashboard) or the [main demo repository](https://github.com/BTMorton/angular2-grid-demo).
