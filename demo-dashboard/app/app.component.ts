@@ -1,5 +1,10 @@
 import {Component, ViewEncapsulation} from '@angular/core';
-import {NgGrid, NgGridItem} from 'angular2-grid';
+import {NgGrid, NgGridItem, NgGridConfig, NgGridItemConfig, NgGridItemEvent} from 'angular2-grid';
+
+interface Box {
+    id: number;
+    config: any;
+}
 
 @Component({
     selector: 'my-app',
@@ -35,7 +40,7 @@ export class AppComponent {
 		'limit_to_screen': true
 	};
 	private itemPositions: Array<any> = [];
-	
+
 	constructor() {
 		const dashconf = this._generateDefaultDashConfig();
 		for (var i = 0; i < dashconf.length; i++) {
@@ -51,21 +56,21 @@ export class AppComponent {
 		conf.payload = this.curNum++;
 		this.boxes.push({ id: conf.payload, config: conf });
 	}
-	
+
 	removeWidget(index: number): void {
 		if (this.boxes[index]) {
 			this.boxes.splice(index, 1);
 		}
 	}
-	
+
 	updateItem(index: number, event: NgGridItemEvent): void {
 		// Do something here
 	}
-	
+
 	onDrag(index: number, event: NgGridItemEvent): void {
 		// Do something here
 	}
-	
+
 	onResize(index: number, event: NgGridItemEvent): void {
 		// Do something here
 	}

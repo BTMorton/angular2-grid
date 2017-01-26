@@ -19,7 +19,7 @@
   "description": "Grid-based drag/drop/resize directive plugin for Angular 2",
   "main": "NgGrid.ts",
   "moduleType": [
-    "amd"
+    "umd"
   ],
   "keywords": [
     "angular",

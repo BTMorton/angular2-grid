@@ -1,0 +1,43 @@
+{
+  "name": "angular2-grid",
+  "version": "1.0.1",
+  "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
+  "module": "main.js",
+  "main": "bundles/NgGrid.umd.min.js",
+  "typings": "main.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BTMorton/angular2-grid.git"
+  },
+  "keywords": [
+    "angular",
+    "angular2",
+    "grid",
+    "web-components"
+  ],
+  "author": "Ben Morton <ben.morton91@gmail.com> (http://bmorton.co.uk/)",
+  "contributors": [
+    "Martin Sikora (https://github.com/martinsik)",
+    "Daniel Pastor de la Fuenta (https://github.com/aebsubis)",
+    "Frederik Schubert (https://github.com/frederikschubert)",
+    "Matthew de Nobrega (https://github.com/matthewdenobrega)",
+    "Alex (https://github.com/lifecoderua)",
+    "pocmanu (https://github.com/pocmanu)",
+    "Chris Morabito (https://github.com/morabitowoolpert)",
+    "Carlos Esteban Lopez Jaramillo (https://github.com/Luchillo)",
+    "Niklas Berg (https://github.com/nkholski)",
+    "Wouter (https://github.com/wuhkuh)",
+    "Brian Ellis (https://github.com/OnlyAGhost)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BTMorton/angular2-grid/issues"
+  },
+  "homepage": "https://github.com/BTMorton/angular2-grid",
+  "peerDependencies": {
+    "@angular/core": "2.4.4",
+    "reflect-metadata": "^0.1.8",
+    "rxjs": "^5.0.1",
+    "zone.js": "^0.7.2"
+  }
+}
