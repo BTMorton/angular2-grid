@@ -3,6 +3,7 @@
 [![bower version](http://img.shields.io/bower/v/angular2-grid.svg)](https://libraries.io/bower/angular2-grid)
 [![license](http://img.shields.io/github/license/BTMorton%2Fangular2-grid.svg)](https://github.com/BTMorton/angular2-grid/blob/master/LICENSE)
 [![open issues](http://img.shields.io/github/issues/BTMorton%2Fangular2-grid.svg)](https://github.com/BTMorton/angular2-grid/issues)
+[![Chat on Gitter](https://img.shields.io/gitter/room/angular2grid/lobby.svg)](https://gitter.im/angular2grid/Lobby)
 
 # Angular 2 Grid
 Angular 2 grid is a drag/drop/resize grid-based plugin directive for [Angular 2](http://angular.io).
