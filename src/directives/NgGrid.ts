@@ -336,14 +336,18 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	public addItem(ngItem: NgGridItem): void {
 		ngItem.setCascadeMode(this.cascade);
+
 		if (!this._preferNew) {
 			var newPos = this._fixGridPosition(ngItem.getGridPosition(), ngItem.getSize());
 			ngItem.savePosition(newPos);
 		}
+
 		this._items.push(ngItem);
 		this._addToGrid(ngItem);
+
 		ngItem.recalculateSelf();
 		ngItem.onCascadeEvent();
+
 		this._emitOnItemChange();
 	}
 
@@ -426,21 +430,19 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		return true;
 	}
 
-	public mouseMoveEventHandler(e: any): boolean {
+	public mouseMoveEventHandler(e: any): void {
 		if (this._resizeReady) {
 			this._resizeStart(e);
-			return false;
+			return;
 		} else if (this._dragReady) {
 			this._dragStart(e);
-			return false;
+			return;
 		}
 
 		if (this.isDragging) {
 			this._drag(e);
-			return false;
 		} else if (this.isResizing) {
 			this._resize(e);
-			return false;
 		} else {
 			var mousePos = this._getMousePosition(e);
 			var item = this._getItemFromPosition(mousePos);
@@ -449,8 +451,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				item.onMouseMove(e);
 			}
 		}
-
-		return true;
 	}
 
 	//	Private methods
@@ -541,22 +541,25 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		if (this.dragEnable) {
 			var mousePos = this._getMousePosition(e);
 			var item = this._getItemFromPosition(mousePos);
-			var itemPos = item.getPosition();
-			var pOffset = { 'left': (mousePos.left - itemPos.left), 'top': (mousePos.top - itemPos.top) }
 
-			item.startMoving();
-			this._draggingItem = item;
-			this._posOffset = pOffset;
-			this._removeFromGrid(item);
-			this._createPlaceholder(item);
-			this.isDragging = true;
-			this._dragReady = false;
+			if (item) {
+				var itemPos = item.getPosition();
+				var pOffset = { 'left': (mousePos.left - itemPos.left), 'top': (mousePos.top - itemPos.top) }
 
-			this.onDragStart.emit(item);
-			item.onDragStartEvent();
+				item.startMoving();
+				this._draggingItem = item;
+				this._posOffset = pOffset;
+				this._removeFromGrid(item);
+				this._createPlaceholder(item);
+				this.isDragging = true;
+				this._dragReady = false;
 
-			if (this._zoomOnDrag) {
-				this._zoomOut();
+				this.onDragStart.emit(item);
+				item.onDragStartEvent();
+
+				if (this._zoomOnDrag) {
+					this._zoomOut();
+				}
 			}
 		}
 	}
@@ -1163,7 +1166,11 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _isWithinBoundsX(pos: NgGridItemPosition, dims: NgGridItemSize) {
-		return (this._maxCols == 0 || (pos.col + dims.x - 1) <= this._maxCols);
+		if (this._limitToScreen) {
+			return (pos.col + dims.x - 1) <= this._getContainerColumns();
+		} else {
+			return (this._maxCols == 0 || (pos.col + dims.x - 1) <= this._maxCols);
+		}
 	}
 	private _isWithinBoundsY(pos: NgGridItemPosition, dims: NgGridItemSize) {
 		return (this._maxRows == 0 || (pos.row + dims.y - 1) <= this._maxRows);
