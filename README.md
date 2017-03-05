@@ -31,7 +31,7 @@ NOTE: By default Angular 2 and System.js are not listed as actual dependencies, 
 #### Config
 -----------
 
-To use this in your own application, all you need to do is add the `[ng-grid]` attribute to your container element and `[ng-grid-item]` to each item. You can use this in conjunction with `NgFor` to create a truly dynamic angular grid.
+To use this in your own application, all you need to do is add the `[ngGrid]` attribute to your container element and `[ngGridItem]` to each item. You can use this in conjunction with `NgFor` to create a truly dynamic angular grid.
 
 To configure the grid with your own options, it is as easy as adding them as the attribute value. The defaults for the grid are:
 
