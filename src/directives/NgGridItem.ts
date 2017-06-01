@@ -492,8 +492,10 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	private _recalculateDimensions(): void {
+		console.log("recalc", this._size);
 		if (this._size.x < this._ngGrid.minCols) this._size.x = this._ngGrid.minCols;
 		if (this._size.y < this._ngGrid.minRows) this._size.y = this._ngGrid.minRows;
+		console.log(this._size);
 
 		const newWidth: number = (this._ngGrid.colWidth * this._size.x) + ((this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._size.x - 1));
 		const newHeight: number = (this._ngGrid.rowHeight * this._size.y) + ((this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._size.y - 1));
