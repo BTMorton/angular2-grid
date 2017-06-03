@@ -45,7 +45,6 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 	//	Private variables
 	private _payload: any;
-	private _position: NgGridItemPosition = { col: 1, row: 1 };
 	private _currentPosition: NgGridItemPosition = { col: 1, row: 1 };
 	private _size: NgGridItemSize = { x: 1, y: 1 };
 	private _config = NgGridItem.CONST_DEFAULT_CONFIG;
@@ -96,11 +95,11 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	get col(): number {
-		return this._position.col;
+		return this._currentPosition.col;
 	}
 
 	get row(): number {
-		return this._position.row;
+		return this._currentPosition.row;
 	}
 
 	get currentCol(): number {
@@ -160,15 +159,15 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this.onChangeStop.emit(event);
 		this.onChangeAny.emit(event);
 
-		this._config.col = this._position.col;
-		this._config.row = this._position.row;
+		this._config.col = this._currentPosition.col;
+		this._config.row = this._currentPosition.row;
 		this.ngGridItemChange.emit(this._config);
 	}
 	public onCascadeEvent(): void {
 		this._config.sizex = this._size.x;
 		this._config.sizey = this._size.y;
-		this._config.col = this._position.col;
-		this._config.row = this._position.row;
+		this._config.col = this._currentPosition.col;
+		this._config.row = this._currentPosition.row;
 		this.ngGridItemChange.emit(this._config);
 	}
 
@@ -213,6 +212,8 @@ export class NgGridItem implements OnInit, OnDestroy {
 		if (this._resizeHandle) {
 			return this.findHandle(this._resizeHandle, e.target) ? 'both' : null;
 		}
+
+		if (this._borderSize <= 0) return null;
 
 		const mousePos: NgGridRawPosition = this._getMousePosition(e);
 
@@ -288,17 +289,13 @@ export class NgGridItem implements OnInit, OnDestroy {
 		return this._currentPosition;
 	}
 
-	public getSavedPosition(): NgGridItemPosition {
-		return this._position;
-	}
-
 	//	Setters
 	public setConfig(config: NgGridItemConfig): void {
 		this._config = config;
 
 		this._payload = config.payload;
-		this._position.col = this._currentPosition.col = config.col ? config.col : NgGridItem.CONST_DEFAULT_CONFIG.col;
-		this._position.row = this._currentPosition.row = config.row ? config.row : NgGridItem.CONST_DEFAULT_CONFIG.row;
+		this._currentPosition.col = config.col ? config.col : NgGridItem.CONST_DEFAULT_CONFIG.col;
+		this._currentPosition.row = config.row ? config.row : NgGridItem.CONST_DEFAULT_CONFIG.row;
 		this._size.x = config.sizex ? config.sizex : NgGridItem.CONST_DEFAULT_CONFIG.sizex;
 		this._size.y = config.sizey ? config.sizey : NgGridItem.CONST_DEFAULT_CONFIG.sizey;
 		this._dragHandle = config.dragHandle;
@@ -354,15 +351,6 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public setGridPosition(gridPosition: NgGridItemPosition, update: boolean = true): void {
 		this._currentPosition = gridPosition;
 		if (update) this._recalculatePosition();
-
-		this.onItemChange.emit(this.getEventOutput());
-	}
-
-	public savePosition(newPosition: NgGridItemPosition): void {
-		this._position = newPosition;
-		this._currentPosition = newPosition;
-
-		this._recalculatePosition();
 
 		this.onItemChange.emit(this.getEventOutput());
 	}
@@ -492,10 +480,8 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	private _recalculateDimensions(): void {
-		console.log("recalc", this._size);
 		if (this._size.x < this._ngGrid.minCols) this._size.x = this._ngGrid.minCols;
 		if (this._size.y < this._ngGrid.minRows) this._size.y = this._ngGrid.minRows;
-		console.log(this._size);
 
 		const newWidth: number = (this._ngGrid.colWidth * this._size.x) + ((this._ngGrid.marginLeft + this._ngGrid.marginRight) * (this._size.x - 1));
 		const newHeight: number = (this._ngGrid.rowHeight * this._size.y) + ((this._ngGrid.marginTop + this._ngGrid.marginBottom) * (this._size.y - 1));
