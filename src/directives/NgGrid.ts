@@ -715,7 +715,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this.isResizing = false;
 
 			var itemDims = this._resizingItem.getSize();
-			
+
 			this._resizingItem.setSize(itemDims);
 			this._addToGrid(this._resizingItem);
 
@@ -829,7 +829,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					}
 					break;
 			}
-			
+
 			collisions[0].setGridPosition(itemPos);
 
 			this._fixGridCollisions(itemPos, itemDims);
@@ -1070,8 +1070,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _removeFromGrid(item: NgGridItem): void {
-		for (let y: number = item.row; y < item.row + item.sizey; y++)
-			for (let x: number = item.col; x < item.col + item.sizex; x++)
+		for (let y in this._itemGrid)
+			for (let x in this._itemGrid[y])
 				if (this._itemGrid[y][x] == item)
 					delete this._itemGrid[y][x];
 	}
