@@ -363,6 +363,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._cascadeGrid(null, null);
 	}
 
+	public triggerResize(): void {
+		this.resizeEventHandler(null);
+	}
+
 	public resizeEventHandler(e: any): void {
 		this._calculateColWidth();
 		this._calculateRowHeight();
@@ -1060,10 +1064,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			if (this._itemGrid[pos.row + j] == null) this._itemGrid[pos.row + j] = {};
 
 			for (let i: number = 0; i < dims.x; i++) {
-				if (this._itemGrid[pos.row + j][pos.col + i] != null) {
-					console.error("ITEM COLLISION", this._hasGridCollision(pos, dims));
-				}
-
 				this._itemGrid[pos.row + j][pos.col + i] = item;
 			}
 		}
@@ -1084,7 +1084,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				const withinCol = <any>x < (item.col + item.sizex) && <any>x >= item.col;
 
 				if (this._items.indexOf(this._itemGrid[y][x]) < 0 || !withinRow || !withinCol) {
-					console.error("LEFTOVER ITEM");
 					delete this._itemGrid[y][x];
 				}
 			}
