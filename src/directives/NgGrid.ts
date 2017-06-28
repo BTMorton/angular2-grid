@@ -780,6 +780,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _getCollisions(pos: NgGridItemPosition, dims: NgGridItemSize): Array<NgGridItem> {
 		const returns: Array<NgGridItem> = [];
 
+		if(!pos.col) {
+			pos.col = 1;
+		}
+		if(!pos.row) {
+			pos.row = 1;
+		}
+
 		for (let j: number = 0; j < dims.y; j++) {
 			if (this._itemGrid[pos.row + j] != null) {
 				for (let i: number = 0; i < dims.x; i++) {
