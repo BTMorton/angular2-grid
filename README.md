@@ -198,6 +198,16 @@ to your typescript imports, and ensuring that your `@NgModule` annotation looks 
 As of the Angular 2 Release Candidate you will now need to have the following in your System.js configuration, assuming that you are following the same format as the [Angular 2 Quick Start](https://angular.io/docs/ts/latest/quickstart.html):
 
 ```
+// latest version of angular2-grid
+map: {
+    'angular2-grid': 'node_modules/angular2-grid/bundles'
+}
+
+packages: {
+    'angular2-grid': { main: 'NgGrid.umd.js',  defaultExtension: 'js' }
+}
+
+// earlier versions
 map: {
     'angular2-grid': 'node_modules/angular2-grid/dist/js'
 }
@@ -207,6 +217,6 @@ packages: {
 }
 ```
 
-Alternatively, you can use the bundled version by setting the `map` value to `'node_modules/angular2-grid/dist/bundles'` and the `main` value within packages to `NgGrid.min.js`.
+Alternatively, for earlier versions you can use the bundled version by setting the `map` value to `'node_modules/angular2-grid/dist/bundles'` and the `main` value within packages to `NgGrid.min.js`.
 
 To see a working typescript example project, check the [dashboard demo folder in the source](https://github.com/BTMorton/angular2-grid/tree/master/demo-dashboard) or the [main demo repository](https://github.com/BTMorton/angular2-grid-demo).
