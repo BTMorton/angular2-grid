@@ -1007,7 +1007,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _isWithinBoundsX(pos: NgGridItemPosition, dims: NgGridItemSize) {
-		return (this._maxCols == 0 || pos.col == 1 || (pos.col + dims.x - 1) <= this._maxCols);
+		return (this._maxCols == 0 || (pos.col + dims.x - 1) <= this._maxCols);
 	}
 
 	private _fixPosToBoundsX(pos: NgGridItemPosition, dims: NgGridItemSize): NgGridItemPosition {
