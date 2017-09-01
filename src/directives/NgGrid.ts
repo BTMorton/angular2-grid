@@ -400,7 +400,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	public mouseDownEventHandler(e: MouseEvent): void {
 		var mousePos = this._getMousePosition(e);
 		var item = this._getItemFromPosition(mousePos);
-		console.log(item, this.resizeEnable, this.dragEnable);
+
 		if (item != null) {
 			if (this.resizeEnable && item.canResize(e)) {
 				this._resizeReady = true;
@@ -410,8 +410,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				e.preventDefault();
 			}
 		}
-
-		console.log(this._dragReady, this._resizeReady);
 	}
 
 	public mouseUpEventHandler(e: any): void {
