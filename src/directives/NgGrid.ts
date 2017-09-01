@@ -870,44 +870,42 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		switch (this.cascade) {
 			case 'up':
 			case 'down':
-				const lowRow: Array<number> = [0];
+				const lowestRowPerColumn: Map<number, number> = new Map<number, number>();
 
-				for (let i: number = 1; i <= this._curMaxCol; i++)
-					lowRow[i] = 1;
+				for (let row: number = 1; row <= this._curMaxRow; row++) {
+					if (this._itemGrid[row] == undefined) continue;
 
-				for (let r: number = 1; r <= this._curMaxRow; r++) {
-					if (this._itemGrid[r] == undefined) continue;
+					for (let col: number = 1; col <= this._curMaxCol; col++) {
+						if (this._itemGrid[row] == undefined) break;
+						if (lowestRowPerColumn.has(col) && row < lowestRowPerColumn.get(col)) continue;
 
-					for (let c: number = 1; c <= this._curMaxCol; c++) {
-						if (this._itemGrid[r] == undefined) break;
-						if (r < lowRow[c]) continue;
-
-						if (this._itemGrid[r][c] != null) {
-							const item: NgGridItem = this._itemGrid[r][c];
+						if (this._itemGrid[row][col] != null) {
+							const item: NgGridItem = this._itemGrid[row][col];
 							if (item.isFixed) continue;
 
 							const itemDims: NgGridItemSize = item.getSize();
 							const itemPos: NgGridItemPosition = item.getGridPosition();
 
-							if (itemPos.col != c || itemPos.row != r) continue;	//	If this is not the element's start
+							if (itemPos.col != col || itemPos.row != row) continue;	//	If this is not the element's start
 
-							let lowest: number = lowRow[c];
+							let lowestRowForItem: number = lowestRowPerColumn.has(col) ? lowestRowPerColumn.get(col) : 1;
 
 							for (let i: number = 1; i < itemDims.x; i++) {
-								lowest = Math.max(lowRow[(c + i)], lowest);
+								const lowestRowForColumn = lowestRowPerColumn.has(col + i) ? lowestRowPerColumn.get(col + i) : 1;
+								lowestRowForItem = Math.max(lowestRowForColumn, lowestRowForItem);
 							}
 
-							if (pos && (c + itemDims.x) > pos.col && c < (pos.col + dims.x)) {          //	If our element is in one of the item's columns
-								if ((r >= pos.row && r < (pos.row + dims.y)) ||                         //	If this row is occupied by our element
-									((itemDims.y > (pos.row - lowest)) &&                               //	Or the item can't fit above our element
-										(r >= (pos.row + dims.y) && lowest < (pos.row + dims.y)))) {    //		And this row is below our element, but we haven't caught it
-									lowest = Math.max(lowest, pos.row + dims.y);                        //	Set the lowest row to be below it
+							if (pos && (col + itemDims.x) > pos.col && col < (pos.col + dims.x)) {          //	If our element is in one of the item's columns
+								if ((row >= pos.row && row < (pos.row + dims.y)) ||                         //	If this row is occupied by our element
+									((itemDims.y > (pos.row - lowestRowForItem)) &&                               //	Or the item can't fit above our element
+										(row >= (pos.row + dims.y) && lowestRowForItem < (pos.row + dims.y)))) {    //		And this row is below our element, but we haven't caught it
+									lowestRowForItem = Math.max(lowestRowForItem, pos.row + dims.y);                        //	Set the lowest row to be below it
 								}
 							}
 
-							const newPos: NgGridItemPosition = { col: c, row: lowest };
+							const newPos: NgGridItemPosition = { col: col, row: lowestRowForItem };
 
-							if (lowest != itemPos.row && this._isWithinBoundsY(newPos, itemDims)) {	//	If the item is not already on this row move it up
+							if (lowestRowForItem != itemPos.row && this._isWithinBoundsY(newPos, itemDims)) {	//	If the item is not already on this row move it up
 								this._removeFromGrid(item);
 
 								item.setGridPosition(newPos);
@@ -917,7 +915,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 							}
 
 							for (let i: number = 0; i < itemDims.x; i++) {
-								lowRow[c + i] = lowest + itemDims.y;	//	Update the lowest row to be below the item
+								lowestRowPerColumn.set(col + i, lowestRowForItem + itemDims.y);	//	Update the lowest row to be below the item
 							}
 						}
 					}
@@ -925,42 +923,40 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				break;
 			case 'left':
 			case 'right':
-				const lowCol: Array<number> = [0];
+				const lowestColumnPerRow: Map<number, number> = new Map<number, number>();
 
-				for (let i: number = 1; i <= this._curMaxRow; i++)
-					lowCol[i] = 1;
+				for (let row: number = 1; row <= this._curMaxRow; row++) {
+					if (this._itemGrid[row] == undefined) continue;
 
-				for (let r: number = 1; r <= this._curMaxRow; r++) {
-					if (this._itemGrid[r] == undefined) continue;
+					for (let col: number = 1; col <= this._curMaxCol; col++) {
+						if (this._itemGrid[row] == undefined) break;
+						if (lowestColumnPerRow.has(row) && col < lowestColumnPerRow.get(row)) continue;
 
-					for (let c: number = 1; c <= this._curMaxCol; c++) {
-						if (this._itemGrid[r] == undefined) break;
-						if (c < lowCol[r]) continue;
-
-						if (this._itemGrid[r][c] != null) {
-							const item: NgGridItem = this._itemGrid[r][c];
+						if (this._itemGrid[row][col] != null) {
+							const item: NgGridItem = this._itemGrid[row][col];
 							const itemDims: NgGridItemSize = item.getSize();
 							const itemPos: NgGridItemPosition = item.getGridPosition();
 
-							if (itemPos.col != c || itemPos.row != r) continue;	//	If this is not the element's start
+							if (itemPos.col != col || itemPos.row != row) continue;	//	If this is not the element's start
 
-							let lowest: number = lowCol[r];
+							let lowestColumnForItem: number = lowestColumnPerRow.has(row) ? lowestColumnPerRow.get(row) : 1;
 
 							for (let i: number = 1; i < itemDims.y; i++) {
-								lowest = Math.max(lowCol[(r + i)], lowest);
+								let lowestOffsetColumn: number = lowestColumnPerRow.has(row + i) ? lowestColumnPerRow.get(row + i) : 1;
+								lowestColumnForItem = Math.max(lowestOffsetColumn, lowestColumnForItem);
 							}
 
-							if (pos && (r + itemDims.y) > pos.row && r < (pos.row + dims.y)) {          //	If our element is in one of the item's rows
-								if ((c >= pos.col && c < (pos.col + dims.x)) ||                         //	If this col is occupied by our element
-									((itemDims.x > (pos.col - lowest)) &&                               //	Or the item can't fit above our element
-										(c >= (pos.col + dims.x) && lowest < (pos.col + dims.x)))) {    //		And this col is below our element, but we haven't caught it
-									lowest = Math.max(lowest, pos.col + dims.x);                        //	Set the lowest col to be below it
+							if (pos && (row + itemDims.y) > pos.row && row < (pos.row + dims.y)) {          //	If our element is in one of the item's rows
+								if ((col >= pos.col && col < (pos.col + dims.x)) ||                         //	If this col is occupied by our element
+									((itemDims.x > (pos.col - lowestColumnForItem)) &&                               //	Or the item can't fit above our element
+										(col >= (pos.col + dims.x) && lowestColumnForItem < (pos.col + dims.x)))) {    //		And this col is below our element, but we haven't caught it
+									lowestColumnForItem = Math.max(lowestColumnForItem, pos.col + dims.x);                        //	Set the lowest col to be below it
 								}
 							}
 
-							const newPos: NgGridItemPosition = { col: lowest, row: r };
+							const newPos: NgGridItemPosition = { col: lowestColumnForItem, row: row };
 
-							if (lowest != itemPos.col && this._isWithinBoundsX(newPos, itemDims)) {	//	If the item is not already on this col move it up
+							if (lowestColumnForItem != itemPos.col && this._isWithinBoundsX(newPos, itemDims)) {	//	If the item is not already on this col move it up
 								this._removeFromGrid(item);
 
 								item.setGridPosition(newPos);
@@ -970,7 +966,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 							}
 
 							for (let i: number = 0; i < itemDims.y; i++) {
-								lowCol[r + i] = lowest + itemDims.x;	//	Update the lowest col to be below the item
+								lowestColumnPerRow.set(row + i, lowestColumnForItem + itemDims.x);	//	Update the lowest col to be below the item
 							}
 						}
 					}
