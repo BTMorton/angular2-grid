@@ -468,7 +468,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				item.setSize(dims);
 			}
 
-			if (this._hasGridCollision(pos, dims) || !this._isWithinBounds(pos, dims)) {
+			if (this._hasGridCollision(pos, dims) || !this._isWithinBounds(pos, dims, true)) {
 				var newPosition = this._fixGridPosition(pos, dims);
 				item.setGridPosition(newPosition);
 			}
@@ -990,7 +990,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _fixGridPosition(pos: NgGridItemPosition, dims: NgGridItemSize): NgGridItemPosition {
-		while (this._hasGridCollision(pos, dims) || !this._isWithinBounds(pos, dims)) {
+		while (this._hasGridCollision(pos, dims) || !this._isWithinBounds(pos, dims, true)) {
 			if (this._hasGridCollision(pos, dims)) {
 				const collisions: NgGridItem[] = this._getCollisions(pos, dims);
 
@@ -1020,8 +1020,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		return pos;
 	}
 
-	private _isWithinBoundsX(pos: NgGridItemPosition, dims: NgGridItemSize) {
-		return (this._maxCols == 0 || (pos.col + dims.x - 1) <= this._maxCols);
+	private _isWithinBoundsX(pos: NgGridItemPosition, dims: NgGridItemSize, allowExcessiveItems: boolean = false) {
+		return this._maxCols == 0 || (allowExcessiveItems && pos.col == 1) || (pos.col + dims.x - 1) <= this._maxCols;
 	}
 
 	private _fixPosToBoundsX(pos: NgGridItemPosition, dims: NgGridItemSize): NgGridItemPosition {
@@ -1040,8 +1040,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		return dims;
 	}
 
-	private _isWithinBoundsY(pos: NgGridItemPosition, dims: NgGridItemSize) {
-		return (this._maxRows == 0 || pos.row == 1 || (pos.row + dims.y - 1) <= this._maxRows);
+	private _isWithinBoundsY(pos: NgGridItemPosition, dims: NgGridItemSize, allowExcessiveItems: boolean = false) {
+		return this._maxRows == 0 || (allowExcessiveItems && pos.row == 1) || (pos.row + dims.y - 1) <= this._maxRows;
 	}
 
 	private _fixPosToBoundsY(pos: NgGridItemPosition, dims: NgGridItemSize): NgGridItemPosition {
@@ -1060,8 +1060,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		return dims;
 	}
 
-	private _isWithinBounds(pos: NgGridItemPosition, dims: NgGridItemSize) {
-		return this._isWithinBoundsX(pos, dims) && this._isWithinBoundsY(pos, dims);
+	private _isWithinBounds(pos: NgGridItemPosition, dims: NgGridItemSize, allowExcessiveItems: boolean = false) {
+		return this._isWithinBoundsX(pos, dims, allowExcessiveItems) && this._isWithinBoundsY(pos, dims, allowExcessiveItems);
 	}
 
 	private _fixPosToBounds(pos: NgGridItemPosition, dims: NgGridItemSize): NgGridItemPosition {
