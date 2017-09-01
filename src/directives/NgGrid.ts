@@ -381,6 +381,12 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			}
 		}
 
+		if (this._autoResize) {
+			for (let item of this._items) {
+				item.recalculateSelf();
+			}
+		}
+
 		this._filterGrid();
 		this._updateSize();
 	}
