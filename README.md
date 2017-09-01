@@ -57,6 +57,7 @@ To configure the grid with your own options, it is as easy as adding them as the
     'maintain_ratio': false,    //  Attempts to maintain aspect ratio based on the colWidth/rowHeight values set in the config
     'prefer_new': false,        //  When adding new items, will use that items position ahead of existing items
     'limit_to_screen': false,   //  When resizing the screen, with this true and auto_resize false, the grid will re-arrange to fit the screen size. Please note, at present this only works with cascade direction up.
+    'center_to_screen': false,  //  When resizing the screen, with this true and limit_to_screen true, the grid will center itself to the screen if max columns width is smaller than the grid width.
 }
 ```
 

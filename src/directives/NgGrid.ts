@@ -37,6 +37,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	public marginRight: number = 10;
 	public marginBottom: number = 10;
 	public marginLeft: number = 10;
+	public screenMargin: number = 0;
 	public isDragging: boolean = false;
 	public isResizing: boolean = false;
 	public autoStyle: boolean = true;
@@ -72,6 +73,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _preferNew: boolean = false;
 	private _zoomOnDrag: boolean = false;
 	private _limitToScreen: boolean = false;
+	private _centerToScreen: boolean = false;
 	private _curMaxRow: number = 0;
 	private _curMaxCol: number = 0;
 	private _dragReady: boolean = false;
@@ -99,6 +101,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		prefer_new: false,
 		zoom_on_drag: false,
 		limit_to_screen: false,
+		center_to_screen: false,
 		element_based_row_height: false,
 	};
 	private _config = NgGrid.CONST_DEFAULT_CONFIG;
@@ -210,6 +213,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					if (this._limitToScreen) {
 						this._maxCols = this._getContainerColumns();
 					}
+					break;
+				case 'center_to_screen':
+					this._centerToScreen = val ? true : false;
 					break;
 				case 'element_based_row_height':
 					this._elementBasedDynamicRowHeight = !!val;
@@ -387,7 +393,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			}
 		}
 
-		if (this._autoResize) {
+		if (this._autoResize || (this._limitToScreen && this._centerToScreen)) {
 			for (let item of this._items) {
 				item.recalculateSelf();
 			}
@@ -1176,7 +1182,14 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _getContainerColumns(): number {
 		const maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
-		return Math.floor(maxWidth / (this.colWidth + this.marginLeft + this.marginRight));
+		const itemWidth: number = this.colWidth + this.marginLeft + this.marginRight;
+		const maxCols: number = Math.floor(maxWidth / itemWidth);
+
+		if (this._centerToScreen) {
+			this.screenMargin = Math.floor((maxWidth - (maxCols * itemWidth)) / 2);
+		}
+
+		return maxCols;
 	}
 
 	private _getContainerRows(): number {
