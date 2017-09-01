@@ -391,9 +391,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				this.updatePositionsAfterMaxChange();
 				this._cascadeGrid();
 			}
+
+			if (this._centerToScreen) {
+				for (let item of this._items) {
+					item.recalculateSelf();
+				}
+			}
 		}
 
-		if (this._autoResize || (this._limitToScreen && this._centerToScreen)) {
+		if (this._autoResize) {
 			for (let item of this._items) {
 				item.recalculateSelf();
 			}
