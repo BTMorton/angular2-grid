@@ -20,6 +20,7 @@ export interface NgGridConfig {
 	prefer_new?: boolean;
 	zoom_on_drag?: boolean;
 	limit_to_screen?: boolean;
+	element_based_row_height?: boolean;
 }
 
 export interface NgGridItemConfig {

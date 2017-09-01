@@ -76,6 +76,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _curMaxCol: number = 0;
 	private _dragReady: boolean = false;
 	private _resizeReady: boolean = false;
+	private _elementBasedDynamicRowHeight: boolean = false;
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: NgGridConfig = {
@@ -97,6 +98,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		maintain_ratio: false,
 		prefer_new: false,
 		zoom_on_drag: false,
+		limit_to_screen: false,
+		element_based_row_height: false,
 	};
 	private _config = NgGrid.CONST_DEFAULT_CONFIG;
 
@@ -207,6 +210,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					if (this._limitToScreen) {
 						this._maxCols = this._getContainerColumns();
 					}
+					break;
+				case 'element_based_row_height':
+					this._elementBasedDynamicRowHeight = !!val;
 					break;
 			}
 		}
@@ -493,7 +499,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		if (this._autoResize) {
 			if (this._maxRows > 0 || this._visibleRows > 0) {
 				var maxRows = this._maxRows > 0 ? this._maxRows : this._visibleRows;
-				var maxHeight: number = window.innerHeight - this.marginTop - this.marginBottom;
+				let maxHeight: number;
+
+				if (this._elementBasedDynamicRowHeight) {
+					maxHeight = this._ngEl.nativeElement.getBoundingClientRect().height;
+				} else {
+					maxHeight = window.innerHeight - this.marginTop - this.marginBottom;
+				}
 
 				var rowHeight: number = Math.max(Math.floor(maxHeight / maxRows), this.minHeight);
 				rowHeight -= (this.marginTop + this.marginBottom);
@@ -1114,7 +1126,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		}
 
 		this._renderer.setElementStyle(this._ngEl.nativeElement, 'width', '100%');//(maxCol * (this.colWidth + this.marginLeft + this.marginRight))+'px');
-		this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', (maxRow * (this.rowHeight + this.marginTop + this.marginBottom)) + 'px');
+		if (!this._elementBasedDynamicRowHeight) {
+			this._renderer.setElementStyle(this._ngEl.nativeElement, 'height', (maxRow * (this.rowHeight + this.marginTop + this.marginBottom)) + 'px');
+		}
 	}
 
 	private _getMaxRow(): number {
