@@ -1,5 +1,5 @@
 import { Component, Directive, ElementRef, Renderer, EventEmitter, ComponentFactoryResolver, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
-import { NgGridConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions } from '../interfaces/INgGrid';
+import { NgGridConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions, NgConfigFixDirection } from '../interfaces/INgGrid';
 import { NgGridItem } from './NgGridItem';
 import { NgGridPlaceholder } from '../components/NgGridPlaceholder';
 
@@ -77,6 +77,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _dragReady: boolean = false;
 	private _resizeReady: boolean = false;
 	private _elementBasedDynamicRowHeight: boolean = false;
+	private _itemFixDirection: NgConfigFixDirection = "cascade";
+	private _collisionFixDirection: NgConfigFixDirection = "cascade";
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: NgGridConfig = {
@@ -100,6 +102,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		zoom_on_drag: false,
 		limit_to_screen: false,
 		element_based_row_height: false,
+		fix_item_position_direction: "cascade",
+		fix_collision_position_direction: "cascade",
 	};
 	private _config = NgGrid.CONST_DEFAULT_CONFIG;
 
@@ -213,6 +217,12 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					break;
 				case 'element_based_row_height':
 					this._elementBasedDynamicRowHeight = !!val;
+					break;
+				case 'fix_item_position_direction':
+					this._itemFixDirection = val;
+					break;
+				case 'fix_collision_position_direction':
+					this._collisionFixDirection = val;
 					break;
 			}
 		}
@@ -832,36 +842,43 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 			this._removeFromGrid(collisions[0]);
 
-			const itemPos: NgGridItemPosition = collisions[0].getGridPosition();
 			const itemDims: NgGridItemSize = collisions[0].getSize();
+			const itemPos: NgGridItemPosition = collisions[0].getGridPosition();
+			let newItemPos: NgGridItemPosition = { col: itemPos.col, row: itemPos.row };
 
-			switch (this.cascade) {
-				case 'up':
-				case 'down':
-				default:
-					const oldRow: number = itemPos.row;
-					itemPos.row = pos.row + dims.y;
+			let fixDirection: NgConfigFixDirection = this._collisionFixDirection;
 
-					if (!this._isWithinBoundsY(itemPos, itemDims)) {
-						itemPos.col = pos.col + dims.x;
-						itemPos.row = oldRow;
-					}
-					break;
-				case 'left':
-				case 'right':
-					const oldCol: number = itemPos.col;
-					itemPos.col = pos.col + dims.x;
-
-					if (!this._isWithinBoundsX(itemPos, itemDims)) {
-						itemPos.col = oldCol;
-						itemPos.row = pos.row + dims.y;
-					}
-					break;
+			if (fixDirection === "cascade") {
+				switch (this.cascade) {
+					case "up":
+					case "down":
+					default: 
+						fixDirection = "vertical";
+					case "left":
+					case "right":
+						fixDirection = "horizontal";
+				}
 			}
+			
+			if (fixDirection === "vertical") {
+				newItemPos.row = pos.row + dims.y;
+				
+				if (!this._isWithinBoundsY(newItemPos, itemDims)) {
+					newItemPos.col = pos.col + dims.x;
+					newItemPos.row = 1;
+				}
+			} else if (fixDirection === "horizontal") {
+				newItemPos.col = pos.col + dims.x;
+				
+				if (!this._isWithinBoundsX(newItemPos, itemDims)) {
+					newItemPos.col = 1;
+					newItemPos.row = pos.row + dims.y;
+				}
+			}
+			
+			collisions[0].setGridPosition(newItemPos);
 
-			collisions[0].setGridPosition(itemPos);
-
-			this._fixGridCollisions(itemPos, itemDims);
+			this._fixGridCollisions(newItemPos, itemDims);
 			this._addToGrid(collisions[0]);
 			collisions[0].onCascadeEvent();
 		}
@@ -993,28 +1010,35 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		while (this._hasGridCollision(pos, dims) || !this._isWithinBounds(pos, dims, true)) {
 			if (this._hasGridCollision(pos, dims)) {
 				const collisions: NgGridItem[] = this._getCollisions(pos, dims);
-
-				switch (this.cascade) {
-					case 'up':
-					case 'down':
-					default:
-						pos.row = Math.max.apply(null, collisions.map((item: NgGridItem) => item.row + item.sizey));
-						break;
-					case 'left':
-					case 'right':
-						pos.col = Math.max.apply(null, collisions.map((item: NgGridItem) => item.col + item.sizex));
-						break;
+				let fixDirection: NgConfigFixDirection = this._itemFixDirection;
+	
+				if (fixDirection === "cascade") {
+					switch (this.cascade) {
+						case "up":
+						case "down":
+						default: 
+							fixDirection = "vertical";
+						case "left":
+						case "right":
+							fixDirection = "horizontal";
+					}
 				}
-			}
-
-
-			if (!this._isWithinBoundsY(pos, dims)) {
-				pos.col++;
-				pos.row = 1;
-			}
-			if (!this._isWithinBoundsX(pos, dims)) {
-				pos.row++;
-				pos.col = 1;
+				
+				if (fixDirection === "vertical") {
+					pos.row = Math.max.apply(null, collisions.map((collision: NgGridItem) => collision.row + collision.sizey));
+					
+					if (!this._isWithinBoundsY(pos, dims)) {
+						pos.col = Math.max.apply(null, collisions.map((collision: NgGridItem) => collision.col + collision.sizex));
+						pos.row = 1;
+					}
+				} else if (fixDirection === "horizontal") {
+					pos.col = Math.max.apply(null, collisions.map((collision: NgGridItem) => collision.col + collision.sizex));
+					
+					if (!this._isWithinBoundsX(pos, dims)) {
+						pos.col = 1;
+						pos.row = Math.max.apply(null, collisions.map((collision: NgGridItem) => collision.row + collision.sizey));
+					}
+				}
 			}
 		}
 		return pos;

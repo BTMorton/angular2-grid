@@ -1,4 +1,4 @@
-export type NgConfigItemDirection = "vertical" | "horizontal";
+export type NgConfigFixDirection = "vertical" | "horizontal" | "cascade";
 
 export interface NgGridConfig {
 	margins?: number[];
@@ -23,8 +23,8 @@ export interface NgGridConfig {
 	zoom_on_drag?: boolean;
 	limit_to_screen?: boolean;
 	element_based_row_height?: boolean;
-	fix_item_position_direction: NgConfigItemDirection;
-	collide_item_position_direction: NgConfigItemDirection;
+	fix_item_position_direction?: NgConfigFixDirection;
+	fix_collision_position_direction?: NgConfigFixDirection;
 }
 
 export interface NgGridItemConfig {
