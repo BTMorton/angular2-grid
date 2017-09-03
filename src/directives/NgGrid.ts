@@ -209,10 +209,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					break;
 				case 'limit_to_screen':
 					this._limitToScreen = !this._autoResize && !!val;
-
-					if (this._limitToScreen) {
-						this._maxCols = this._getContainerColumns();
-					}
 					break;
 				case 'center_to_screen':
 					this._centerToScreen = val ? true : false;
@@ -221,6 +217,21 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					this._elementBasedDynamicRowHeight = !!val;
 					break;
 			}
+		}
+
+		if (this._limitToScreen) {
+			const newMaxCols = this._getContainerColumns();
+
+			if (this._maxCols != newMaxCols) {
+				this._maxCols = newMaxCols;
+				maxColRowChanged = true;
+			}
+		}
+
+		if (this._limitToScreen && this._centerToScreen) {
+			this.screenMargin = this._getScreenMargin();
+		} else {
+			this.screenMargin = 0;
 		}
 
 		if (this._maintainRatio) {
@@ -386,23 +397,24 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._updateRatio();
 
 		if (this._limitToScreen) {
-			if (this._maxCols !== this._getContainerColumns()) {
-				this._maxCols = this._getContainerColumns();
+			const newMaxColumns = this._getContainerColumns();
+			if (this._maxCols !== newMaxColumns) {
+				this._maxCols = newMaxColumns;
 				this.updatePositionsAfterMaxChange();
 				this._cascadeGrid();
 			}
 
 			if (this._centerToScreen) {
-				for (let item of this._items) {
-					item.recalculateSelf();
-				}
-			}
-		}
+				this.screenMargin = this._getScreenMargin();
 
-		if (this._autoResize) {
-			for (let item of this._items) {
-				item.recalculateSelf();
+				this._items.forEach((item: NgGridItem) => {
+					item.recalculateSelf();
+				});
 			}
+		} else if (this._autoResize) {
+			this._items.forEach((item: NgGridItem) => {
+				item.recalculateSelf();
+			});
 		}
 
 		this._filterGrid();
@@ -1189,13 +1201,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _getContainerColumns(): number {
 		const maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
 		const itemWidth: number = this.colWidth + this.marginLeft + this.marginRight;
-		const maxCols: number = Math.floor(maxWidth / itemWidth);
+		return Math.floor(maxWidth / itemWidth);
+	}
 
-		if (this._centerToScreen) {
-			this.screenMargin = Math.floor((maxWidth - (maxCols * itemWidth)) / 2);
-		}
-
-		return maxCols;
+	private _getScreenMargin(): number {
+		const maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
+		const itemWidth: number = this.colWidth + this.marginLeft + this.marginRight;
+		return Math.floor((maxWidth - (this._maxCols * itemWidth)) / 2);;
 	}
 
 	private _getContainerRows(): number {
