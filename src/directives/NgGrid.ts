@@ -318,7 +318,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this.marginTop = Math.max(parseInt(margins[0]), 0);
 		this.marginRight = margins.length >= 2 ? Math.max(parseInt(margins[1]), 0) : this.marginTop;
 		this.marginBottom = margins.length >= 3 ? Math.max(parseInt(margins[2]), 0) : this.marginTop;
-		this.marginBottom = margins.length >= 3 ? Math.max(parseInt(margins[2]), 0) : this.marginTop;
 		this.marginLeft = margins.length >= 4 ? Math.max(parseInt(margins[3]), 0) : this.marginRight;
 	}
 
