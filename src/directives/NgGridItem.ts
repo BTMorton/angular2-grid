@@ -25,6 +25,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: NgGridItemConfig = {
+		uid: null,
 		col: 1,
 		row: 1,
 		sizex: 1,
@@ -42,6 +43,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	public isResizable: boolean = true;
 	public minWidth: number = 0;
 	public minHeight: number = 0;
+	public uid: string = null;
 
 	//	Private variables
 	private _payload: any;
@@ -359,6 +361,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 	public getEventOutput(): NgGridItemEvent {
 		return <NgGridItemEvent>{
+			uid: this.uid,
 			payload: this._payload,
 			col: this._currentPosition.col,
 			row: this._currentPosition.row,

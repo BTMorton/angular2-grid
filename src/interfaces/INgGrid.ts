@@ -28,6 +28,7 @@ export interface NgGridConfig {
 }
 
 export interface NgGridItemConfig {
+	uid?: string;
 	payload?: any,
 	col?: number;
 	row?: number;
@@ -48,6 +49,7 @@ export interface NgGridItemConfig {
 }
 
 export interface NgGridItemEvent {
+	uid: string;
 	payload: any,
 	col: number;
 	row: number;
