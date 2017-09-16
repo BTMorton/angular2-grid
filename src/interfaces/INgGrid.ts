@@ -22,6 +22,7 @@ export interface NgGridConfig {
 	prefer_new?: boolean;
 	zoom_on_drag?: boolean;
 	limit_to_screen?: boolean;
+	center_to_screen?: boolean;
 	element_based_row_height?: boolean;
 	fix_item_position_direction?: NgConfigFixDirection;
 	fix_collision_position_direction?: NgConfigFixDirection;

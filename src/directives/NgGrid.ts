@@ -37,6 +37,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	public marginRight: number = 10;
 	public marginBottom: number = 10;
 	public marginLeft: number = 10;
+	public screenMargin: number = 0;
 	public isDragging: boolean = false;
 	public isResizing: boolean = false;
 	public autoStyle: boolean = true;
@@ -72,6 +73,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _preferNew: boolean = false;
 	private _zoomOnDrag: boolean = false;
 	private _limitToScreen: boolean = false;
+	private _centerToScreen: boolean = false;
 	private _curMaxRow: number = 0;
 	private _curMaxCol: number = 0;
 	private _dragReady: boolean = false;
@@ -101,6 +103,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		prefer_new: false,
 		zoom_on_drag: false,
 		limit_to_screen: false,
+		center_to_screen: false,
 		element_based_row_height: false,
 		fix_item_position_direction: "cascade",
 		fix_collision_position_direction: "cascade",
@@ -237,10 +240,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					break;
 				case 'limit_to_screen':
 					this._limitToScreen = !this._autoResize && !!val;
-
-					if (this._limitToScreen) {
-						this._maxCols = this._getContainerColumns();
-					}
+					break;
+				case 'center_to_screen':
+					this._centerToScreen = val ? true : false;
 					break;
 				case 'element_based_row_height':
 					this._elementBasedDynamicRowHeight = !!val;
@@ -252,6 +254,21 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					this._collisionFixDirection = val;
 					break;
 			}
+		}
+
+		if (this._limitToScreen) {
+			const newMaxCols = this._getContainerColumns();
+
+			if (this._maxCols != newMaxCols) {
+				this._maxCols = newMaxCols;
+				maxColRowChanged = true;
+			}
+		}
+
+		if (this._limitToScreen && this._centerToScreen) {
+			this.screenMargin = this._getScreenMargin();
+		} else {
+			this.screenMargin = 0;
 		}
 
 		if (this._maintainRatio) {
@@ -337,7 +354,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this.marginTop = Math.max(parseInt(margins[0]), 0);
 		this.marginRight = margins.length >= 2 ? Math.max(parseInt(margins[1]), 0) : this.marginTop;
 		this.marginBottom = margins.length >= 3 ? Math.max(parseInt(margins[2]), 0) : this.marginTop;
-		this.marginBottom = margins.length >= 3 ? Math.max(parseInt(margins[2]), 0) : this.marginTop;
 		this.marginLeft = margins.length >= 4 ? Math.max(parseInt(margins[3]), 0) : this.marginRight;
 	}
 
@@ -418,14 +434,21 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._updateRatio();
 
 		if (this._limitToScreen) {
-			if (this._maxCols !== this._getContainerColumns()) {
-				this._maxCols = this._getContainerColumns();
+			const newMaxColumns = this._getContainerColumns();
+			if (this._maxCols !== newMaxColumns) {
+				this._maxCols = newMaxColumns;
 				this.updatePositionsAfterMaxChange();
 				this._cascadeGrid();
 			}
-		}
 
-		if (this._autoResize) {
+			if (this._centerToScreen) {
+				this.screenMargin = this._getScreenMargin();
+
+				this._items.forEach((item: NgGridItem) => {
+					item.recalculateSelf();
+				});
+			}
+		} else if (this._autoResize) {
 			this._items.forEach((item: NgGridItem) => {
 				item.recalculateSelf();
 			});
@@ -1192,7 +1215,14 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _getContainerColumns(): number {
 		const maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
-		return Math.floor(maxWidth / (this.colWidth + this.marginLeft + this.marginRight));
+		const itemWidth: number = this.colWidth + this.marginLeft + this.marginRight;
+		return Math.floor(maxWidth / itemWidth);
+	}
+
+	private _getScreenMargin(): number {
+		const maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
+		const itemWidth: number = this.colWidth + this.marginLeft + this.marginRight;
+		return Math.floor((maxWidth - (this._maxCols * itemWidth)) / 2);;
 	}
 
 	private _getContainerRows(): number {
