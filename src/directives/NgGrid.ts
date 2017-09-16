@@ -935,7 +935,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			dims = this._resizingItem.getSize();
 		}
 
-		let itemsInGrid: NgGridItem[] = Array.from(this._itemsInGrid).map((itemId: string) => this._items.get(itemId));
+		let itemsInGrid: NgGridItem[] = Array.from(this._itemsInGrid, (itemId: string) => this._items.get(itemId));
 
 		switch (this.cascade) {
 			case 'up':
@@ -1150,19 +1150,21 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _getMaxRow(): number {
-		const itemsRows: number[] = Array.from(this._itemsInGrid)
-			.map((itemId: string) => this._items.get(itemId))
-			.filter((item: NgGridItem) => !!item)
-			.map((item: NgGridItem) => item.row + item.sizey - 1);
+		const itemsRows: number[] = Array.from(this._itemsInGrid, (itemId: string) => {
+			const item = this._items.get(itemId);
+			if (!item) return 0;
+			return item.row + item.sizey - 1;
+		});
 
 		return Math.max.apply(null, itemsRows);
 	}
 
 	private _getMaxCol(): number {
-		const itemsCols: number[] = Array.from(this._itemsInGrid)
-			.map((itemId: string) => this._items.get(itemId))
-			.filter((item: NgGridItem) => !!item)
-			.map((item: NgGridItem) => item.col + item.sizex - 1);
+		const itemsCols: number[] = Array.from(this._itemsInGrid, (itemId: string) => {
+			const item = this._items.get(itemId);
+			if (!item) return 0;
+			return item.col + item.sizex - 1;
+		});
 
 		return Math.max.apply(null, itemsCols);
 	}
@@ -1220,12 +1222,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _getItemFromPosition(position: NgGridRawPosition): NgGridItem {
-		const matchedItemId: string = Array.from(this._itemsInGrid).find((itemId: string) => {
-			const item: NgGridItem = this._items.get(itemId);
-			if (!item) {
-				this._itemsInGrid.delete(itemId);
-				return false;
-			}
+		return Array.from(this._itemsInGrid, (itemId: string) => this._items.get(itemId)).find((item: NgGridItem) => {
+			if (!item) return false;
 
 			const size: NgGridItemDimensions = item.getDimensions();
 			const pos: NgGridRawPosition = item.getPosition();
@@ -1233,8 +1231,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			return position.left > pos.left && position.left < (pos.left + size.width) &&
 			       position.top > pos.top && position.top < (pos.top + size.height);
 		});
-
-		return this._items.get(matchedItemId);
 	}
 
 	private _createPlaceholder(item: NgGridItem): void {
