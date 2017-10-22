@@ -82,6 +82,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _elementBasedDynamicRowHeight: boolean = false;
 	private _itemFixDirection: NgConfigFixDirection = "cascade";
 	private _collisionFixDirection: NgConfigFixDirection = "cascade";
+	private _cascadePromise: Promise<void>;
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: NgGridConfig = {
@@ -118,6 +119,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		if (this._differ == null && v != null) {
 			this._differ = this._differs.find(this._config).create(null);
 		}
+
+		this._differ.diff(this._config);
 	}
 
 	//	Constructor
@@ -382,10 +385,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 		this._updateSize();
 
-		ngItem.recalculateSelf();
-		ngItem.onCascadeEvent();
+		this.triggerCascade().then(() => {
+			ngItem.recalculateSelf();
+			ngItem.onCascadeEvent();
 
-		this._emitOnItemChange();
+			this._emitOnItemChange();
+		});
+
 	}
 
 	public removeItem(ngItem: NgGridItem): void {
@@ -395,22 +401,35 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 		if (this._destroyed) return;
 
-		this._cascadeGrid();
-		this._updateSize();
-		this._items.forEach((item: NgGridItem) => item.recalculateSelf());
-		this._emitOnItemChange();
+		this.triggerCascade().then(() => {
+			this._updateSize();
+			this._items.forEach((item: NgGridItem) => item.recalculateSelf());
+			this._emitOnItemChange();
+		});
 	}
 
 	public updateItem(ngItem: NgGridItem): void {
 		this._removeFromGrid(ngItem);
 		this._addToGrid(ngItem);
-		this._cascadeGrid();
-		this._updateSize();
-		ngItem.onCascadeEvent();
+
+		this.triggerCascade().then(() => {
+			this._updateSize();
+			ngItem.onCascadeEvent();
+		});
 	}
 
-	public triggerCascade(): void {
-		this._cascadeGrid(null, null);
+	public triggerCascade(): Promise<void> {
+		if (!this._cascadePromise) {
+			this._cascadePromise = new Promise((resolve: Function) => {
+				setTimeout(() => {
+					this._cascadePromise = null;
+					this._cascadeGrid(null, null);
+					resolve();
+				}, 0);
+			});
+		}
+
+		return this._cascadePromise;
 	}
 
 	public triggerResize(): void {
@@ -1046,14 +1065,20 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				const collisions: NgGridItem[] = this._getCollisions(pos, dims);
 				
 				if (this._itemFixDirection === "vertical") {
-					pos.row = Math.max.apply(null, collisions.map((collision: NgGridItem) => collision.row + collision.sizey));
-					
+					pos = {
+						col: pos.col,
+						row: Math.max.apply(null, collisions.map((collision: NgGridItem) => collision.row + collision.sizey)),
+					};
+
 					if (!this._isWithinBoundsY(pos, dims)) {
 						pos.col = Math.max.apply(null, collisions.map((collision: NgGridItem) => collision.col + collision.sizex));
 						pos.row = 1;
 					}
 				} else if (this._itemFixDirection === "horizontal") {
-					pos.col = Math.max.apply(null, collisions.map((collision: NgGridItem) => collision.col + collision.sizex));
+					pos = {
+						col: Math.max.apply(null, collisions.map((collision: NgGridItem) => collision.col + collision.sizex)),
+						row: pos.row,
+					};
 					
 					if (!this._isWithinBoundsX(pos, dims)) {
 						pos.col = 1;
