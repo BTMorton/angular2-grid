@@ -1219,8 +1219,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			const size: NgGridItemDimensions = item.getDimensions();
 			const pos: NgGridRawPosition = item.getPosition();
 
-			if (position.left > pos.left && position.left < (pos.left + size.width) &&
-				position.top > pos.top && position.top < (pos.top + size.height)) {
+			if (position.left > pos.left && position.left <= (pos.left + size.width) &&
+				position.top > pos.top && position.top <= (pos.top + size.height)) {
 				return item;
 			}
 		}
