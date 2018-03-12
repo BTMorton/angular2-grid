@@ -221,11 +221,24 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return 'both';
+			return 'bottomright';
+        } else if (mousePos.left > 1 && mousePos.left < this._borderSize && mousePos.top < this._elemHeight
+            && mousePos.top > this._elemHeight - this._borderSize) {
+			return 'bottomleft';
+        } else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+            && mousePos.top > 1 && mousePos.top < this._borderSize) {
+			return 'topright';
+        } else if (mousePos.left > 1 && mousePos.left < this._borderSize && mousePos.top > 1
+            && mousePos.top < this._borderSize) {
+			return 'topleft';
 		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
-			return 'width';
+			return 'right';
+        } else if (mousePos.left > 1 && mousePos.left < this._borderSize) {
+			return 'left';
 		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return 'height';
+			return 'bottom';
+        } else if (mousePos.top > 1 && mousePos.top < this._borderSize) {
+			return 'top';
 		}
 
 		return null;
@@ -239,9 +252,22 @@ export class NgGridItem implements OnInit, OnDestroy {
 				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'nwse-resize');
+                } else if (mousePos.left > 1 && mousePos.left < this._borderSize && mousePos.top < this._elemHeight
+                    && mousePos.top > this._elemHeight - this._borderSize) {
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'nwse-resize');
+                } else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+                    && mousePos.top > 1 && mousePos.top < this._borderSize) {
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'nwse-resize');
+                } else if (mousePos.left > 1 && mousePos.left < this._borderSize && mousePos.top > 1
+                    && mousePos.top < this._borderSize) {
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'nwse-resize');
 				} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ew-resize');
+                } else if (mousePos.left > 1 && mousePos.left < this._borderSize) {
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ew-resize');
 				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
+					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ns-resize');
+                } else if (mousePos.top > 1 && mousePos.top < this._borderSize) {
 					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ns-resize');
 				} else if (this._ngGrid.dragEnable && this.canDrag(e)) {
 					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'move');
