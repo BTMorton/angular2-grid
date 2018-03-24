@@ -715,11 +715,29 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				(<any>document).selection.empty();
 			}
 
-			var mousePos = this._getMousePosition(e);
-			var itemPos = this._resizingItem.getPosition();
-			var itemDims = this._resizingItem.getDimensions();
-			var newW = this._resizeDirection == 'height' ? itemDims.width : (mousePos.left - itemPos.left + 10);
-			var newH = this._resizeDirection == 'width' ? itemDims.height : (mousePos.top - itemPos.top + 10);
+			const mousePos = this._getMousePosition(e);
+			const itemPos = this._resizingItem.getPosition();
+			const itemDims = this._resizingItem.getDimensions();
+			const endCorner = {
+				left: itemPos.left + itemDims.width,
+				top: itemPos.top + itemDims.height,
+			}
+
+			const resizeTop = this._resizeDirection.includes('top');
+			const resizeBottom = this._resizeDirection.includes('bottom');
+			const resizeLeft = this._resizeDirection.includes('left')
+			const resizeRight = this._resizeDirection.includes('right');
+
+			let newW = resizeRight
+				? (mousePos.left - itemPos.left + 10)
+				: resizeLeft
+					? (endCorner.left - mousePos.left + 10)
+					: itemDims.width;
+			let newH = resizeBottom
+				? (mousePos.top - itemPos.top + 10)
+				: resizeTop
+					? (endCorner.top - mousePos.top + 10)
+					: itemDims.height;
 
 			if (newW < this.minWidth)
 				newW = this.minWidth;
@@ -730,19 +748,39 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			if (newH < this._resizingItem.minHeight)
 				newH = this._resizingItem.minHeight;
 
-			var calcSize = this._calculateGridSize(newW, newH);
-			var itemSize = this._resizingItem.getSize();
-			var iGridPos = this._resizingItem.getGridPosition();
+			let newX = itemPos.left;
+			let newY = itemPos.top;
 
-			if (!this._isWithinBoundsX(iGridPos, calcSize))
-				calcSize = this._fixSizeToBoundsX(iGridPos, calcSize);
+			if (resizeLeft)
+				newX = endCorner.left - newW;
+			if (resizeTop)
+				newY = endCorner.top - newH;
 
-			if (!this._isWithinBoundsY(iGridPos, calcSize))
-				calcSize = this._fixSizeToBoundsY(iGridPos, calcSize);
+			let calcSize = this._calculateGridSize(newW, newH);
+			const itemSize = this._resizingItem.getSize();
+			const iGridPos = this._resizingItem.getGridPosition();
+			const otherCorner = {
+				col: iGridPos.col + itemSize.x,
+				row: iGridPos.row + itemSize.y,
+			};
+			const targetPos: NgGridItemPosition = Object.assign({}, iGridPos);
+
+			if (this._resizeDirection.includes("top"))
+				targetPos.row = otherCorner.row - calcSize.y;
+			if (this._resizeDirection.includes("left"))
+				targetPos.col = otherCorner.col - calcSize.x;
+
+			if (!this._isWithinBoundsX(targetPos, calcSize))
+				calcSize = this._fixSizeToBoundsX(targetPos, calcSize);
+
+			if (!this._isWithinBoundsY(targetPos, calcSize))
+				calcSize = this._fixSizeToBoundsY(targetPos, calcSize);
 
 			calcSize = this._resizingItem.fixResize(calcSize);
 
 			if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
+				this._resizingItem.setGridPosition(targetPos, this._fixToGrid);
+				this._placeholderRef.instance.setGridPosition(targetPos);
 				this._resizingItem.setSize(calcSize, this._fixToGrid);
 				this._placeholderRef.instance.setSize(calcSize);
 
@@ -752,13 +790,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				}
 			}
 
-			if (!this._fixToGrid)
+			if (!this._fixToGrid) {
 				this._resizingItem.setDimensions(newW, newH);
-
-			var bigGrid = this._maxGridSize(itemPos.left + newW + (2 * e.movementX), itemPos.top + newH + (2 * e.movementY));
-
-			if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
-			if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
+				this._resizingItem.setPosition(newX, newY);
+			}
 
 			this.onResize.emit(this._resizingItem);
 			this._resizingItem.onResizeEvent();
@@ -813,12 +848,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 			this._emitOnItemChange();
 		}
-	}
-
-	private _maxGridSize(w: number, h: number): NgGridItemSize {
-		var sizex = Math.ceil(w / (this.colWidth + this.marginLeft + this.marginRight));
-		var sizey = Math.ceil(h / (this.rowHeight + this.marginTop + this.marginBottom));
-		return { 'x': sizex, 'y': sizey };
 	}
 
 	private _calculateGridSize(width: number, height: number): NgGridItemSize {
@@ -1292,8 +1321,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			const size: NgGridItemDimensions = item.getDimensions();
 			const pos: NgGridRawPosition = item.getPosition();
 
-			return position.left > pos.left && position.left < (pos.left + size.width) &&
-			       position.top > pos.top && position.top < (pos.top + size.height);
+			return position.left >= pos.left && position.left <= (pos.left + size.width) &&
+			       position.top >= pos.top && position.top <= (pos.top + size.height);
 		});
 	}
 

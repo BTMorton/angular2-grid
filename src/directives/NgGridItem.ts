@@ -1,5 +1,5 @@
 import { NgGrid } from './NgGrid';
-import { NgGridItemConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions } from '../interfaces/INgGrid';
+import { NgGridItemConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions, ResizeHandle } from '../interfaces/INgGrid';
 import { Component, Directive, ElementRef, Renderer, EventEmitter, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
 
 @Directive({
@@ -51,7 +51,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	private _size: NgGridItemSize = { x: 1, y: 1 };
 	private _config = NgGridItem.CONST_DEFAULT_CONFIG;
 	private _dragHandle: string;
-	private _resizeHandle: string;
+	private _resizeHandle: ResizeHandle;
 	private _borderSize: number;
 	private _elemWidth: number;
 	private _elemHeight: number;
@@ -214,7 +214,22 @@ export class NgGridItem implements OnInit, OnDestroy {
 		if (!this.isResizable) return null;
 
 		if (this._resizeHandle) {
-			return this.findHandle(this._resizeHandle, e.target) ? 'both' : null;
+			if (typeof this._resizeHandle === "string") {
+				return this.findHandle(this._resizeHandle, e.target) ? 'bottomright' : null;
+			}
+
+			if (typeof this._resizeHandle !== "object") return null;
+
+			const resizeDirections = [ 'bottomright', 'bottomleft', 'topright', 'topleft', 'right', 'left', 'bottom', 'top' ];
+			for (let direction of resizeDirections) {
+				if (direction in this._resizeHandle) {
+					if (this.findHandle(this._resizeHandle[direction], e.target)) {
+						return direction;
+					}
+				}
+			}
+
+			return null;
 		}
 
 		if (this._borderSize <= 0) return null;
@@ -223,11 +238,24 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return 'both';
+			return 'bottomright';
+		} else if (mousePos.left > 1 && mousePos.left < this._borderSize && mousePos.top < this._elemHeight
+			&& mousePos.top > this._elemHeight - this._borderSize) {
+			return 'bottomleft';
+		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+			&& mousePos.top > 1 && mousePos.top < this._borderSize) {
+			return 'topright';
+		} else if (mousePos.left > 1 && mousePos.left < this._borderSize && mousePos.top > 1
+			&& mousePos.top < this._borderSize) {
+			return 'topleft';
 		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
-			return 'width';
+			return 'right';
+		} else if (mousePos.left > 1 && mousePos.left < this._borderSize) {
+			return 'left';
 		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return 'height';
+			return 'bottom';
+		} else if (mousePos.top > 1 && mousePos.top < this._borderSize) {
+			return 'top';
 		}
 
 		return null;
@@ -235,23 +263,35 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 	public onMouseMove(e: any): void {
 		if (this._ngGrid.autoStyle) {
-			if (this._ngGrid.resizeEnable && !this._resizeHandle && this.isResizable) {
-				const mousePos: NgGridRawPosition = this._getMousePosition(e);
+			if (this._ngGrid.resizeEnable) {
+				const resizeDirection = this.canResize(e);
 
-				if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
-					&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'nwse-resize');
-				} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
-					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ew-resize');
-				} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'ns-resize');
-				} else if (this._ngGrid.dragEnable && this.canDrag(e)) {
-					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'move');
-				} else {
-					this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'default');
+				let cursor: string = "default";
+				switch (resizeDirection) {
+					case "bottomright":
+					case "topleft":
+						cursor = "nwse-resize";
+						break;
+					case "topright":
+					case "bottomleft":
+						cursor = "nesw-resize";
+						break;
+					case "top":
+					case "bottom":
+						cursor = "ns-resize";
+						break;
+					case "left":
+					case "right":
+						cursor = "ew-resize";
+						break;
+					default:
+						if (this._ngGrid.dragEnable && this.canDrag(e)) {
+							cursor = 'move';
+						}
+						break;
 				}
-			} else if (this._ngGrid.resizeEnable && this.canResize(e)) {
-				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'nwse-resize');
+
+				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', cursor);
 			} else if (this._ngGrid.dragEnable && this.canDrag(e)) {
 				this._renderer.setElementStyle(this._ngEl.nativeElement, 'cursor', 'move');
 			} else {
@@ -273,7 +313,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		return this._dragHandle;
 	}
 
-	public getResizeHandle(): string {
+	public getResizeHandle(): ResizeHandle {
 		return this._resizeHandle;
 	}
 
