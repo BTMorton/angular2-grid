@@ -7,7 +7,8 @@
     "bundling": "rollup -c",
     "minify": "uglifyjs dist/bundles/NgGrid.umd.js --screw-ie8 --compress --mangle --comments --output dist/bundles/NgGrid.umd.min.js",
     "copy": "copyfiles -f LICENSE README.md src/*.css dist",
-    "build": "npm run cleanup && ngc && npm run bundling && npm run minify && npm run copy"
+    "build": "ngc && npm run bundling && npm run minify",
+    "package": "npm run cleanup && ngc && npm run bundling && npm run minify && npm run copy"
   },
   "repository": {
     "type": "git",
