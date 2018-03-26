@@ -2,21 +2,14 @@ import { Component, Directive, ElementRef, Renderer, EventEmitter, ComponentFact
 import { NgGridConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions } from '../interfaces/INgGrid';
 import { NgGridItem } from './NgGridItem';
 import { NgGridPlaceholder } from '../components/NgGridPlaceholder';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+
+import 'rxjs/add/observable/fromEvent';
 
 @Directive({
 	selector: '[ngGrid]',
-	inputs: ['config: ngGrid'],
-	host: {
-		'(mousedown)': 'mouseDownEventHandler($event)',
-		'(mousemove)': 'mouseMoveEventHandler($event)',
-		'(mouseup)': 'mouseUpEventHandler($event)',
-		'(touchstart)': 'mouseDownEventHandler($event)',
-		'(touchmove)': 'mouseMoveEventHandler($event)',
-		'(touchend)': 'mouseUpEventHandler($event)',
-		'(window:resize)': 'resizeEventHandler($event)',
-		'(document:mousemove)': 'mouseMoveEventHandler($event)',
-		'(document:mouseup)': 'mouseUpEventHandler($event)'
-	},
+	inputs: ['config: ngGrid']
 })
 export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	//	Event Emitters
@@ -79,6 +72,20 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _dragReady: boolean = false;
 	private _resizeReady: boolean = false;
 	private _elementBasedDynamicRowHeight: boolean = false;
+	
+	// Events
+	private _documentMousemove$: Observable<MouseEvent>;
+	private _documentMouseup$: Observable<MouseEvent>;
+	private _mousedown$: Observable<MouseEvent>;
+	private _mousemove$: Observable<MouseEvent>;
+	private _mouseup$: Observable<MouseEvent>;
+	private _touchstart$: Observable<TouchEvent>;
+	private _touchmove$: Observable<TouchEvent>;
+	private _touchend$: Observable<TouchEvent>;
+	private _resize$: Observable<any>;
+	private _subscriptions: Subscription[] = [];
+
+	private _enabledListener: boolean = false;
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: NgGridConfig = {
@@ -120,10 +127,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				private _ngEl: ElementRef,
 				private _renderer: Renderer,
 				private componentFactoryResolver: ComponentFactoryResolver,
-				private _containerRef: ViewContainerRef) {}
+				private _containerRef: ViewContainerRef) {
+
+					this._defineListeners();
+				}
 
 	//	Public methods
 	public ngOnInit(): void {
+		this._enableResizeListeners();
+
 		this._renderer.setElementClass(this._ngEl.nativeElement, 'grid', true);
 		if (this.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'position', 'relative');
 		this.setConfig(this._config);
@@ -131,6 +143,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	public ngOnDestroy(): void {
 		this._destroyed = true;
+		this._disableListeners();
 	}
 
 	public setConfig(config: NgGridConfig): void {
@@ -217,6 +230,12 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					this._elementBasedDynamicRowHeight = !!val;
 					break;
 			}
+		}
+		
+		if (this.dragEnable || this.resizeEnable) {
+			this._enableListeners();
+		} else {
+			this._disableListeners();
 		}
 
 		if (this._limitToScreen) {
@@ -420,7 +439,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._updateSize();
 	}
 
-	public mouseDownEventHandler(e: MouseEvent): void {
+	public mouseDownEventHandler(e: MouseEvent | TouchEvent): void {
 		var mousePos = this._getMousePosition(e);
 		var item = this._getItemFromPosition(mousePos);
 
@@ -435,7 +454,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		}
 	}
 
-	public mouseUpEventHandler(e: any): void {
+	public mouseUpEventHandler(e: MouseEvent | TouchEvent): void {
 		if (this.isDragging) {
 			this._dragStop(e);
 		} else if (this.isResizing) {
@@ -446,7 +465,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		}
 	}
 
-	public mouseMoveEventHandler(e: any): void {
+	public mouseMoveEventHandler(e: MouseEvent | TouchEvent): void {
 		if (this._resizeReady) {
 			this._resizeStart(e);
 			e.preventDefault();
@@ -1244,5 +1263,77 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _emitOnItemChange() {
 		this.onItemChange.emit(this._items.map((item: NgGridItem) => item.getEventOutput()));
+	}
+
+	private _defineListeners(): void {
+		const element = this._ngEl.nativeElement;
+		const eventOptions = { passive: true };
+
+		this._documentMousemove$ = Observable.fromEvent(document, 'mousemove', eventOptions);
+		this._documentMouseup$ = Observable.fromEvent(document, 'mouseup', eventOptions);
+		this._mousedown$ = Observable.fromEvent(element, 'mousedown', eventOptions);
+		this._mousemove$ = Observable.fromEvent(element, 'mousemove', eventOptions);
+		this._mouseup$ = Observable.fromEvent(element, 'mouseup', eventOptions);
+		this._touchstart$ = Observable.fromEvent(element, 'touchstart', eventOptions);
+		this._touchmove$ = Observable.fromEvent(element, 'touchmove', eventOptions);
+		this._touchend$ = Observable.fromEvent(element, 'touchend', eventOptions);
+		this._resize$ = Observable.fromEvent(window, 'resize');
+	}
+	
+	private _enableListeners(): void {
+		if (this._enabledListener) {
+			return;
+		}
+
+		this._enableMouseListeners();
+
+		if (this._isTouchDevice()) {
+			this._enableTouchListeners();
+		}
+ 
+		this._enabledListener = true;
+	}
+
+	private _disableListeners(): void {
+		this._subscriptions.forEach((subs: Subscription) => subs.unsubscribe());
+		this._enabledListener = false;
+	}
+
+	private _isTouchDevice(): boolean {
+		return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+	};
+	
+	private _enableTouchListeners(): void {
+		const touchstartSubs = this._touchstart$.subscribe((e: TouchEvent) => this.mouseDownEventHandler(e));
+		const touchmoveSubs = this._touchmove$.subscribe((e: TouchEvent) => this.mouseMoveEventHandler(e));
+		const touchendSubs = this._touchend$.subscribe((e: TouchEvent) => this.mouseUpEventHandler(e));
+
+		this._subscriptions.push(
+			touchstartSubs,
+			touchmoveSubs,
+			touchendSubs
+		);
+	}
+
+	private _enableMouseListeners(): void {
+		const documentMousemoveSubs = this._documentMousemove$.subscribe((e: MouseEvent) => this.mouseMoveEventHandler(e));
+		const documentMouseupSubs = this._documentMouseup$.subscribe((e: MouseEvent) => this.mouseUpEventHandler(e));
+		const mousedownSubs = this._mousedown$.subscribe((e: MouseEvent) => this.mouseDownEventHandler(e));
+		const mousemoveSubs = this._mousemove$.subscribe((e: MouseEvent) => this.mouseMoveEventHandler(e));
+		const mouseupSubs = this._mouseup$.subscribe((e: MouseEvent) => this.mouseUpEventHandler(e));
+
+		this._subscriptions.push(
+			documentMousemoveSubs,
+			documentMouseupSubs,
+			mousedownSubs,
+			mousemoveSubs,
+			mouseupSubs
+		);
+	}
+
+	private _enableResizeListeners(): void {
+		const resizeSubs = this._resize$.subscribe((e: MouseEvent) => this.resizeEventHandler(e));
+
+		this._subscriptions.push(resizeSubs);
 	}
 }
