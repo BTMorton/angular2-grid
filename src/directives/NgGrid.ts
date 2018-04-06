@@ -9,7 +9,10 @@ import 'rxjs/add/observable/fromEvent';
 
 @Directive({
 	selector: '[ngGrid]',
-	inputs: ['config: ngGrid']
+	inputs: ['config: ngGrid'],
+	host: {
+		'(window:resize)': 'resizeEventHandler($event)',
+	}
 })
 export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	//	Event Emitters
@@ -82,7 +85,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _touchstart$: Observable<TouchEvent>;
 	private _touchmove$: Observable<TouchEvent>;
 	private _touchend$: Observable<TouchEvent>;
-	private _resize$: Observable<any>;
 	private _subscriptions: Subscription[] = [];
 
 	private _enabledListener: boolean = false;
@@ -134,8 +136,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	//	Public methods
 	public ngOnInit(): void {
-		this._enableResizeListeners();
-
 		this._renderer.setElementClass(this._ngEl.nativeElement, 'grid', true);
 		if (this.autoStyle) this._renderer.setElementStyle(this._ngEl.nativeElement, 'position', 'relative');
 		this.setConfig(this._config);
@@ -1277,7 +1277,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._touchstart$ = Observable.fromEvent(element, 'touchstart', eventOptions);
 		this._touchmove$ = Observable.fromEvent(element, 'touchmove', eventOptions);
 		this._touchend$ = Observable.fromEvent(element, 'touchend', eventOptions);
-		this._resize$ = Observable.fromEvent(window, 'resize');
 	}
 	
 	private _enableListeners(): void {
@@ -1329,11 +1328,5 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			mousemoveSubs,
 			mouseupSubs
 		);
-	}
-
-	private _enableResizeListeners(): void {
-		const resizeSubs = this._resize$.subscribe((e: MouseEvent) => this.resizeEventHandler(e));
-
-		this._subscriptions.push(resizeSubs);
 	}
 }
