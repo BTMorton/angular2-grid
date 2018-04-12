@@ -1267,16 +1267,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _defineListeners(): void {
 		const element = this._ngEl.nativeElement;
-		const eventOptions = { passive: true };
 
-		this._documentMousemove$ = Observable.fromEvent(document, 'mousemove', eventOptions);
-		this._documentMouseup$ = Observable.fromEvent(document, 'mouseup', eventOptions);
-		this._mousedown$ = Observable.fromEvent(element, 'mousedown', eventOptions);
-		this._mousemove$ = Observable.fromEvent(element, 'mousemove', eventOptions);
-		this._mouseup$ = Observable.fromEvent(element, 'mouseup', eventOptions);
-		this._touchstart$ = Observable.fromEvent(element, 'touchstart', eventOptions);
-		this._touchmove$ = Observable.fromEvent(element, 'touchmove', eventOptions);
-		this._touchend$ = Observable.fromEvent(element, 'touchend', eventOptions);
+		this._documentMousemove$ = Observable.fromEvent(document, 'mousemove');
+		this._documentMouseup$ = Observable.fromEvent(document, 'mouseup');
+		this._mousedown$ = Observable.fromEvent(element, 'mousedown');
+		this._mousemove$ = Observable.fromEvent(element, 'mousemove');
+		this._mouseup$ = Observable.fromEvent(element, 'mouseup');
+		this._touchstart$ = Observable.fromEvent(element, 'touchstart');
+		this._touchmove$ = Observable.fromEvent(element, 'touchmove');
+		this._touchend$ = Observable.fromEvent(element, 'touchend');
 	}
 	
 	private _enableListeners(): void {
