@@ -781,16 +781,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			let calcSize = this._calculateGridSize(newW, newH);
 			const itemSize = this._resizingItem.getSize();
 			const iGridPos = this._resizingItem.getGridPosition();
-			const otherCorner = {
+			const bottomRightCorner = {
 				col: iGridPos.col + itemSize.x,
 				row: iGridPos.row + itemSize.y,
 			};
 			const targetPos: NgGridItemPosition = Object.assign({}, iGridPos);
 
 			if (this._resizeDirection.includes("top"))
-				targetPos.row = otherCorner.row - calcSize.y;
+				targetPos.row = bottomRightCorner.row - calcSize.y;
 			if (this._resizeDirection.includes("left"))
-				targetPos.col = otherCorner.col - calcSize.x;
+				targetPos.col = bottomRightCorner.col - calcSize.x;
 
 			if (!this._isWithinBoundsX(targetPos, calcSize))
 				calcSize = this._fixSizeToBoundsX(targetPos, calcSize);
@@ -807,8 +807,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				this._placeholderRef.instance.setSize(calcSize);
 
 				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(iGridPos, calcSize);
-					this._cascadeGrid(iGridPos, calcSize);
+					this._fixGridCollisions(targetPos, calcSize);
+					this._cascadeGrid(targetPos, calcSize);
 				}
 			}
 
@@ -983,7 +983,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _cascadeGrid(pos?: NgGridItemPosition, dims?: NgGridItemSize): void {
 		if (this._destroyed) return;
-		if (pos && !dims) throw new Error('Cannot cascade with only position and not dimensions');
+		if (!pos !== !dims) throw new Error('Cannot cascade with only position and not dimensions');
 
 		if (this.isDragging && this._draggingItem && !pos && !dims) {
 			pos = this._draggingItem.getGridPosition();
