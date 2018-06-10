@@ -82,6 +82,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _elementBasedDynamicRowHeight: boolean = false;
 	private _itemFixDirection: NgConfigFixDirection = "cascade";
 	private _collisionFixDirection: NgConfigFixDirection = "cascade";
+	private _cascadePromise: Promise<void>;
 
 	//	Default config
 	private static CONST_DEFAULT_CONFIG: NgGridConfig = {
@@ -118,6 +119,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		if (this._differ == null && v != null) {
 			this._differ = this._differs.find(this._config).create(null);
 		}
+
+		this._differ.diff(this._config);
 	}
 
 	//	Constructor
@@ -382,10 +385,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 		this._updateSize();
 
-		ngItem.recalculateSelf();
-		ngItem.onCascadeEvent();
+		this.triggerCascade().then(() => {
+			ngItem.recalculateSelf();
+			ngItem.onCascadeEvent();
 
-		this._emitOnItemChange();
+			this._emitOnItemChange();
+		});
+
 	}
 
 	public removeItem(ngItem: NgGridItem): void {
@@ -395,22 +401,35 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 		if (this._destroyed) return;
 
-		this._cascadeGrid();
-		this._updateSize();
-		this._items.forEach((item: NgGridItem) => item.recalculateSelf());
-		this._emitOnItemChange();
+		this.triggerCascade().then(() => {
+			this._updateSize();
+			this._items.forEach((item: NgGridItem) => item.recalculateSelf());
+			this._emitOnItemChange();
+		});
 	}
 
 	public updateItem(ngItem: NgGridItem): void {
 		this._removeFromGrid(ngItem);
 		this._addToGrid(ngItem);
-		this._cascadeGrid();
-		this._updateSize();
-		ngItem.onCascadeEvent();
+
+		this.triggerCascade().then(() => {
+			this._updateSize();
+			ngItem.onCascadeEvent();
+		});
 	}
 
-	public triggerCascade(): void {
-		this._cascadeGrid(null, null);
+	public triggerCascade(): Promise<void> {
+		if (!this._cascadePromise) {
+			this._cascadePromise = new Promise((resolve: Function) => {
+				setTimeout(() => {
+					this._cascadePromise = null;
+					this._cascadeGrid(null, null);
+					resolve();
+				}, 0);
+			});
+		}
+
+		return this._cascadePromise;
 	}
 
 	public triggerResize(): void {
@@ -1084,15 +1103,20 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 		const maxRow = this._maxRows === 0 ? this._getMaxRow() : this._maxRows;
 		const maxCol = this._maxCols === 0 ? this._getMaxCol() : this._maxCols;
+		const newPos = {
+			col: pos.col,
+			row: pos.row,
+		};
+
 		if (this._itemFixDirection === "vertical") {
 			fixLoop:
-			for (; pos.col <= maxRow;) {
-				const itemsInPath = this._getItemsInVerticalPath(pos, dims, pos.row);
-				let nextRow = pos.row;
+			for (; newPos.col <= maxRow;) {
+				const itemsInPath = this._getItemsInVerticalPath(newPos, dims, newPos.row);
+				let nextRow = newPos.row;
 
 				for (let item of itemsInPath) {
 					if (item.row - nextRow >= dims.y) {
-						pos.row = nextRow;
+						newPos.row = nextRow;
 						break fixLoop;
 					}
 
@@ -1100,22 +1124,22 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				}
 
 				if (maxRow - nextRow >= dims.y) {
-					pos.row = nextRow;
+					newPos.row = nextRow;
 					break fixLoop;
 				}
 
-				pos.col = Math.max(pos.col + 1, Math.min.apply(Math, itemsInPath.map((item) => item.col + dims.x)));
-				pos.row = 1;
+				newPos.col = Math.max(newPos.col + 1, Math.min.apply(Math, itemsInPath.map((item) => item.col + dims.x)));
+				newPos.row = 1;
 			}
 		} else if (this._itemFixDirection === "horizontal") {
 			fixLoop:
-			for (; pos.row <= maxRow;) {
-				const itemsInPath = this._getItemsInHorizontalPath(pos, dims, pos.col);
-				let nextCol = pos.col;
+			for (; newPos.row <= maxRow;) {
+				const itemsInPath = this._getItemsInHorizontalPath(newPos, dims, newPos.col);
+				let nextCol = newPos.col;
 
 				for (let item of itemsInPath) {
 					if (item.col - nextCol >= dims.x) {
-						pos.col = nextCol;
+						newPos.col = nextCol;
 						break fixLoop;
 					}
 
@@ -1123,16 +1147,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				}
 
 				if (maxCol - nextCol >= dims.x) {
-					pos.col = nextCol;
+					newPos.col = nextCol;
 					break fixLoop;
 				}
 
-				pos.row = Math.max(pos.row + 1, Math.min.apply(Math, itemsInPath.map((item) => item.row + dims.y)));
-				pos.col = 1;
+				newPos.row = Math.max(newPos.row + 1, Math.min.apply(Math, itemsInPath.map((item) => item.row + dims.y)));
+				newPos.col = 1;
 			}
 		}
 
-		return pos;
+		return newPos;
 	}
 
 	private _getItemsInHorizontalPath(pos: NgGridItemPosition, dims: NgGridItemSize, startColumn: number = 0): NgGridItem[] {

@@ -50,6 +50,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	private _currentPosition: NgGridItemPosition = { col: 1, row: 1 };
 	private _size: NgGridItemSize = { x: 1, y: 1 };
 	private _config = NgGridItem.CONST_DEFAULT_CONFIG;
+	private _userConfig = null;
 	private _dragHandle: string;
 	private _resizeHandle: ResizeHandle;
 	private _borderSize: number;
@@ -68,16 +69,20 @@ export class NgGridItem implements OnInit, OnDestroy {
 	//	[ng-grid-item] handler
 	set config(v: NgGridItemConfig) {
 		const defaults = NgGridItem.CONST_DEFAULT_CONFIG;
+		this._userConfig = v;
 
+		const configObject = Object.assign({}, v);
 		for (let x in defaults)
-			if (v[x] == null)
-				v[x] = defaults[x];
+			if (configObject[x] == null)
+				configObject[x] = defaults[x];
 
-		this.setConfig(v);
+		this.setConfig(configObject);
 
-		if (this._differ == null && v != null) {
-			this._differ = this._differs.find(this._config).create(null);
+		if (this._differ == null && configObject != null) {
+			this._differ = this._differs.find(this._userConfig).create(null);
 		}
+
+		this._differ.diff(this._userConfig);
 
 		if (!this._added) {
 			this._added = true;
@@ -171,7 +176,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this._recalculateDimensions();
 		this._recalculatePosition();
 
-		if (!this._added) {
+		if (!this._added && this._userConfig != null) {
 			this._added = true;
 			this._ngGrid.addItem(this);
 		}
@@ -364,12 +369,10 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 	public ngDoCheck(): boolean {
 		if (this._differ != null) {
-			const changes: any = this._differ.diff(this._config);
+			const changes: any = this._differ.diff(this._userConfig);
 
 			if (changes != null) {
-				this._applyChanges(changes);
-
-				return true;
+				return this._applyChanges(changes);
 			}
 		}
 
@@ -552,19 +555,33 @@ export class NgGridItem implements OnInit, OnDestroy {
 		};
 	}
 
-	private _applyChanges(changes: any): void {
-		changes.forEachAddedItem((record: any) => { this._config[record.key] = record.currentValue; });
-		changes.forEachChangedItem((record: any) => { this._config[record.key] = record.currentValue; });
-		changes.forEachRemovedItem((record: any) => { delete this._config[record.key]; });
+	private _applyChanges(changes: any): boolean {
+		let changed: boolean = false;
+		const changeCheck = (record: any) => {
+			if (this._config[record.key] !== record.currentValue) {
+				this._config[record.key] = record.currentValue;
+				changed = true;
+			}
+		};
+		changes.forEachAddedItem(changeCheck);
+		changes.forEachChangedItem(changeCheck);
+		changes.forEachRemovedItem((record: any) => {
+			changed = true;
+			delete this._config[record.key];
+		});
 
-		this.setConfig(this._config);
+		if (changed) {
+			this.setConfig(this._config);
+		}
+
+		return changed;
 	}
 
 	private onConfigChangeEvent() {
-		this._config.sizex = this._size.x;
-		this._config.sizey = this._size.y;
-		this._config.col = this._currentPosition.col;
-		this._config.row = this._currentPosition.row;
-		this.ngGridItemChange.emit(this._config);
+		this._config.sizex = this._userConfig.sizex = this._size.x;
+		this._config.sizey = this._userConfig.sizey = this._size.y;
+		this._config.col = this._userConfig.col = this._currentPosition.col;
+		this._config.row = this._userConfig.row = this._currentPosition.row;
+		this.ngGridItemChange.emit(this._userConfig);
 	}
 }
