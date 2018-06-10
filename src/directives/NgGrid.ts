@@ -1,7 +1,7 @@
 import { Component, Directive, ElementRef, Renderer, EventEmitter, ComponentFactoryResolver, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
 import { NgGridConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions, NgConfigFixDirection } from '../interfaces/INgGrid';
 import { NgGridItem } from './NgGridItem';
-import { NgGridHelper } from "../helpers/NgGridHelper";
+import * as NgGridHelper from "../helpers/NgGridHelpers";
 import { NgGridPlaceholder } from '../components/NgGridPlaceholder';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -63,7 +63,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _placeholderRef: ComponentRef<NgGridPlaceholder> = null;
 	private _fixToGrid: boolean = false;
 	private _autoResize: boolean = false;
-	private _differ: KeyValueDiffer;
+	private _differ: KeyValueDiffer<string, any>;
 	private _destroyed: boolean = false;
 	private _maintainRatio: boolean = false;
 	private _aspectRatio: number;
@@ -443,7 +443,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	public triggerCascade(): Promise<void> {
 		if (!this._cascadePromise) {
-			this._cascadePromise = new Promise((resolve: Function) => {
+			this._cascadePromise = new Promise<void>((resolve: () => void) => {
 				setTimeout(() => {
 					this._cascadePromise = null;
 					this._cascadeGrid(null, null);

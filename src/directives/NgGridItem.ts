@@ -1,12 +1,12 @@
 import { NgGrid } from './NgGrid';
 import { NgGridItemConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions, ResizeHandle } from '../interfaces/INgGrid';
-import { Component, Directive, ElementRef, Renderer, EventEmitter, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
+import { Directive, ElementRef, Renderer, EventEmitter, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, ViewContainerRef, Output, DoCheck } from '@angular/core';
 
 @Directive({
 	selector: '[ngGridItem]',
 	inputs: ['config: ngGridItem']
 })
-export class NgGridItem implements OnInit, OnDestroy {
+export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 	//	Event Emitters
 	@Output() public onItemChange: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>(false);
 	@Output() public onDragStart: EventEmitter<NgGridItemEvent> = new EventEmitter<NgGridItemEvent>();
@@ -59,7 +59,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 	private _elemLeft: number;
 	private _elemTop: number;
 	private _added: boolean = false;
-	private _differ: KeyValueDiffer;
+	private _differ: KeyValueDiffer<string, any>;
 	private _cascadeMode: string;
 	private _maxCols: number = 0;
 	private _minCols: number = 0;
@@ -119,7 +119,13 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	//	Constructor
-	constructor(private _differs: KeyValueDiffers, private _ngEl: ElementRef, private _renderer: Renderer, private _ngGrid: NgGrid, public containerRef: ViewContainerRef) { }
+	constructor(
+		private _differs: KeyValueDiffers,
+		private _ngEl: ElementRef,
+		private _renderer: Renderer,
+		private _ngGrid: NgGrid,
+		public containerRef: ViewContainerRef,
+	) { }
 
 	public onResizeStartEvent(): void {
 		const event: NgGridItemEvent = this.getEventOutput();
