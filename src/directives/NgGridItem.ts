@@ -94,7 +94,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 
 		if (this._userConfig != null) {
 			if (this._differ == null) {
-				this._differ = this._differs.find(this._userConfig).create(null);
+				this._differ = this._differs.find(this._userConfig).create();
 			}
 
 			this._differ.diff(this._userConfig);
