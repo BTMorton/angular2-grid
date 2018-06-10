@@ -1,6 +1,6 @@
-import { Directive, ElementRef, Renderer, EventEmitter, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, ViewContainerRef, Output, DoCheck } from "@angular/core";
-import { NgGridItemConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions, ResizeHandle } from "../interfaces/INgGrid";
-import { NgGrid } from "./NgGrid";
+import { NgGrid } from './NgGrid';
+import { NgGridItemConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions, ResizeHandle } from '../interfaces/INgGrid';
+import { Directive, ElementRef, Renderer, EventEmitter, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, ViewContainerRef, Output, DoCheck } from '@angular/core';
 
 @Directive({
 	inputs: ["config: ngGridItem"],
@@ -63,7 +63,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 	private _elemLeft: number;
 	private _elemTop: number;
 	private _added: boolean = false;
-	private _differ: KeyValueDiffer;
+	private _differ: KeyValueDiffer<string, any>;
 	private _cascadeMode: string;
 	private _maxCols: number = 0;
 	private _minCols: number = 0;

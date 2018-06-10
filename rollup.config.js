@@ -14,7 +14,7 @@ export default {
     'rxjs/add/observable/of': 'Rx.Observable'
   },
   external: [
-    "@angular/core",
+    '@angular/core',
     'rxjs/Observable',
     'rxjs/add/observable/fromEvent'
   ]
