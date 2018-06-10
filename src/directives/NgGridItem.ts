@@ -68,21 +68,22 @@ export class NgGridItem implements OnInit, OnDestroy {
 
 	//	[ng-grid-item] handler
 	set config(v: NgGridItemConfig) {
-		const defaults = NgGridItem.CONST_DEFAULT_CONFIG;
 		this._userConfig = v;
 
-		const configObject = Object.assign({}, v);
-		for (let x in defaults)
+		const configObject = Object.assign({}, NgGridItem.CONST_DEFAULT_CONFIG, v);
+		for (let x in NgGridItem.CONST_DEFAULT_CONFIG)
 			if (configObject[x] == null)
-				configObject[x] = defaults[x];
+				configObject[x] = NgGridItem.CONST_DEFAULT_CONFIG[x];
 
 		this.setConfig(configObject);
 
-		if (this._differ == null && configObject != null) {
-			this._differ = this._differs.find(this._userConfig).create(null);
-		}
+		if (this._userConfig != null) {
+			if (this._differ == null) {
+				this._differ = this._differs.find(this._userConfig).create(null);
+			}
 
-		this._differ.diff(this._userConfig);
+			this._differ.diff(this._userConfig);
+		}
 
 		if (!this._added) {
 			this._added = true;
@@ -176,10 +177,8 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this._recalculateDimensions();
 		this._recalculatePosition();
 
-		if (!this._added && this._userConfig != null) {
-			this._added = true;
-			this._ngGrid.addItem(this);
-		}
+		//	Force a config update in case there is no config assigned
+		this.config = this._userConfig;
 	}
 
 	//	Public methods
@@ -236,22 +235,21 @@ export class NgGridItem implements OnInit, OnDestroy {
 		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 			return 'bottomright';
-		} else if (mousePos.left > 1 && mousePos.left < this._borderSize && mousePos.top < this._elemHeight
+		} else if (mousePos.left < this._borderSize && mousePos.top < this._elemHeight
 			&& mousePos.top > this._elemHeight - this._borderSize) {
 			return 'bottomleft';
 		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
-			&& mousePos.top > 1 && mousePos.top < this._borderSize) {
-			return 'topright';
-		} else if (mousePos.left > 1 && mousePos.left < this._borderSize && mousePos.top > 1
 			&& mousePos.top < this._borderSize) {
+			return 'topright';
+		} else if (mousePos.left < this._borderSize && mousePos.top < this._borderSize) {
 			return 'topleft';
 		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
 			return 'right';
-		} else if (mousePos.left > 1 && mousePos.left < this._borderSize) {
+		} else if (mousePos.left < this._borderSize) {
 			return 'left';
 		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
 			return 'bottom';
-		} else if (mousePos.top > 1 && mousePos.top < this._borderSize) {
+		} else if (mousePos.top < this._borderSize) {
 			return 'top';
 		}
 
@@ -578,6 +576,8 @@ export class NgGridItem implements OnInit, OnDestroy {
 	}
 
 	private onConfigChangeEvent() {
+		if (this._userConfig === null) return;
+
 		this._config.sizex = this._userConfig.sizex = this._size.x;
 		this._config.sizey = this._userConfig.sizey = this._size.y;
 		this._config.col = this._userConfig.col = this._currentPosition.col;

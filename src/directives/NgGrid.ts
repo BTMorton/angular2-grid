@@ -114,6 +114,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	//	[ng-grid] attribute handler
 	set config(v: NgGridConfig) {
+		if (v == null || typeof v !== "object") {
+			return;
+		}
+
 		this.setConfig(v);
 
 		if (this._differ == null && v != null) {
@@ -470,14 +474,24 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		var mousePos = this._getMousePosition(e);
 		var item = this._getItemFromPosition(mousePos);
 
-		if (item != null) {
-			if (this.resizeEnable && item.canResize(e)) {
-				this._resizeReady = true;
-				e.preventDefault();
-			} else if (this.dragEnable && item.canDrag(e)) {
-				this._dragReady = true;
-				e.preventDefault();
-			}
+		if (item == null) return;
+
+		const resizeDirection: string = item.canResize(e);
+
+		if (this.resizeEnable && resizeDirection) {
+			this._resizeReady = true;
+			this._resizingItem = item;
+			this._resizeDirection = resizeDirection;
+
+			e.preventDefault();
+		} else if (this.dragEnable && item.canDrag(e)) {
+			this._dragReady = true;
+			this._draggingItem = item;
+
+			const itemPos = item.getPosition();
+			this._posOffset = { 'left': (mousePos.left - itemPos.left), 'top': (mousePos.top - itemPos.top) }
+
+			e.preventDefault();
 		}
 	}
 
@@ -487,8 +501,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		} else if (this.isResizing) {
 			this._resizeStop(e);
 		} else if (this._dragReady || this._resizeReady) {
-			this._dragReady = false;
-			this._resizeReady = false;
+			this._cleanDrag();
+			this._cleanResize();
 		}
 	}
 
@@ -510,7 +524,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		} else {
 			var mousePos = this._getMousePosition(e);
 			var item = this._getItemFromPosition(mousePos);
-
+			console.log(item);
 			if (item) {
 				item.onMouseMove(e);
 			}
@@ -523,10 +537,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			case "up":
 			case "down":
 			default:
-			return "vertical";
+				return "vertical";
 			case "left":
 			case "right":
-			return "horizontal";
+				return "horizontal";
 		}
 	}
 	private _updatePositionsAfterMaxChange(): void {
@@ -600,17 +614,17 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _updateRatio(): void {
-		if (this._autoResize && this._maintainRatio) {
-			if (this._maxCols > 0 && this._visibleRows <= 0) {
+		if (!this._autoResize || !this._maintainRatio) return;
+
+		if (this._maxCols > 0 && this._visibleRows <= 0) {
+			this.rowHeight = this.colWidth / this._aspectRatio;
+		} else if (this._maxRows > 0 && this._visibleCols <= 0) {
+			this.colWidth = this._aspectRatio * this.rowHeight;
+		} else if (this._maxCols == 0 && this._maxRows == 0) {
+			if (this._visibleCols > 0) {
 				this.rowHeight = this.colWidth / this._aspectRatio;
-			} else if (this._maxRows > 0 && this._visibleCols <= 0) {
+			} else if (this._visibleRows > 0) {
 				this.colWidth = this._aspectRatio * this.rowHeight;
-			} else if (this._maxCols == 0 && this._maxRows == 0) {
-				if (this._visibleCols > 0) {
-					this.rowHeight = this.colWidth / this._aspectRatio;
-				} else if (this._visibleRows > 0) {
-					this.colWidth = this._aspectRatio * this.rowHeight;
-				}
 			}
 		}
 	}
@@ -624,51 +638,41 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _resizeStart(e: any): void {
-		if (this.resizeEnable) {
-			var mousePos = this._getMousePosition(e);
-			var item = this._getItemFromPosition(mousePos);
+		if (!this.resizeEnable || !this._resizingItem) return;
 
-			if (item) {
-				const resizeDirection = item.canResize(e);
-				if (resizeDirection == null) { return; }
+		//	Setup
+		this._resizingItem.startMoving();
+		this._removeFromGrid(this._resizingItem);
+		this._createPlaceholder(this._resizingItem);
 
-				item.startMoving();
-				this._resizingItem = item;
-				this._resizeDirection = resizeDirection;
-				this._removeFromGrid(item);
-				this._createPlaceholder(item);
-				this.isResizing = true;
-				this._resizeReady = false;
-				this.onResizeStart.emit(item);
-				item.onResizeStartEvent();
-			}
-		}
+		//	Status Flags
+		this.isResizing = true;
+		this._resizeReady = false;
+
+		//	Events
+		this.onResizeStart.emit(this._resizingItem);
+		this._resizingItem.onResizeStartEvent();
 	}
 
 	private _dragStart(e: any): void {
-		if (this.dragEnable) {
-			var mousePos = this._getMousePosition(e);
-			var item = this._getItemFromPosition(mousePos);
+		if (!this.dragEnable || !this._draggingItem) return;
 
-			if (item) {
-				var itemPos = item.getPosition();
-				var pOffset = { 'left': (mousePos.left - itemPos.left), 'top': (mousePos.top - itemPos.top) }
+		//	Start dragging
+		this._draggingItem.startMoving();
+		this._removeFromGrid(this._draggingItem);
+		this._createPlaceholder(this._draggingItem);
 
-				item.startMoving();
-				this._draggingItem = item;
-				this._posOffset = pOffset;
-				this._removeFromGrid(item);
-				this._createPlaceholder(item);
-				this.isDragging = true;
-				this._dragReady = false;
+		//	Status Flags
+		this.isDragging = true;
+		this._dragReady = false;
 
-				this.onDragStart.emit(item);
-				item.onDragStartEvent();
+		//	Events
+		this.onDragStart.emit(this._draggingItem);
+		this._draggingItem.onDragStartEvent();
 
-				if (this._zoomOnDrag) {
-					this._zoomOut();
-				}
-			}
+		//	Zoom
+		if (this._zoomOnDrag) {
+			this._zoomOut();
 		}
 	}
 
@@ -681,199 +685,213 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _drag(e: any): void {
-		if (this.isDragging) {
-			if (window.getSelection) {
-				if (window.getSelection().empty) {
-					window.getSelection().empty();
-				} else if (window.getSelection().removeAllRanges) {
-					window.getSelection().removeAllRanges();
-				}
-			} else if ((<any>document).selection) {
-				(<any>document).selection.empty();
+		if (!this.isDragging) return;
+
+		if (window.getSelection) {
+			if (window.getSelection().empty) {
+				window.getSelection().empty();
+			} else if (window.getSelection().removeAllRanges) {
+				window.getSelection().removeAllRanges();
 			}
-
-			var mousePos = this._getMousePosition(e);
-			var newL = (mousePos.left - this._posOffset.left);
-			var newT = (mousePos.top - this._posOffset.top);
-
-			var itemPos = this._draggingItem.getGridPosition();
-			var gridPos = this._calculateGridPosition(newL, newT);
-			var dims = this._draggingItem.getSize();
-
-			gridPos = this._fixPosToBoundsX(gridPos, dims);
-
-			if (!this._isWithinBoundsY(gridPos, dims)) {
-				gridPos = this._fixPosToBoundsY(gridPos, dims);
-			}
-
-			if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
-				this._draggingItem.setGridPosition(gridPos, this._fixToGrid);
-				this._placeholderRef.instance.setGridPosition(gridPos);
-
-				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(gridPos, dims);
-					this._cascadeGrid(gridPos, dims);
-				}
-			}
-
-			if (!this._fixToGrid) {
-				this._draggingItem.setPosition(newL, newT);
-			}
-
-			this.onDrag.emit(this._draggingItem);
-			this._draggingItem.onDragEvent();
+		} else if ((<any>document).selection) {
+			(<any>document).selection.empty();
 		}
+
+		var mousePos = this._getMousePosition(e);
+		var newL = (mousePos.left - this._posOffset.left);
+		var newT = (mousePos.top - this._posOffset.top);
+
+		var itemPos = this._draggingItem.getGridPosition();
+		var gridPos = this._calculateGridPosition(newL, newT);
+		var dims = this._draggingItem.getSize();
+
+		gridPos = this._fixPosToBoundsX(gridPos, dims);
+
+		if (!this._isWithinBoundsY(gridPos, dims)) {
+			gridPos = this._fixPosToBoundsY(gridPos, dims);
+		}
+
+		if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
+			this._draggingItem.setGridPosition(gridPos, this._fixToGrid);
+			this._placeholderRef.instance.setGridPosition(gridPos);
+
+			if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
+				this._fixGridCollisions(gridPos, dims);
+				this._cascadeGrid(gridPos, dims);
+			}
+		}
+
+		if (!this._fixToGrid) {
+			this._draggingItem.setPosition(newL, newT);
+		}
+
+		this.onDrag.emit(this._draggingItem);
+		this._draggingItem.onDragEvent();
 	}
 
 	private _resize(e: any): void {
-		if (this.isResizing) {
-			if (window.getSelection) {
-				if (window.getSelection().empty) {
-					window.getSelection().empty();
-				} else if (window.getSelection().removeAllRanges) {
-					window.getSelection().removeAllRanges();
-				}
-			} else if ((<any>document).selection) {
-				(<any>document).selection.empty();
+		if (!this.isResizing) { return; }
+
+		if (window.getSelection) {
+			if (window.getSelection().empty) {
+				window.getSelection().empty();
+			} else if (window.getSelection().removeAllRanges) {
+				window.getSelection().removeAllRanges();
 			}
-
-			const mousePos = this._getMousePosition(e);
-			const itemPos = this._resizingItem.getPosition();
-			const itemDims = this._resizingItem.getDimensions();
-			const endCorner = {
-				left: itemPos.left + itemDims.width,
-				top: itemPos.top + itemDims.height,
-			}
-
-			const resizeTop = this._resizeDirection.includes('top');
-			const resizeBottom = this._resizeDirection.includes('bottom');
-			const resizeLeft = this._resizeDirection.includes('left')
-			const resizeRight = this._resizeDirection.includes('right');
-
-			let newW = resizeRight
-				? (mousePos.left - itemPos.left + 10)
-				: resizeLeft
-					? (endCorner.left - mousePos.left + 10)
-					: itemDims.width;
-			let newH = resizeBottom
-				? (mousePos.top - itemPos.top + 10)
-				: resizeTop
-					? (endCorner.top - mousePos.top + 10)
-					: itemDims.height;
-
-			if (newW < this.minWidth)
-				newW = this.minWidth;
-			if (newH < this.minHeight)
-				newH = this.minHeight;
-			if (newW < this._resizingItem.minWidth)
-				newW = this._resizingItem.minWidth;
-			if (newH < this._resizingItem.minHeight)
-				newH = this._resizingItem.minHeight;
-
-			let newX = itemPos.left;
-			let newY = itemPos.top;
-
-			if (resizeLeft)
-				newX = endCorner.left - newW;
-			if (resizeTop)
-				newY = endCorner.top - newH;
-
-			let calcSize = this._calculateGridSize(newW, newH);
-			const itemSize = this._resizingItem.getSize();
-			const iGridPos = this._resizingItem.getGridPosition();
-			const bottomRightCorner = {
-				col: iGridPos.col + itemSize.x,
-				row: iGridPos.row + itemSize.y,
-			};
-			const targetPos: NgGridItemPosition = Object.assign({}, iGridPos);
-
-			if (this._resizeDirection.includes("top"))
-				targetPos.row = bottomRightCorner.row - calcSize.y;
-			if (this._resizeDirection.includes("left"))
-				targetPos.col = bottomRightCorner.col - calcSize.x;
-
-			if (!this._isWithinBoundsX(targetPos, calcSize))
-				calcSize = this._fixSizeToBoundsX(targetPos, calcSize);
-
-			if (!this._isWithinBoundsY(targetPos, calcSize))
-				calcSize = this._fixSizeToBoundsY(targetPos, calcSize);
-
-			calcSize = this._resizingItem.fixResize(calcSize);
-
-			if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
-				this._resizingItem.setGridPosition(targetPos, this._fixToGrid);
-				this._placeholderRef.instance.setGridPosition(targetPos);
-				this._resizingItem.setSize(calcSize, this._fixToGrid);
-				this._placeholderRef.instance.setSize(calcSize);
-
-				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(targetPos, calcSize);
-					this._cascadeGrid(targetPos, calcSize);
-				}
-			}
-
-			if (!this._fixToGrid) {
-				this._resizingItem.setDimensions(newW, newH);
-				this._resizingItem.setPosition(newX, newY);
-			}
-
-			this.onResize.emit(this._resizingItem);
-			this._resizingItem.onResizeEvent();
+		} else if ((<any>document).selection) {
+			(<any>document).selection.empty();
 		}
+
+		const mousePos = this._getMousePosition(e);
+		const itemPos = this._resizingItem.getPosition();
+		const itemDims = this._resizingItem.getDimensions();
+		const endCorner = {
+			left: itemPos.left + itemDims.width,
+			top: itemPos.top + itemDims.height,
+		}
+
+		const resizeTop = this._resizeDirection.includes('top');
+		const resizeBottom = this._resizeDirection.includes('bottom');
+		const resizeLeft = this._resizeDirection.includes('left')
+		const resizeRight = this._resizeDirection.includes('right');
+
+		//	Calculate new width and height based upon resize direction
+		let newW = resizeRight
+			? (mousePos.left - itemPos.left + 1)
+			: resizeLeft
+				? (endCorner.left - mousePos.left + 1)
+				: itemDims.width;
+		let newH = resizeBottom
+			? (mousePos.top - itemPos.top + 1)
+			: resizeTop
+				? (endCorner.top - mousePos.top + 1)
+				: itemDims.height;
+
+		if (newW < this.minWidth)
+			newW = this.minWidth;
+		if (newH < this.minHeight)
+			newH = this.minHeight;
+		if (newW < this._resizingItem.minWidth)
+			newW = this._resizingItem.minWidth;
+		if (newH < this._resizingItem.minHeight)
+			newH = this._resizingItem.minHeight;
+
+		let newX = itemPos.left;
+		let newY = itemPos.top;
+
+		if (resizeLeft)
+			newX = endCorner.left - newW;
+		if (resizeTop)
+			newY = endCorner.top - newH;
+
+		let calcSize = this._calculateGridSize(newW, newH);
+		const itemSize = this._resizingItem.getSize();
+		const iGridPos = this._resizingItem.getGridPosition();
+		const bottomRightCorner = {
+			col: iGridPos.col + itemSize.x,
+			row: iGridPos.row + itemSize.y,
+		};
+		const targetPos: NgGridItemPosition = Object.assign({}, iGridPos);
+
+		if (this._resizeDirection.includes("top"))
+			targetPos.row = bottomRightCorner.row - calcSize.y;
+		if (this._resizeDirection.includes("left"))
+			targetPos.col = bottomRightCorner.col - calcSize.x;
+
+		if (!this._isWithinBoundsX(targetPos, calcSize))
+			calcSize = this._fixSizeToBoundsX(targetPos, calcSize);
+
+		if (!this._isWithinBoundsY(targetPos, calcSize))
+			calcSize = this._fixSizeToBoundsY(targetPos, calcSize);
+
+		calcSize = this._resizingItem.fixResize(calcSize);
+
+		if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
+			this._resizingItem.setGridPosition(targetPos, this._fixToGrid);
+			this._placeholderRef.instance.setGridPosition(targetPos);
+			this._resizingItem.setSize(calcSize, this._fixToGrid);
+			this._placeholderRef.instance.setSize(calcSize);
+
+			if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
+				this._fixGridCollisions(targetPos, calcSize);
+				this._cascadeGrid(targetPos, calcSize);
+			}
+		}
+
+		if (!this._fixToGrid) {
+			this._resizingItem.setDimensions(newW, newH);
+			this._resizingItem.setPosition(newX, newY);
+		}
+
+		this.onResize.emit(this._resizingItem);
+		this._resizingItem.onResizeEvent();
 	}
 
 	private _dragStop(e: any): void {
-		if (this.isDragging) {
-			this.isDragging = false;
+		if (!this.isDragging) return;
 
-			var itemPos = this._draggingItem.getGridPosition();
+		this.isDragging = false;
 
-			this._draggingItem.setGridPosition(itemPos);
-			this._addToGrid(this._draggingItem);
+		var itemPos = this._draggingItem.getGridPosition();
 
-			this._cascadeGrid();
-			this._updateSize();
+		this._draggingItem.setGridPosition(itemPos);
+		this._addToGrid(this._draggingItem);
 
-			this._draggingItem.stopMoving();
-			this._draggingItem.onDragStopEvent();
-			this.onDragStop.emit(this._draggingItem);
-			this._draggingItem = null;
-			this._posOffset = null;
-			this._placeholderRef.destroy();
+		this._cascadeGrid();
+		this._updateSize();
 
-			this._emitOnItemChange();
+		this._draggingItem.stopMoving();
+		this._draggingItem.onDragStopEvent();
+		this.onDragStop.emit(this._draggingItem);
 
-			if (this._zoomOnDrag) {
-				this._resetZoom();
-			}
+		this._cleanDrag();
+		this._placeholderRef.destroy();
+
+		this._emitOnItemChange();
+
+		if (this._zoomOnDrag) {
+			this._resetZoom();
 		}
 	}
 
 	private _resizeStop(e: any): void {
-		if (this.isResizing) {
-			this.isResizing = false;
+		if (!this.isResizing) return;
 
-			const itemDims = this._resizingItem.getSize();
-			this._resizingItem.setSize(itemDims);
+		this.isResizing = false;
 
-			const itemPos = this._resizingItem.getGridPosition();
-			this._resizingItem.setGridPosition(itemPos);
+		const itemDims = this._resizingItem.getSize();
+		this._resizingItem.setSize(itemDims);
 
-			this._addToGrid(this._resizingItem);
+		const itemPos = this._resizingItem.getGridPosition();
+		this._resizingItem.setGridPosition(itemPos);
 
-			this._cascadeGrid();
-			this._updateSize();
+		this._addToGrid(this._resizingItem);
 
-			this._resizingItem.stopMoving();
-			this._resizingItem.onResizeStopEvent();
-			this.onResizeStop.emit(this._resizingItem);
+		this._cascadeGrid();
+		this._updateSize();
 
-			this._resizingItem = null;
-			this._resizeDirection = null;
-			this._placeholderRef.destroy();
+		this._resizingItem.stopMoving();
+		this._resizingItem.onResizeStopEvent();
+		this.onResizeStop.emit(this._resizingItem);
 
-			this._emitOnItemChange();
-		}
+		this._cleanResize();
+		this._placeholderRef.destroy();
+
+		this._emitOnItemChange();
+	}
+
+	private _cleanDrag(): void {
+		this._draggingItem = null;
+		this._posOffset = null;
+		this.isDragging = false;
+		this._dragReady = false;
+	}
+
+	private _cleanResize(): void {
+		this._resizingItem = null;
+		this._resizeDirection = null;
+		this.isResizing = false;
+		this._resizeReady = false;
 	}
 
 	private _calculateGridSize(width: number, height: number): NgGridItemSize {
@@ -1352,8 +1370,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			const size: NgGridItemDimensions = item.getDimensions();
 			const pos: NgGridRawPosition = item.getPosition();
 
-			return position.left >= pos.left && position.left <= (pos.left + size.width) &&
-			position.top >= pos.top && position.top <= (pos.top + size.height);
+			return position.left >= pos.left && position.left < (pos.left + size.width) &&
+			position.top >= pos.top && position.top < (pos.top + size.height);
 		});
 	}
 
