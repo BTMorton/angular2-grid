@@ -36,7 +36,7 @@ export interface NgGridItemConfig {
 	sizex?: number;
 	sizey?: number;
 	dragHandle?: string;
-	resizeHandle?: string;
+	resizeHandle?: ResizeHandle;
 	fixed?: boolean;
 	draggable?: boolean;
 	resizable?: boolean;
@@ -80,4 +80,15 @@ export interface NgGridRawPosition {
 export interface NgGridItemDimensions {
 	width: number;
 	height: number;
+}
+
+export type ResizeHandle = string | {
+	bottomright?: string;
+	bottomleft?: string;
+	topright?: string;
+	topleft?: string;
+	right?: string;
+	left?: string;
+	bottom?: string;
+	top?: string;
 }

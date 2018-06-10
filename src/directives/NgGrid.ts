@@ -125,10 +125,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	//	Constructor
 	constructor(private _differs: KeyValueDiffers,
-				private _ngEl: ElementRef,
-				private _renderer: Renderer,
-				private componentFactoryResolver: ComponentFactoryResolver,
-				private _containerRef: ViewContainerRef) {}
+		private _ngEl: ElementRef,
+		private _renderer: Renderer,
+		private componentFactoryResolver: ComponentFactoryResolver,
+		private _containerRef: ViewContainerRef) {}
 
 	//	Public methods
 	public ngOnInit(): void {
@@ -523,10 +523,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			case "up":
 			case "down":
 			default:
-				return "vertical";
+			return "vertical";
 			case "left":
 			case "right":
-				return "horizontal";
+			return "horizontal";
 		}
 	}
 	private _updatePositionsAfterMaxChange(): void {
@@ -625,21 +625,24 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _resizeStart(e: any): void {
 		if (this.resizeEnable) {
-            var mousePos = this._getMousePosition(e);
-            var item = this._getItemFromPosition(mousePos);
+			var mousePos = this._getMousePosition(e);
+			var item = this._getItemFromPosition(mousePos);
 
-            if (item) {
-                item.startMoving();
-                this._resizingItem = item;
-                this._resizeDirection = item.canResize(e);
-                this._removeFromGrid(item);
-                this._createPlaceholder(item);
-                this.isResizing = true;
-                this._resizeReady = false;
-                this.onResizeStart.emit(item);
-                item.onResizeStartEvent();
-            }
-        }
+			if (item) {
+				const resizeDirection = item.canResize(e);
+				if (resizeDirection == null) { return; }
+
+				item.startMoving();
+				this._resizingItem = item;
+				this._resizeDirection = resizeDirection;
+				this._removeFromGrid(item);
+				this._createPlaceholder(item);
+				this.isResizing = true;
+				this._resizeReady = false;
+				this.onResizeStart.emit(item);
+				item.onResizeStartEvent();
+			}
+		}
 	}
 
 	private _dragStart(e: any): void {
@@ -734,11 +737,29 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				(<any>document).selection.empty();
 			}
 
-			var mousePos = this._getMousePosition(e);
-			var itemPos = this._resizingItem.getPosition();
-			var itemDims = this._resizingItem.getDimensions();
-			var newW = this._resizeDirection == 'height' ? itemDims.width : (mousePos.left - itemPos.left + 10);
-			var newH = this._resizeDirection == 'width' ? itemDims.height : (mousePos.top - itemPos.top + 10);
+			const mousePos = this._getMousePosition(e);
+			const itemPos = this._resizingItem.getPosition();
+			const itemDims = this._resizingItem.getDimensions();
+			const endCorner = {
+				left: itemPos.left + itemDims.width,
+				top: itemPos.top + itemDims.height,
+			}
+
+			const resizeTop = this._resizeDirection.includes('top');
+			const resizeBottom = this._resizeDirection.includes('bottom');
+			const resizeLeft = this._resizeDirection.includes('left')
+			const resizeRight = this._resizeDirection.includes('right');
+
+			let newW = resizeRight
+				? (mousePos.left - itemPos.left + 10)
+				: resizeLeft
+					? (endCorner.left - mousePos.left + 10)
+					: itemDims.width;
+			let newH = resizeBottom
+				? (mousePos.top - itemPos.top + 10)
+				: resizeTop
+					? (endCorner.top - mousePos.top + 10)
+					: itemDims.height;
 
 			if (newW < this.minWidth)
 				newW = this.minWidth;
@@ -749,35 +770,52 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			if (newH < this._resizingItem.minHeight)
 				newH = this._resizingItem.minHeight;
 
-			var calcSize = this._calculateGridSize(newW, newH);
-			var itemSize = this._resizingItem.getSize();
-			var iGridPos = this._resizingItem.getGridPosition();
+			let newX = itemPos.left;
+			let newY = itemPos.top;
 
-			if (!this._isWithinBoundsX(iGridPos, calcSize))
-				calcSize = this._fixSizeToBoundsX(iGridPos, calcSize);
+			if (resizeLeft)
+				newX = endCorner.left - newW;
+			if (resizeTop)
+				newY = endCorner.top - newH;
 
-			if (!this._isWithinBoundsY(iGridPos, calcSize))
-				calcSize = this._fixSizeToBoundsY(iGridPos, calcSize);
+			let calcSize = this._calculateGridSize(newW, newH);
+			const itemSize = this._resizingItem.getSize();
+			const iGridPos = this._resizingItem.getGridPosition();
+			const bottomRightCorner = {
+				col: iGridPos.col + itemSize.x,
+				row: iGridPos.row + itemSize.y,
+			};
+			const targetPos: NgGridItemPosition = Object.assign({}, iGridPos);
+
+			if (this._resizeDirection.includes("top"))
+				targetPos.row = bottomRightCorner.row - calcSize.y;
+			if (this._resizeDirection.includes("left"))
+				targetPos.col = bottomRightCorner.col - calcSize.x;
+
+			if (!this._isWithinBoundsX(targetPos, calcSize))
+				calcSize = this._fixSizeToBoundsX(targetPos, calcSize);
+
+			if (!this._isWithinBoundsY(targetPos, calcSize))
+				calcSize = this._fixSizeToBoundsY(targetPos, calcSize);
 
 			calcSize = this._resizingItem.fixResize(calcSize);
 
 			if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
+				this._resizingItem.setGridPosition(targetPos, this._fixToGrid);
+				this._placeholderRef.instance.setGridPosition(targetPos);
 				this._resizingItem.setSize(calcSize, this._fixToGrid);
 				this._placeholderRef.instance.setSize(calcSize);
 
 				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(iGridPos, calcSize);
-					this._cascadeGrid(iGridPos, calcSize);
+					this._fixGridCollisions(targetPos, calcSize);
+					this._cascadeGrid(targetPos, calcSize);
 				}
 			}
 
-			if (!this._fixToGrid)
+			if (!this._fixToGrid) {
 				this._resizingItem.setDimensions(newW, newH);
-
-			var bigGrid = this._maxGridSize(itemPos.left + newW + (2 * e.movementX), itemPos.top + newH + (2 * e.movementY));
-
-			if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
-			if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
+				this._resizingItem.setPosition(newX, newY);
+			}
 
 			this.onResize.emit(this._resizingItem);
 			this._resizingItem.onResizeEvent();
@@ -815,9 +853,12 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		if (this.isResizing) {
 			this.isResizing = false;
 
-			var itemDims = this._resizingItem.getSize();
-
+			const itemDims = this._resizingItem.getSize();
 			this._resizingItem.setSize(itemDims);
+
+			const itemPos = this._resizingItem.getGridPosition();
+			this._resizingItem.setGridPosition(itemPos);
+
 			this._addToGrid(this._resizingItem);
 
 			this._cascadeGrid();
@@ -826,18 +867,13 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			this._resizingItem.stopMoving();
 			this._resizingItem.onResizeStopEvent();
 			this.onResizeStop.emit(this._resizingItem);
+
 			this._resizingItem = null;
 			this._resizeDirection = null;
 			this._placeholderRef.destroy();
 
 			this._emitOnItemChange();
 		}
-	}
-
-	private _maxGridSize(w: number, h: number): NgGridItemSize {
-		var sizex = Math.ceil(w / (this.colWidth + this.marginLeft + this.marginRight));
-		var sizey = Math.ceil(h / (this.rowHeight + this.marginTop + this.marginBottom));
-		return { 'x': sizex, 'y': sizey };
 	}
 
 	private _calculateGridSize(width: number, height: number): NgGridItemSize {
@@ -947,7 +983,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _cascadeGrid(pos?: NgGridItemPosition, dims?: NgGridItemSize): void {
 		if (this._destroyed) return;
-		if (pos && !dims) throw new Error('Cannot cascade with only position and not dimensions');
+		if (!pos !== !dims) throw new Error('Cannot cascade with only position and not dimensions');
 
 		if (this.isDragging && this._draggingItem && !pos && !dims) {
 			pos = this._draggingItem.getGridPosition();
@@ -1298,15 +1334,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		return Math.floor(maxWidth / itemWidth);
 	}
 
+	private _getContainerRows(): number {
+		const maxHeight: number = window.innerHeight - this.marginTop - this.marginBottom;
+		return Math.floor(maxHeight / (this.rowHeight + this.marginTop + this.marginBottom));
+	}
+
 	private _getScreenMargin(): number {
 		const maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
 		const itemWidth: number = this.colWidth + this.marginLeft + this.marginRight;
 		return Math.floor((maxWidth - (this._maxCols * itemWidth)) / 2);;
-	}
-
-	private _getContainerRows(): number {
-		const maxHeight: number = window.innerHeight - this.marginTop - this.marginBottom;
-		return Math.floor(maxHeight / (this.rowHeight + this.marginTop + this.marginBottom));
 	}
 
 	private _getItemFromPosition(position: NgGridRawPosition): NgGridItem {
@@ -1316,8 +1352,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			const size: NgGridItemDimensions = item.getDimensions();
 			const pos: NgGridRawPosition = item.getPosition();
 
-			return position.left > pos.left && position.left < (pos.left + size.width) &&
-			       position.top > pos.top && position.top < (pos.top + size.height);
+			return position.left >= pos.left && position.left <= (pos.left + size.width) &&
+			position.top >= pos.top && position.top <= (pos.top + size.height);
 		});
 	}
 
@@ -1325,14 +1361,14 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		const pos: NgGridItemPosition = item.getGridPosition();
 		const dims: NgGridItemSize = item.getSize();
 
-        const factory = this.componentFactoryResolver.resolveComponentFactory(NgGridPlaceholder);
-        var componentRef: ComponentRef<NgGridPlaceholder> = item.containerRef.createComponent(factory);
-        this._placeholderRef = componentRef;
-        const placeholder: NgGridPlaceholder = componentRef.instance;
-        placeholder.registerGrid(this);
-        placeholder.setCascadeMode(this.cascade);
-        placeholder.setGridPosition({ col: pos.col, row: pos.row });
-        placeholder.setSize({ x: dims.x, y: dims.y });
+		const factory = this.componentFactoryResolver.resolveComponentFactory(NgGridPlaceholder);
+		var componentRef: ComponentRef<NgGridPlaceholder> = item.containerRef.createComponent(factory);
+		this._placeholderRef = componentRef;
+		const placeholder: NgGridPlaceholder = componentRef.instance;
+		placeholder.registerGrid(this);
+		placeholder.setCascadeMode(this.cascade);
+		placeholder.setGridPosition({ col: pos.col, row: pos.row });
+		placeholder.setSize({ x: dims.x, y: dims.y });
 	}
 
 	private _emitOnItemChange() {

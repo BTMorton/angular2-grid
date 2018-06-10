@@ -1,6 +1,6 @@
 {
   "name": "angular2-grid",
-  "version": "2.0.7",
+  "version": "2.1.0",
   "description": "A grid-based drag/drop/resize directive plugin for Angular 2",
   "module": "main.js",
   "main": "bundles/NgGrid.umd.min.js",
@@ -28,7 +28,8 @@
     "Niklas Berg (https://github.com/nkholski)",
     "Wouter (https://github.com/wuhkuh)",
     "Brian Ellis (https://github.com/OnlyAGhost)",
-    "Janne Julkunen (https://github.com/sconix)"
+    "Janne Julkunen (https://github.com/sconix)",
+    "Thomas Schellenberg (https://github.com/ThomasSchellenbergNextCentury)"
   ],
   "license": "MIT",
   "bugs": {
