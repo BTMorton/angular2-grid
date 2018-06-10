@@ -26,6 +26,7 @@ export interface NgGridConfig {
 	element_based_row_height?: boolean;
 	fix_item_position_direction?: NgConfigFixDirection;
 	fix_collision_position_direction?: NgConfigFixDirection;
+	allow_overlap?: boolean;
 }
 
 export interface NgGridItemConfig {
