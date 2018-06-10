@@ -136,9 +136,7 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this.onChangeStop.emit(event);
 		this.onChangeAny.emit(event);
 
-		this._config.sizex = this._size.x;
-		this._config.sizey = this._size.y;
-		this.ngGridItemChange.emit(this._config);
+		this.onConfigChangeEvent();
 	}
 	public onDragStartEvent(): void {
 		const event: NgGridItemEvent = this.getEventOutput();
@@ -161,16 +159,10 @@ export class NgGridItem implements OnInit, OnDestroy {
 		this.onChangeStop.emit(event);
 		this.onChangeAny.emit(event);
 
-		this._config.col = this._currentPosition.col;
-		this._config.row = this._currentPosition.row;
-		this.ngGridItemChange.emit(this._config);
+		this.onConfigChangeEvent();
 	}
 	public onCascadeEvent(): void {
-		this._config.sizex = this._size.x;
-		this._config.sizey = this._size.y;
-		this._config.col = this._currentPosition.col;
-		this._config.row = this._currentPosition.row;
-		this.ngGridItemChange.emit(this._config);
+		this.onConfigChangeEvent();
 	}
 
 	public ngOnInit(): void {
@@ -566,5 +558,13 @@ export class NgGridItem implements OnInit, OnDestroy {
 		changes.forEachRemovedItem((record: any) => { delete this._config[record.key]; });
 
 		this.setConfig(this._config);
+	}
+
+	private onConfigChangeEvent() {
+		this._config.sizex = this._size.x;
+		this._config.sizey = this._size.y;
+		this._config.col = this._currentPosition.col;
+		this._config.row = this._currentPosition.row;
+		this.ngGridItemChange.emit(this._config);
 	}
 }
