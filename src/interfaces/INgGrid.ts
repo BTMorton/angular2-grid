@@ -30,7 +30,7 @@ export interface NgGridConfig {
 
 export interface NgGridItemConfig {
 	uid?: string;
-	payload?: any,
+	payload?: any;
 	col?: number;
 	row?: number;
 	sizex?: number;
@@ -51,7 +51,7 @@ export interface NgGridItemConfig {
 
 export interface NgGridItemEvent {
 	uid: string;
-	payload: any,
+	payload: any;
 	col: number;
 	row: number;
 	sizex: number;
@@ -91,4 +91,4 @@ export type ResizeHandle = string | {
 	left?: string;
 	bottom?: string;
 	top?: string;
-}
+};
