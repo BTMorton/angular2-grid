@@ -1,3 +1,5 @@
+export type NgConfigFixDirection = "vertical" | "horizontal" | "cascade";
+
 export interface NgGridConfig {
 	margins?: number[];
 	draggable?: boolean;
@@ -22,16 +24,19 @@ export interface NgGridConfig {
 	limit_to_screen?: boolean;
 	center_to_screen?: boolean;
 	element_based_row_height?: boolean;
+	fix_item_position_direction?: NgConfigFixDirection;
+	fix_collision_position_direction?: NgConfigFixDirection;
 }
 
 export interface NgGridItemConfig {
+	uid?: string;
 	payload?: any,
 	col?: number;
 	row?: number;
 	sizex?: number;
 	sizey?: number;
 	dragHandle?: string;
-	resizeHandle?: string;
+	resizeHandle?: ResizeHandle;
 	fixed?: boolean;
 	draggable?: boolean;
 	resizable?: boolean;
@@ -45,6 +50,7 @@ export interface NgGridItemConfig {
 }
 
 export interface NgGridItemEvent {
+	uid: string;
 	payload: any,
 	col: number;
 	row: number;
@@ -74,4 +80,15 @@ export interface NgGridRawPosition {
 export interface NgGridItemDimensions {
 	width: number;
 	height: number;
+}
+
+export type ResizeHandle = string | {
+	bottomright?: string;
+	bottomleft?: string;
+	topright?: string;
+	topleft?: string;
+	right?: string;
+	left?: string;
+	bottom?: string;
+	top?: string;
 }

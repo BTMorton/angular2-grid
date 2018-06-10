@@ -1,6 +1,7 @@
 import { Component, Directive, ElementRef, Renderer, EventEmitter, ComponentFactoryResolver, Host, ViewEncapsulation, Type, ComponentRef, KeyValueDiffer, KeyValueDiffers, OnInit, OnDestroy, DoCheck, ViewContainerRef, Output } from '@angular/core';
-import { NgGridConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions } from '../interfaces/INgGrid';
+import { NgGridConfig, NgGridItemEvent, NgGridItemPosition, NgGridItemSize, NgGridRawPosition, NgGridItemDimensions, NgConfigFixDirection } from '../interfaces/INgGrid';
 import { NgGridItem } from './NgGridItem';
+import { NgGridHelper } from "../helpers/NgGridHelper";
 import { NgGridPlaceholder } from '../components/NgGridPlaceholder';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -44,11 +45,11 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	public minHeight: number = 100;
 
 	//	Private variables
-	private _items: Array<NgGridItem> = [];
+	private _items: Map<string, NgGridItem> = new Map<string, NgGridItem>();
 	private _draggingItem: NgGridItem = null;
 	private _resizingItem: NgGridItem = null;
 	private _resizeDirection: string = null;
-	private _itemGrid: { [key: number]: { [key: number]: NgGridItem } } = {};//{ 1: { 1: null } };
+	private _itemsInGrid: Set<string> = new Set<string>();
 	private _containerWidth: number;
 	private _containerHeight: number;
 	private _maxCols: number = 0;
@@ -75,7 +76,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _dragReady: boolean = false;
 	private _resizeReady: boolean = false;
 	private _elementBasedDynamicRowHeight: boolean = false;
-	
+	private _itemFixDirection: NgConfigFixDirection = "cascade";
+	private _collisionFixDirection: NgConfigFixDirection = "cascade";
+	private _cascadePromise: Promise<void>;
+
 	// Events
 	private _documentMousemove$: Observable<MouseEvent>;
 	private _documentMouseup$: Observable<MouseEvent>;
@@ -112,27 +116,35 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		limit_to_screen: false,
 		center_to_screen: false,
 		element_based_row_height: false,
+		fix_item_position_direction: "cascade",
+		fix_collision_position_direction: "cascade",
 	};
 	private _config = NgGrid.CONST_DEFAULT_CONFIG;
 
 	//	[ng-grid] attribute handler
 	set config(v: NgGridConfig) {
+		if (v == null || typeof v !== "object") {
+			return;
+		}
+
 		this.setConfig(v);
 
 		if (this._differ == null && v != null) {
 			this._differ = this._differs.find(this._config).create(null);
 		}
+
+		this._differ.diff(this._config);
 	}
 
 	//	Constructor
-	constructor(private _differs: KeyValueDiffers,
-				private _ngEl: ElementRef,
-				private _renderer: Renderer,
-				private componentFactoryResolver: ComponentFactoryResolver,
-				private _containerRef: ViewContainerRef) {
-
-					this._defineListeners();
-				}
+	constructor(
+		private _differs: KeyValueDiffers,
+		private _ngEl: ElementRef,
+		private _renderer: Renderer,
+		private componentFactoryResolver: ComponentFactoryResolver,
+	) {
+		this._defineListeners();
+	}
 
 	//	Public methods
 	public ngOnInit(): void {
@@ -144,6 +156,16 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	public ngOnDestroy(): void {
 		this._destroyed = true;
 		this._disableListeners();
+	}
+
+	public generateItemUid(): string {
+		const uid: string = NgGridHelper.generateUuid();
+
+		if (this._items.has(uid)) {
+			return this.generateItemUid();
+		}
+
+		return uid;
 	}
 
 	public setConfig(config: NgGridConfig): void {
@@ -229,13 +251,27 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				case 'element_based_row_height':
 					this._elementBasedDynamicRowHeight = !!val;
 					break;
+				case 'fix_item_position_direction':
+					this._itemFixDirection = val;
+					break;
+				case 'fix_collision_position_direction':
+					this._collisionFixDirection = val;
+					break;
 			}
 		}
-		
+
 		if (this.dragEnable || this.resizeEnable) {
 			this._enableListeners();
 		} else {
 			this._disableListeners();
+		}
+
+		if (this._itemFixDirection === "cascade") {
+			this._itemFixDirection = this._getFixDirectionFromCascade();
+		}
+
+		if (this._collisionFixDirection === "cascade") {
+			this._collisionFixDirection = this._getFixDirectionFromCascade();
 		}
 
 		if (this._limitToScreen) {
@@ -276,7 +312,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				}
 			}
 
-			this.updatePositionsAfterMaxChange();
+			this._updatePositionsAfterMaxChange();
 		}
 
 		this._calculateColWidth();
@@ -296,27 +332,26 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 		this._updateRatio();
 
-		for (let item of this._items) {
+		this._items.forEach((item: NgGridItem) => {
 			this._removeFromGrid(item);
 			item.setCascadeMode(this.cascade);
-		}
+		});
 
-		for (let item of this._items) {
+		this._items.forEach((item: NgGridItem) => {
 			item.recalculateSelf();
 			this._addToGrid(item);
-		}
+		});
 
 		this._cascadeGrid();
-		this._filterGrid();
 		this._updateSize();
 	}
 
-	public getItemPosition(index: number): NgGridItemPosition {
-		return this._items[index].getGridPosition();
+	public getItemPosition(itemId: string): NgGridItemPosition {
+		return this._items.has(itemId) ? this._items.get(itemId).getGridPosition() : null;
 	}
 
-	public getItemSize(index: number): NgGridItemSize {
-		return this._items[index].getSize();
+	public getItemSize(itemId: string): NgGridItemSize {
+		return this._items.has(itemId) ? this._items.get(itemId).getSize() : null;
 	}
 
 	public ngDoCheck(): boolean {
@@ -364,44 +399,60 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			ngItem.setGridPosition(newPos);
 		}
 
-		this._items.push(ngItem);
+		if (ngItem.uid === null || this._items.has(ngItem.uid)) {
+			ngItem.uid = this.generateItemUid();
+		}
+
+		this._items.set(ngItem.uid, ngItem);
 		this._addToGrid(ngItem);
 
 		this._updateSize();
 
-		ngItem.recalculateSelf();
-		ngItem.onCascadeEvent();
+		this.triggerCascade().then(() => {
+			ngItem.recalculateSelf();
+			ngItem.onCascadeEvent();
 
-		this._emitOnItemChange();
+			this._emitOnItemChange();
+		});
+
 	}
 
 	public removeItem(ngItem: NgGridItem): void {
 		this._removeFromGrid(ngItem);
 
-		for (let x: number = 0; x < this._items.length; x++) {
-			if (this._items[x] == ngItem) {
-				this._items.splice(x, 1);
-			}
-		}
+		this._items.delete(ngItem.uid);
 
 		if (this._destroyed) return;
 
-		this._cascadeGrid();
-		this._updateSize();
-		this._items.forEach((item: NgGridItem) => item.recalculateSelf());
-		this._emitOnItemChange();
+		this.triggerCascade().then(() => {
+			this._updateSize();
+			this._items.forEach((item: NgGridItem) => item.recalculateSelf());
+			this._emitOnItemChange();
+		});
 	}
 
 	public updateItem(ngItem: NgGridItem): void {
 		this._removeFromGrid(ngItem);
 		this._addToGrid(ngItem);
-		this._cascadeGrid();
-		this._updateSize();
-		ngItem.onCascadeEvent();
+
+		this.triggerCascade().then(() => {
+			this._updateSize();
+			ngItem.onCascadeEvent();
+		});
 	}
 
-	public triggerCascade(): void {
-		this._cascadeGrid(null, null);
+	public triggerCascade(): Promise<void> {
+		if (!this._cascadePromise) {
+			this._cascadePromise = new Promise((resolve: Function) => {
+				setTimeout(() => {
+					this._cascadePromise = null;
+					this._cascadeGrid(null, null);
+					resolve();
+				}, 0);
+			});
+		}
+
+		return this._cascadePromise;
 	}
 
 	public triggerResize(): void {
@@ -418,7 +469,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			const newMaxColumns = this._getContainerColumns();
 			if (this._maxCols !== newMaxColumns) {
 				this._maxCols = newMaxColumns;
-				this.updatePositionsAfterMaxChange();
+				this._updatePositionsAfterMaxChange();
 				this._cascadeGrid();
 			}
 
@@ -435,7 +486,6 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			});
 		}
 
-		this._filterGrid();
 		this._updateSize();
 	}
 
@@ -443,14 +493,24 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		var mousePos = this._getMousePosition(e);
 		var item = this._getItemFromPosition(mousePos);
 
-		if (item != null) {
-			if (this.resizeEnable && item.canResize(e)) {
-				this._resizeReady = true;
-				e.preventDefault();
-			} else if (this.dragEnable && item.canDrag(e)) {
-				this._dragReady = true;
-				e.preventDefault();
-			}
+		if (item == null) return;
+
+		const resizeDirection: string = item.canResize(e);
+
+		if (this.resizeEnable && resizeDirection) {
+			this._resizeReady = true;
+			this._resizingItem = item;
+			this._resizeDirection = resizeDirection;
+
+			e.preventDefault();
+		} else if (this.dragEnable && item.canDrag(e)) {
+			this._dragReady = true;
+			this._draggingItem = item;
+
+			const itemPos = item.getPosition();
+			this._posOffset = { 'left': (mousePos.left - itemPos.left), 'top': (mousePos.top - itemPos.top) }
+
+			e.preventDefault();
 		}
 	}
 
@@ -460,8 +520,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		} else if (this.isResizing) {
 			this._resizeStop(e);
 		} else if (this._dragReady || this._resizeReady) {
-			this._dragReady = false;
-			this._resizeReady = false;
+			this._cleanDrag();
+			this._cleanResize();
 		}
 	}
 
@@ -483,7 +543,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		} else {
 			var mousePos = this._getMousePosition(e);
 			var item = this._getItemFromPosition(mousePos);
-
+			console.log(item);
 			if (item) {
 				item.onMouseMove(e);
 			}
@@ -491,13 +551,24 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	//	Private methods
-	private updatePositionsAfterMaxChange(): void {
-		for (let item of this._items) {
+	private _getFixDirectionFromCascade(): NgConfigFixDirection {
+		switch (this.cascade) {
+			case "up":
+			case "down":
+			default:
+				return "vertical";
+			case "left":
+			case "right":
+				return "horizontal";
+		}
+	}
+	private _updatePositionsAfterMaxChange(): void {
+		this._items.forEach((item: NgGridItem) => {
 			var pos = item.getGridPosition();
 			var dims = item.getSize();
 
 			if (!this._hasGridCollision(pos, dims) && this._isWithinBounds(pos, dims) && dims.x <= this._maxCols && dims.y <= this._maxRows) {
-				continue;
+				return;
 			}
 
 			this._removeFromGrid(item);
@@ -516,7 +587,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			}
 
 			this._addToGrid(item);
-		}
+		});
 	}
 
 	private _calculateColWidth(): void {
@@ -562,17 +633,17 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _updateRatio(): void {
-		if (this._autoResize && this._maintainRatio) {
-			if (this._maxCols > 0 && this._visibleRows <= 0) {
+		if (!this._autoResize || !this._maintainRatio) return;
+
+		if (this._maxCols > 0 && this._visibleRows <= 0) {
+			this.rowHeight = this.colWidth / this._aspectRatio;
+		} else if (this._maxRows > 0 && this._visibleCols <= 0) {
+			this.colWidth = this._aspectRatio * this.rowHeight;
+		} else if (this._maxCols == 0 && this._maxRows == 0) {
+			if (this._visibleCols > 0) {
 				this.rowHeight = this.colWidth / this._aspectRatio;
-			} else if (this._maxRows > 0 && this._visibleCols <= 0) {
+			} else if (this._visibleRows > 0) {
 				this.colWidth = this._aspectRatio * this.rowHeight;
-			} else if (this._maxCols == 0 && this._maxRows == 0) {
-				if (this._visibleCols > 0) {
-					this.rowHeight = this.colWidth / this._aspectRatio;
-				} else if (this._visibleRows > 0) {
-					this.colWidth = this._aspectRatio * this.rowHeight;
-				}
 			}
 		}
 	}
@@ -586,48 +657,41 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _resizeStart(e: any): void {
-		if (this.resizeEnable) {
-            var mousePos = this._getMousePosition(e);
-            var item = this._getItemFromPosition(mousePos);
+		if (!this.resizeEnable || !this._resizingItem) return;
 
-            if (item) {
-                item.startMoving();
-                this._resizingItem = item;
-                this._resizeDirection = item.canResize(e);
-                this._removeFromGrid(item);
-                this._createPlaceholder(item);
-                this.isResizing = true;
-                this._resizeReady = false;
-                this.onResizeStart.emit(item);
-                item.onResizeStartEvent();
-            }
-        }
+		//	Setup
+		this._resizingItem.startMoving();
+		this._removeFromGrid(this._resizingItem);
+		this._createPlaceholder(this._resizingItem);
+
+		//	Status Flags
+		this.isResizing = true;
+		this._resizeReady = false;
+
+		//	Events
+		this.onResizeStart.emit(this._resizingItem);
+		this._resizingItem.onResizeStartEvent();
 	}
 
 	private _dragStart(e: any): void {
-		if (this.dragEnable) {
-			var mousePos = this._getMousePosition(e);
-			var item = this._getItemFromPosition(mousePos);
+		if (!this.dragEnable || !this._draggingItem) return;
 
-			if (item) {
-				var itemPos = item.getPosition();
-				var pOffset = { 'left': (mousePos.left - itemPos.left), 'top': (mousePos.top - itemPos.top) }
+		//	Start dragging
+		this._draggingItem.startMoving();
+		this._removeFromGrid(this._draggingItem);
+		this._createPlaceholder(this._draggingItem);
 
-				item.startMoving();
-				this._draggingItem = item;
-				this._posOffset = pOffset;
-				this._removeFromGrid(item);
-				this._createPlaceholder(item);
-				this.isDragging = true;
-				this._dragReady = false;
+		//	Status Flags
+		this.isDragging = true;
+		this._dragReady = false;
 
-				this.onDragStart.emit(item);
-				item.onDragStartEvent();
+		//	Events
+		this.onDragStart.emit(this._draggingItem);
+		this._draggingItem.onDragStartEvent();
 
-				if (this._zoomOnDrag) {
-					this._zoomOut();
-				}
-			}
+		//	Zoom
+		if (this._zoomOnDrag) {
+			this._zoomOut();
 		}
 	}
 
@@ -640,168 +704,213 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _drag(e: any): void {
-		if (this.isDragging) {
-			if (window.getSelection) {
-				if (window.getSelection().empty) {
-					window.getSelection().empty();
-				} else if (window.getSelection().removeAllRanges) {
-					window.getSelection().removeAllRanges();
-				}
-			} else if ((<any>document).selection) {
-				(<any>document).selection.empty();
+		if (!this.isDragging) return;
+
+		if (window.getSelection) {
+			if (window.getSelection().empty) {
+				window.getSelection().empty();
+			} else if (window.getSelection().removeAllRanges) {
+				window.getSelection().removeAllRanges();
 			}
-
-			var mousePos = this._getMousePosition(e);
-			var newL = (mousePos.left - this._posOffset.left);
-			var newT = (mousePos.top - this._posOffset.top);
-
-			var itemPos = this._draggingItem.getGridPosition();
-			var gridPos = this._calculateGridPosition(newL, newT);
-			var dims = this._draggingItem.getSize();
-
-			gridPos = this._fixPosToBoundsX(gridPos, dims);
-
-			if (!this._isWithinBoundsY(gridPos, dims)) {
-				gridPos = this._fixPosToBoundsY(gridPos, dims);
-			}
-
-			if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
-				this._draggingItem.setGridPosition(gridPos, this._fixToGrid);
-				this._placeholderRef.instance.setGridPosition(gridPos);
-
-				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(gridPos, dims);
-					this._cascadeGrid(gridPos, dims);
-				}
-			}
-
-			if (!this._fixToGrid) {
-				this._draggingItem.setPosition(newL, newT);
-			}
-
-			this.onDrag.emit(this._draggingItem);
-			this._draggingItem.onDragEvent();
+		} else if ((<any>document).selection) {
+			(<any>document).selection.empty();
 		}
+
+		var mousePos = this._getMousePosition(e);
+		var newL = (mousePos.left - this._posOffset.left);
+		var newT = (mousePos.top - this._posOffset.top);
+
+		var itemPos = this._draggingItem.getGridPosition();
+		var gridPos = this._calculateGridPosition(newL, newT);
+		var dims = this._draggingItem.getSize();
+
+		gridPos = this._fixPosToBoundsX(gridPos, dims);
+
+		if (!this._isWithinBoundsY(gridPos, dims)) {
+			gridPos = this._fixPosToBoundsY(gridPos, dims);
+		}
+
+		if (gridPos.col != itemPos.col || gridPos.row != itemPos.row) {
+			this._draggingItem.setGridPosition(gridPos, this._fixToGrid);
+			this._placeholderRef.instance.setGridPosition(gridPos);
+
+			if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
+				this._fixGridCollisions(gridPos, dims);
+				this._cascadeGrid(gridPos, dims);
+			}
+		}
+
+		if (!this._fixToGrid) {
+			this._draggingItem.setPosition(newL, newT);
+		}
+
+		this.onDrag.emit(this._draggingItem);
+		this._draggingItem.onDragEvent();
 	}
 
 	private _resize(e: any): void {
-		if (this.isResizing) {
-			if (window.getSelection) {
-				if (window.getSelection().empty) {
-					window.getSelection().empty();
-				} else if (window.getSelection().removeAllRanges) {
-					window.getSelection().removeAllRanges();
-				}
-			} else if ((<any>document).selection) {
-				(<any>document).selection.empty();
+		if (!this.isResizing) { return; }
+
+		if (window.getSelection) {
+			if (window.getSelection().empty) {
+				window.getSelection().empty();
+			} else if (window.getSelection().removeAllRanges) {
+				window.getSelection().removeAllRanges();
 			}
-
-			var mousePos = this._getMousePosition(e);
-			var itemPos = this._resizingItem.getPosition();
-			var itemDims = this._resizingItem.getDimensions();
-			var newW = this._resizeDirection == 'height' ? itemDims.width : (mousePos.left - itemPos.left + 10);
-			var newH = this._resizeDirection == 'width' ? itemDims.height : (mousePos.top - itemPos.top + 10);
-
-			if (newW < this.minWidth)
-				newW = this.minWidth;
-			if (newH < this.minHeight)
-				newH = this.minHeight;
-			if (newW < this._resizingItem.minWidth)
-				newW = this._resizingItem.minWidth;
-			if (newH < this._resizingItem.minHeight)
-				newH = this._resizingItem.minHeight;
-
-			var calcSize = this._calculateGridSize(newW, newH);
-			var itemSize = this._resizingItem.getSize();
-			var iGridPos = this._resizingItem.getGridPosition();
-
-			if (!this._isWithinBoundsX(iGridPos, calcSize))
-				calcSize = this._fixSizeToBoundsX(iGridPos, calcSize);
-
-			if (!this._isWithinBoundsY(iGridPos, calcSize))
-				calcSize = this._fixSizeToBoundsY(iGridPos, calcSize);
-
-			calcSize = this._resizingItem.fixResize(calcSize);
-
-			if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
-				this._resizingItem.setSize(calcSize, this._fixToGrid);
-				this._placeholderRef.instance.setSize(calcSize);
-
-				if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
-					this._fixGridCollisions(iGridPos, calcSize);
-					this._cascadeGrid(iGridPos, calcSize);
-				}
-			}
-
-			if (!this._fixToGrid)
-				this._resizingItem.setDimensions(newW, newH);
-
-			var bigGrid = this._maxGridSize(itemPos.left + newW + (2 * e.movementX), itemPos.top + newH + (2 * e.movementY));
-
-			if (this._resizeDirection == 'height') bigGrid.x = iGridPos.col + itemSize.x;
-			if (this._resizeDirection == 'width') bigGrid.y = iGridPos.row + itemSize.y;
-
-			this.onResize.emit(this._resizingItem);
-			this._resizingItem.onResizeEvent();
+		} else if ((<any>document).selection) {
+			(<any>document).selection.empty();
 		}
+
+		const mousePos = this._getMousePosition(e);
+		const itemPos = this._resizingItem.getPosition();
+		const itemDims = this._resizingItem.getDimensions();
+		const endCorner = {
+			left: itemPos.left + itemDims.width,
+			top: itemPos.top + itemDims.height,
+		}
+
+		const resizeTop = this._resizeDirection.includes('top');
+		const resizeBottom = this._resizeDirection.includes('bottom');
+		const resizeLeft = this._resizeDirection.includes('left')
+		const resizeRight = this._resizeDirection.includes('right');
+
+		//	Calculate new width and height based upon resize direction
+		let newW = resizeRight
+			? (mousePos.left - itemPos.left + 1)
+			: resizeLeft
+				? (endCorner.left - mousePos.left + 1)
+				: itemDims.width;
+		let newH = resizeBottom
+			? (mousePos.top - itemPos.top + 1)
+			: resizeTop
+				? (endCorner.top - mousePos.top + 1)
+				: itemDims.height;
+
+		if (newW < this.minWidth)
+			newW = this.minWidth;
+		if (newH < this.minHeight)
+			newH = this.minHeight;
+		if (newW < this._resizingItem.minWidth)
+			newW = this._resizingItem.minWidth;
+		if (newH < this._resizingItem.minHeight)
+			newH = this._resizingItem.minHeight;
+
+		let newX = itemPos.left;
+		let newY = itemPos.top;
+
+		if (resizeLeft)
+			newX = endCorner.left - newW;
+		if (resizeTop)
+			newY = endCorner.top - newH;
+
+		let calcSize = this._calculateGridSize(newW, newH);
+		const itemSize = this._resizingItem.getSize();
+		const iGridPos = this._resizingItem.getGridPosition();
+		const bottomRightCorner = {
+			col: iGridPos.col + itemSize.x,
+			row: iGridPos.row + itemSize.y,
+		};
+		const targetPos: NgGridItemPosition = Object.assign({}, iGridPos);
+
+		if (this._resizeDirection.includes("top"))
+			targetPos.row = bottomRightCorner.row - calcSize.y;
+		if (this._resizeDirection.includes("left"))
+			targetPos.col = bottomRightCorner.col - calcSize.x;
+
+		if (!this._isWithinBoundsX(targetPos, calcSize))
+			calcSize = this._fixSizeToBoundsX(targetPos, calcSize);
+
+		if (!this._isWithinBoundsY(targetPos, calcSize))
+			calcSize = this._fixSizeToBoundsY(targetPos, calcSize);
+
+		calcSize = this._resizingItem.fixResize(calcSize);
+
+		if (calcSize.x != itemSize.x || calcSize.y != itemSize.y) {
+			this._resizingItem.setGridPosition(targetPos, this._fixToGrid);
+			this._placeholderRef.instance.setGridPosition(targetPos);
+			this._resizingItem.setSize(calcSize, this._fixToGrid);
+			this._placeholderRef.instance.setSize(calcSize);
+
+			if (['up', 'down', 'left', 'right'].indexOf(this.cascade) >= 0) {
+				this._fixGridCollisions(targetPos, calcSize);
+				this._cascadeGrid(targetPos, calcSize);
+			}
+		}
+
+		if (!this._fixToGrid) {
+			this._resizingItem.setDimensions(newW, newH);
+			this._resizingItem.setPosition(newX, newY);
+		}
+
+		this.onResize.emit(this._resizingItem);
+		this._resizingItem.onResizeEvent();
 	}
 
 	private _dragStop(e: any): void {
-		if (this.isDragging) {
-			this.isDragging = false;
+		if (!this.isDragging) return;
 
-			var itemPos = this._draggingItem.getGridPosition();
+		this.isDragging = false;
 
-			this._draggingItem.setGridPosition(itemPos);
-			this._addToGrid(this._draggingItem);
+		var itemPos = this._draggingItem.getGridPosition();
 
-			this._cascadeGrid();
-			this._updateSize();
-			this._filterGrid();
+		this._draggingItem.setGridPosition(itemPos);
+		this._addToGrid(this._draggingItem);
 
-			this._draggingItem.stopMoving();
-			this._draggingItem.onDragStopEvent();
-			this.onDragStop.emit(this._draggingItem);
-			this._draggingItem = null;
-			this._posOffset = null;
-			this._placeholderRef.destroy();
+		this._cascadeGrid();
+		this._updateSize();
 
-			this._emitOnItemChange();
+		this._draggingItem.stopMoving();
+		this._draggingItem.onDragStopEvent();
+		this.onDragStop.emit(this._draggingItem);
 
-			if (this._zoomOnDrag) {
-				this._resetZoom();
-			}
+		this._cleanDrag();
+		this._placeholderRef.destroy();
+
+		this._emitOnItemChange();
+
+		if (this._zoomOnDrag) {
+			this._resetZoom();
 		}
 	}
 
 	private _resizeStop(e: any): void {
-		if (this.isResizing) {
-			this.isResizing = false;
+		if (!this.isResizing) return;
 
-			var itemDims = this._resizingItem.getSize();
+		this.isResizing = false;
 
-			this._resizingItem.setSize(itemDims);
-			this._addToGrid(this._resizingItem);
+		const itemDims = this._resizingItem.getSize();
+		this._resizingItem.setSize(itemDims);
 
-			this._cascadeGrid();
-			this._updateSize();
-			this._filterGrid();
+		const itemPos = this._resizingItem.getGridPosition();
+		this._resizingItem.setGridPosition(itemPos);
 
-			this._resizingItem.stopMoving();
-			this._resizingItem.onResizeStopEvent();
-			this.onResizeStop.emit(this._resizingItem);
-			this._resizingItem = null;
-			this._resizeDirection = null;
-			this._placeholderRef.destroy();
+		this._addToGrid(this._resizingItem);
 
-			this._emitOnItemChange();
-		}
+		this._cascadeGrid();
+		this._updateSize();
+
+		this._resizingItem.stopMoving();
+		this._resizingItem.onResizeStopEvent();
+		this.onResizeStop.emit(this._resizingItem);
+
+		this._cleanResize();
+		this._placeholderRef.destroy();
+
+		this._emitOnItemChange();
 	}
 
-	private _maxGridSize(w: number, h: number): NgGridItemSize {
-		var sizex = Math.ceil(w / (this.colWidth + this.marginLeft + this.marginRight));
-		var sizey = Math.ceil(h / (this.rowHeight + this.marginTop + this.marginBottom));
-		return { 'x': sizex, 'y': sizey };
+	private _cleanDrag(): void {
+		this._draggingItem = null;
+		this._posOffset = null;
+		this.isDragging = false;
+		this._dragReady = false;
+	}
+
+	private _cleanResize(): void {
+		this._resizingItem = null;
+		this._resizeDirection = null;
+		this.isResizing = false;
+		this._resizeReady = false;
 	}
 
 	private _calculateGridSize(width: number, height: number): NgGridItemSize {
@@ -840,78 +949,78 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _getCollisions(pos: NgGridItemPosition, dims: NgGridItemSize): Array<NgGridItem> {
 		const returns: Array<NgGridItem> = [];
 
-		if(!pos.col) {
-			pos.col = 1;
-		}
-		if(!pos.row) {
-			pos.row = 1;
-		}
+		if (!pos.col) { pos.col = 1; }
+		if (!pos.row) { pos.row = 1; }
 
-		for (let j: number = 0; j < dims.y; j++) {
-			if (this._itemGrid[pos.row + j] != null) {
-				for (let i: number = 0; i < dims.x; i++) {
-					if (this._itemGrid[pos.row + j][pos.col + i] != null) {
-						const item: NgGridItem = this._itemGrid[pos.row + j][pos.col + i];
+		const leftCol = pos.col;
+		const rightCol = pos.col + dims.x;
+		const topRow = pos.row;
+		const bottomRow = pos.row + dims.y;
 
-						if (returns.indexOf(item) < 0)
-							returns.push(item);
+		this._itemsInGrid.forEach((itemId: string) => {
+			const item: NgGridItem = this._items.get(itemId);
 
-						const itemPos: NgGridItemPosition = item.getGridPosition();
-						const itemDims: NgGridItemSize = item.getSize();
-
-						i = itemPos.col + itemDims.x - pos.col;
-					}
-				}
+			if (!item) {
+				this._itemsInGrid.delete(itemId);
+				return;
 			}
-		}
+
+			const itemLeftCol = item.col;
+			const itemRightCol = item.col + item.sizex;
+			const itemTopRow = item.row;
+			const itemBottomRow = item.row + item.sizey;
+
+			const withinColumns = leftCol < itemRightCol && itemLeftCol < rightCol;
+			const withinRows = topRow < itemBottomRow && itemTopRow < bottomRow;
+
+			if (withinColumns && withinRows) {
+				returns.push(item);
+			}
+		});
 
 		return returns;
 	}
 
 	private _fixGridCollisions(pos: NgGridItemPosition, dims: NgGridItemSize): void {
-		while (this._hasGridCollision(pos, dims)) {
-			const collisions: Array<NgGridItem> = this._getCollisions(pos, dims);
+		const collisions: Array<NgGridItem> = this._getCollisions(pos, dims);
+		if (collisions.length === 0) { return; }
 
-			this._removeFromGrid(collisions[0]);
+		for (let collision of collisions) {
+			this._removeFromGrid(collision);
 
-			const itemPos: NgGridItemPosition = collisions[0].getGridPosition();
-			const itemDims: NgGridItemSize = collisions[0].getSize();
+			const itemDims: NgGridItemSize = collision.getSize();
+			const itemPos: NgGridItemPosition = collision.getGridPosition();
+			let newItemPos: NgGridItemPosition = { col: itemPos.col, row: itemPos.row };
 
-			switch (this.cascade) {
-				case 'up':
-				case 'down':
-				default:
-					const oldRow: number = itemPos.row;
-					itemPos.row = pos.row + dims.y;
+			if (this._collisionFixDirection === "vertical") {
+				newItemPos.row = pos.row + dims.y;
 
-					if (!this._isWithinBoundsY(itemPos, itemDims)) {
-						itemPos.col = pos.col + dims.x;
-						itemPos.row = oldRow;
-					}
-					break;
-				case 'left':
-				case 'right':
-					const oldCol: number = itemPos.col;
-					itemPos.col = pos.col + dims.x;
+				if (!this._isWithinBoundsY(newItemPos, itemDims)) {
+					newItemPos.col = pos.col + dims.x;
+					newItemPos.row = 1;
+				}
+			} else if (this._collisionFixDirection === "horizontal") {
+				newItemPos.col = pos.col + dims.x;
 
-					if (!this._isWithinBoundsX(itemPos, itemDims)) {
-						itemPos.col = oldCol;
-						itemPos.row = pos.row + dims.y;
-					}
-					break;
+				if (!this._isWithinBoundsX(newItemPos, itemDims)) {
+					newItemPos.col = 1;
+					newItemPos.row = pos.row + dims.y;
+				}
 			}
 
-			collisions[0].setGridPosition(itemPos);
+			collision.setGridPosition(newItemPos);
 
-			this._fixGridCollisions(itemPos, itemDims);
-			this._addToGrid(collisions[0]);
-			collisions[0].onCascadeEvent();
+			this._fixGridCollisions(newItemPos, itemDims);
+			this._addToGrid(collision);
+			collision.onCascadeEvent();
 		}
+
+		this._fixGridCollisions(pos, dims);
 	}
 
 	private _cascadeGrid(pos?: NgGridItemPosition, dims?: NgGridItemSize): void {
 		if (this._destroyed) return;
-		if (pos && !dims) throw new Error('Cannot cascade with only position and not dimensions');
+		if (!pos !== !dims) throw new Error('Cannot cascade with only position and not dimensions');
 
 		if (this.isDragging && this._draggingItem && !pos && !dims) {
 			pos = this._draggingItem.getGridPosition();
@@ -921,108 +1030,103 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			dims = this._resizingItem.getSize();
 		}
 
+		let itemsInGrid: NgGridItem[] = Array.from(this._itemsInGrid, (itemId: string) => this._items.get(itemId));
+
 		switch (this.cascade) {
 			case 'up':
 			case 'down':
+				itemsInGrid = itemsInGrid.sort(NgGridHelper.sortItemsByPositionVertical);
 				const lowestRowPerColumn: Map<number, number> = new Map<number, number>();
 
-				for (let row: number = 1; row <= this._curMaxRow; row++) {
-					if (this._itemGrid[row] == undefined) continue;
+				for (let item of itemsInGrid) {
+					if (item.isFixed) continue;
 
-					for (let col: number = 1; col <= this._curMaxCol; col++) {
-						if (this._itemGrid[row] == undefined) break;
-						if (lowestRowPerColumn.has(col) && row < lowestRowPerColumn.get(col)) continue;
+					const itemDims: NgGridItemSize = item.getSize();
+					const itemPos: NgGridItemPosition = item.getGridPosition();
 
-						if (this._itemGrid[row][col] != null) {
-							const item: NgGridItem = this._itemGrid[row][col];
-							if (item.isFixed) continue;
+					let lowestRowForItem: number = lowestRowPerColumn.get(itemPos.col) || 1;
 
-							const itemDims: NgGridItemSize = item.getSize();
-							const itemPos: NgGridItemPosition = item.getGridPosition();
+					for (let i: number = 1; i < itemDims.x; i++) {
+						const lowestRowForColumn = lowestRowPerColumn.get(itemPos.col + i) || 1;
+						lowestRowForItem = Math.max(lowestRowForColumn, lowestRowForItem);
+					}
 
-							if (itemPos.col != col || itemPos.row != row) continue;	//	If this is not the element's start
+					const leftCol = itemPos.col;
+					const rightCol = itemPos.col + itemDims.x;
 
-							let lowestRowForItem: number = lowestRowPerColumn.has(col) ? lowestRowPerColumn.get(col) : 1;
+					if (pos && dims) {
+						const withinColumns = rightCol > pos.col && leftCol < (pos.col + dims.x);
 
-							for (let i: number = 1; i < itemDims.x; i++) {
-								const lowestRowForColumn = lowestRowPerColumn.has(col + i) ? lowestRowPerColumn.get(col + i) : 1;
-								lowestRowForItem = Math.max(lowestRowForColumn, lowestRowForItem);
-							}
+						if (withinColumns) {          //	If our element is in one of the item's columns
+							const roomAboveItem = itemDims.y <= (pos.row - lowestRowForItem);
 
-							if (pos && (col + itemDims.x) > pos.col && col < (pos.col + dims.x)) {          //	If our element is in one of the item's columns
-								if ((row >= pos.row && row < (pos.row + dims.y)) ||                         //	If this row is occupied by our element
-									((itemDims.y > (pos.row - lowestRowForItem)) &&                               //	Or the item can't fit above our element
-										(row >= (pos.row + dims.y) && lowestRowForItem < (pos.row + dims.y)))) {    //		And this row is below our element, but we haven't caught it
-									lowestRowForItem = Math.max(lowestRowForItem, pos.row + dims.y);                        //	Set the lowest row to be below it
-								}
-							}
-
-							const newPos: NgGridItemPosition = { col: col, row: lowestRowForItem };
-
-							if (lowestRowForItem != itemPos.row && this._isWithinBoundsY(newPos, itemDims)) {	//	If the item is not already on this row move it up
-								this._removeFromGrid(item);
-
-								item.setGridPosition(newPos);
-
-								item.onCascadeEvent();
-								this._addToGrid(item);
-							}
-
-							for (let i: number = 0; i < itemDims.x; i++) {
-								lowestRowPerColumn.set(col + i, lowestRowForItem + itemDims.y);	//	Update the lowest row to be below the item
+							if (!roomAboveItem) {                                                  //	Item can't fit above our element
+								lowestRowForItem = Math.max(lowestRowForItem, pos.row + dims.y);   //	Set the lowest row to be below it
 							}
 						}
+					}
+
+					const newPos: NgGridItemPosition = { col: itemPos.col, row: lowestRowForItem };
+
+					//	What if it's not within bounds Y?
+					if (lowestRowForItem != itemPos.row && this._isWithinBoundsY(newPos, itemDims)) {	//	If the item is not already on this row move it up
+						this._removeFromGrid(item);
+
+						item.setGridPosition(newPos);
+
+						item.onCascadeEvent();
+						this._addToGrid(item);
+					}
+
+					for (let i: number = 0; i < itemDims.x; i++) {
+						lowestRowPerColumn.set(itemPos.col + i, lowestRowForItem + itemDims.y);	//	Update the lowest row to be below the item
 					}
 				}
 				break;
 			case 'left':
 			case 'right':
+				itemsInGrid = itemsInGrid.sort(NgGridHelper.sortItemsByPositionHorizontal);
 				const lowestColumnPerRow: Map<number, number> = new Map<number, number>();
 
-				for (let row: number = 1; row <= this._curMaxRow; row++) {
-					if (this._itemGrid[row] == undefined) continue;
+				for (let item of itemsInGrid) {
+					const itemDims: NgGridItemSize = item.getSize();
+					const itemPos: NgGridItemPosition = item.getGridPosition();
 
-					for (let col: number = 1; col <= this._curMaxCol; col++) {
-						if (this._itemGrid[row] == undefined) break;
-						if (lowestColumnPerRow.has(row) && col < lowestColumnPerRow.get(row)) continue;
+					let lowestColumnForItem: number = lowestColumnPerRow.get(itemPos.row) || 1;
 
-						if (this._itemGrid[row][col] != null) {
-							const item: NgGridItem = this._itemGrid[row][col];
-							const itemDims: NgGridItemSize = item.getSize();
-							const itemPos: NgGridItemPosition = item.getGridPosition();
+					for (let i: number = 1; i < itemDims.y; i++) {
+						let lowestOffsetColumn: number = lowestColumnPerRow.get(itemPos.row + i) || 1;
+						lowestColumnForItem = Math.max(lowestOffsetColumn, lowestColumnForItem);
+					}
 
-							if (itemPos.col != col || itemPos.row != row) continue;	//	If this is not the element's start
+					const topRow = itemPos.row;
+					const bottomRow = itemPos.row + itemDims.y;
 
-							let lowestColumnForItem: number = lowestColumnPerRow.has(row) ? lowestColumnPerRow.get(row) : 1;
+					if (pos && dims) {
+						const withinRows = bottomRow > pos.col && topRow < (pos.col + dims.x);
 
-							for (let i: number = 1; i < itemDims.y; i++) {
-								let lowestOffsetColumn: number = lowestColumnPerRow.has(row + i) ? lowestColumnPerRow.get(row + i) : 1;
-								lowestColumnForItem = Math.max(lowestOffsetColumn, lowestColumnForItem);
-							}
+						if (withinRows) {          //	If our element is in one of the item's rows
+							const roomNextToItem = itemDims.x <= (pos.col - lowestColumnForItem);
 
-							if (pos && (row + itemDims.y) > pos.row && row < (pos.row + dims.y)) {          //	If our element is in one of the item's rows
-								if ((col >= pos.col && col < (pos.col + dims.x)) ||                         //	If this col is occupied by our element
-									((itemDims.x > (pos.col - lowestColumnForItem)) &&                               //	Or the item can't fit above our element
-										(col >= (pos.col + dims.x) && lowestColumnForItem < (pos.col + dims.x)))) {    //		And this col is below our element, but we haven't caught it
-									lowestColumnForItem = Math.max(lowestColumnForItem, pos.col + dims.x);                        //	Set the lowest col to be below it
-								}
-							}
-
-							const newPos: NgGridItemPosition = { col: lowestColumnForItem, row: row };
-
-							if (lowestColumnForItem != itemPos.col && this._isWithinBoundsX(newPos, itemDims)) {	//	If the item is not already on this col move it up
-								this._removeFromGrid(item);
-
-								item.setGridPosition(newPos);
-
-								item.onCascadeEvent();
-								this._addToGrid(item);
-							}
-
-							for (let i: number = 0; i < itemDims.y; i++) {
-								lowestColumnPerRow.set(row + i, lowestColumnForItem + itemDims.x);	//	Update the lowest col to be below the item
+							if (!roomNextToItem) {                                                      //	Item can't fit next to our element
+								lowestColumnForItem = Math.max(lowestColumnForItem, pos.col + dims.x);  //	Set the lowest col to be the other side of it
 							}
 						}
+					}
+
+					const newPos: NgGridItemPosition = { col: lowestColumnForItem, row: itemPos.row };
+
+					if (lowestColumnForItem != itemPos.col && this._isWithinBoundsX(newPos, itemDims)) {	//	If the item is not already on this col move it up
+						this._removeFromGrid(item);
+
+						item.setGridPosition(newPos);
+
+						item.onCascadeEvent();
+						this._addToGrid(item);
+					}
+
+					for (let i: number = 0; i < itemDims.y; i++) {
+						lowestColumnPerRow.set(itemPos.row + i, lowestColumnForItem + itemDims.x);	//	Update the lowest col to be below the item
 					}
 				}
 				break;
@@ -1032,34 +1136,94 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _fixGridPosition(pos: NgGridItemPosition, dims: NgGridItemSize): NgGridItemPosition {
-		while (this._hasGridCollision(pos, dims) || !this._isWithinBounds(pos, dims, true)) {
-			if (this._hasGridCollision(pos, dims)) {
-				const collisions: NgGridItem[] = this._getCollisions(pos, dims);
+		if (!this._hasGridCollision(pos, dims)) return pos;
 
-				switch (this.cascade) {
-					case 'up':
-					case 'down':
-					default:
-						pos.row = Math.max.apply(null, collisions.map((item: NgGridItem) => item.row + item.sizey));
-						break;
-					case 'left':
-					case 'right':
-						pos.col = Math.max.apply(null, collisions.map((item: NgGridItem) => item.col + item.sizex));
-						break;
+		const maxRow = this._maxRows === 0 ? this._getMaxRow() : this._maxRows;
+		const maxCol = this._maxCols === 0 ? this._getMaxCol() : this._maxCols;
+		const newPos = {
+			col: pos.col,
+			row: pos.row,
+		};
+
+		if (this._itemFixDirection === "vertical") {
+			fixLoop:
+			for (; newPos.col <= maxRow;) {
+				const itemsInPath = this._getItemsInVerticalPath(newPos, dims, newPos.row);
+				let nextRow = newPos.row;
+
+				for (let item of itemsInPath) {
+					if (item.row - nextRow >= dims.y) {
+						newPos.row = nextRow;
+						break fixLoop;
+					}
+
+					nextRow = item.row + item.sizey;
 				}
-			}
 
+				if (maxRow - nextRow >= dims.y) {
+					newPos.row = nextRow;
+					break fixLoop;
+				}
 
-			if (!this._isWithinBoundsY(pos, dims)) {
-				pos.col++;
-				pos.row = 1;
+				newPos.col = Math.max(newPos.col + 1, Math.min.apply(Math, itemsInPath.map((item) => item.col + dims.x)));
+				newPos.row = 1;
 			}
-			if (!this._isWithinBoundsX(pos, dims)) {
-				pos.row++;
-				pos.col = 1;
+		} else if (this._itemFixDirection === "horizontal") {
+			fixLoop:
+			for (; newPos.row <= maxRow;) {
+				const itemsInPath = this._getItemsInHorizontalPath(newPos, dims, newPos.col);
+				let nextCol = newPos.col;
+
+				for (let item of itemsInPath) {
+					if (item.col - nextCol >= dims.x) {
+						newPos.col = nextCol;
+						break fixLoop;
+					}
+
+					nextCol = item.col + item.sizex;
+				}
+
+				if (maxCol - nextCol >= dims.x) {
+					newPos.col = nextCol;
+					break fixLoop;
+				}
+
+				newPos.row = Math.max(newPos.row + 1, Math.min.apply(Math, itemsInPath.map((item) => item.row + dims.y)));
+				newPos.col = 1;
 			}
 		}
-		return pos;
+
+		return newPos;
+	}
+
+	private _getItemsInHorizontalPath(pos: NgGridItemPosition, dims: NgGridItemSize, startColumn: number = 0): NgGridItem[] {
+		const itemsInPath: NgGridItem[] = [];
+		const topRow: number = pos.row + dims.y - 1;
+
+		this._itemsInGrid.forEach((itemId: string) => {
+			const item = this._items.get(itemId);
+			if (item.col + item.sizex - 1 < startColumn) { return; }    //	Item falls after start column
+			if (item.row > topRow) { return; }                          //	Item falls above path
+			if (item.row + item.sizey - 1 < pos.row) { return; }        //	Item falls below path
+			itemsInPath.push(item);
+		});
+
+		return itemsInPath;
+	}
+
+	private _getItemsInVerticalPath(pos: NgGridItemPosition, dims: NgGridItemSize, startRow: number = 0): NgGridItem[] {
+		const itemsInPath: NgGridItem[] = [];
+		const rightCol: number = pos.col + dims.x - 1;
+
+		this._itemsInGrid.forEach((itemId: string) => {
+			const item = this._items.get(itemId);
+			if (item.row + item.sizey - 1 < startRow) { return; }   //	Item falls above start row
+			if (item.col > rightCol) { return; }                    //	Item falls after path
+			if (item.col + item.sizex - 1 < pos.col) { return; }    //	Item falls before path
+			itemsInPath.push(item);
+		});
+
+		return itemsInPath;
 	}
 
 	private _isWithinBoundsX(pos: NgGridItemPosition, dims: NgGridItemSize, allowExcessiveItems: boolean = false) {
@@ -1123,38 +1287,11 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			pos = item.getGridPosition();
 		}
 
-		for (let j: number = 0; j < dims.y; j++) {
-			if (this._itemGrid[pos.row + j] == null) this._itemGrid[pos.row + j] = {};
-
-			for (let i: number = 0; i < dims.x; i++) {
-				this._itemGrid[pos.row + j][pos.col + i] = item;
-			}
-		}
+		this._itemsInGrid.add(item.uid);
 	}
 
 	private _removeFromGrid(item: NgGridItem): void {
-		for (let y in this._itemGrid)
-			for (let x in this._itemGrid[y])
-				if (this._itemGrid[y][x] == item)
-					delete this._itemGrid[y][x];
-	}
-
-	private _filterGrid(): void {
-		for (let y in this._itemGrid) {
-			for (let x in this._itemGrid[y]) {
-				const item: NgGridItem = this._itemGrid[y][x];
-				const withinRow = <any>y < (item.row + item.sizey) && <any>y >= item.row;
-				const withinCol = <any>x < (item.col + item.sizex) && <any>x >= item.col;
-
-				if (this._items.indexOf(this._itemGrid[y][x]) < 0 || !withinRow || !withinCol) {
-					delete this._itemGrid[y][x];
-				}
-			}
-
-			if (Object.keys(this._itemGrid[y]).length == 0) {
-				delete this._itemGrid[y];
-			}
-		}
+		this._itemsInGrid.delete(item.uid);
 	}
 
 	private _updateSize(): void {
@@ -1174,11 +1311,23 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _getMaxRow(): number {
-		return Math.max.apply(null, this._items.map((item: NgGridItem) => item.row + item.sizey - 1));
+		const itemsRows: number[] = Array.from(this._itemsInGrid, (itemId: string) => {
+			const item = this._items.get(itemId);
+			if (!item) return 0;
+			return item.row + item.sizey - 1;
+		});
+
+		return Math.max.apply(null, itemsRows);
 	}
 
 	private _getMaxCol(): number {
-		return Math.max.apply(null, this._items.map((item: NgGridItem) => item.col + item.sizex - 1));
+		const itemsCols: number[] = Array.from(this._itemsInGrid, (itemId: string) => {
+			const item = this._items.get(itemId);
+			if (!item) return 0;
+			return item.col + item.sizex - 1;
+		});
+
+		return Math.max.apply(null, itemsCols);
 	}
 
 	private _getMousePosition(e: any): NgGridRawPosition {
@@ -1222,47 +1371,50 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		return Math.floor(maxWidth / itemWidth);
 	}
 
+	private _getContainerRows(): number {
+		const maxHeight: number = window.innerHeight - this.marginTop - this.marginBottom;
+		return Math.floor(maxHeight / (this.rowHeight + this.marginTop + this.marginBottom));
+	}
+
 	private _getScreenMargin(): number {
 		const maxWidth: number = this._ngEl.nativeElement.getBoundingClientRect().width;
 		const itemWidth: number = this.colWidth + this.marginLeft + this.marginRight;
 		return Math.floor((maxWidth - (this._maxCols * itemWidth)) / 2);;
 	}
 
-	private _getContainerRows(): number {
-		const maxHeight: number = window.innerHeight - this.marginTop - this.marginBottom;
-		return Math.floor(maxHeight / (this.rowHeight + this.marginTop + this.marginBottom));
-	}
-
 	private _getItemFromPosition(position: NgGridRawPosition): NgGridItem {
-		for (let item of this._items) {
+		return Array.from(this._itemsInGrid, (itemId: string) => this._items.get(itemId)).find((item: NgGridItem) => {
+			if (!item) return false;
+
 			const size: NgGridItemDimensions = item.getDimensions();
 			const pos: NgGridRawPosition = item.getPosition();
 
-			if (position.left > pos.left && position.left < (pos.left + size.width) &&
-				position.top > pos.top && position.top < (pos.top + size.height)) {
-				return item;
-			}
-		}
-
-		return null;
+			return position.left >= pos.left && position.left < (pos.left + size.width) &&
+			position.top >= pos.top && position.top < (pos.top + size.height);
+		});
 	}
 
 	private _createPlaceholder(item: NgGridItem): void {
 		const pos: NgGridItemPosition = item.getGridPosition();
 		const dims: NgGridItemSize = item.getSize();
 
-        const factory = this.componentFactoryResolver.resolveComponentFactory(NgGridPlaceholder);
-        var componentRef: ComponentRef<NgGridPlaceholder> = item.containerRef.createComponent(factory);
-        this._placeholderRef = componentRef;
-        const placeholder: NgGridPlaceholder = componentRef.instance;
-        placeholder.registerGrid(this);
-        placeholder.setCascadeMode(this.cascade);
-        placeholder.setGridPosition({ col: pos.col, row: pos.row });
-        placeholder.setSize({ x: dims.x, y: dims.y });
+		const factory = this.componentFactoryResolver.resolveComponentFactory(NgGridPlaceholder);
+		var componentRef: ComponentRef<NgGridPlaceholder> = item.containerRef.createComponent(factory);
+		this._placeholderRef = componentRef;
+		const placeholder: NgGridPlaceholder = componentRef.instance;
+		placeholder.registerGrid(this);
+		placeholder.setCascadeMode(this.cascade);
+		placeholder.setGridPosition({ col: pos.col, row: pos.row });
+		placeholder.setSize({ x: dims.x, y: dims.y });
 	}
 
 	private _emitOnItemChange() {
-		this.onItemChange.emit(this._items.map((item: NgGridItem) => item.getEventOutput()));
+		const itemOutput: any[] = Array.from(this._itemsInGrid)
+			.map((itemId: string) => this._items.get(itemId))
+			.filter((item: NgGridItem) => !!item)
+			.map((item: NgGridItem) => item.getEventOutput());
+
+		this.onItemChange.emit(itemOutput);
 	}
 
 	private _defineListeners(): void {
@@ -1277,7 +1429,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._touchmove$ = Observable.fromEvent(element, 'touchmove');
 		this._touchend$ = Observable.fromEvent(element, 'touchend');
 	}
-	
+
 	private _enableListeners(): void {
 		if (this._enabledListener) {
 			return;
@@ -1288,7 +1440,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		if (this._isTouchDevice()) {
 			this._enableTouchListeners();
 		}
- 
+
 		this._enabledListener = true;
 	}
 
@@ -1300,7 +1452,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _isTouchDevice(): boolean {
 		return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 	};
-	
+
 	private _enableTouchListeners(): void {
 		const touchstartSubs = this._touchstart$.subscribe((e: TouchEvent) => this.mouseDownEventHandler(e));
 		const touchmoveSubs = this._touchmove$.subscribe((e: TouchEvent) => this.mouseMoveEventHandler(e));
