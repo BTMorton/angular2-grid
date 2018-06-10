@@ -130,7 +130,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this.setConfig(v);
 
 		if (this._differ == null && v != null) {
-			this._differ = this._differs.find(this._config).create(null);
+			this._differ = this._differs.find(this._config).create();
 		}
 
 		this._differ.diff(this._config);
