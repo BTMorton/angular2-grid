@@ -23,6 +23,7 @@ export interface NgGridConfig {
 	zoom_on_drag?: boolean;
 	limit_to_screen?: boolean;
 	center_to_screen?: boolean;
+	resize_directions?: string[];
 	element_based_row_height?: boolean;
 	fix_item_position_direction?: NgConfigFixDirection;
 	fix_collision_position_direction?: NgConfigFixDirection;
@@ -47,6 +48,7 @@ export interface NgGridItemConfig {
 	minRows?: number;
 	minWidth?: number;
 	minHeight?: number;
+	resizeDirections?: string[];
 }
 
 export interface NgGridItemEvent {

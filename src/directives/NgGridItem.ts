@@ -38,6 +38,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 		draggable: true,
 		resizable: true,
 		borderSize: 25,
+		resizeDirections: null,
 	};
 	// tslint:enable:object-literal-sort-keys
 
@@ -68,6 +69,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 	private _minCols: number = 0;
 	private _maxRows: number = 0;
 	private _minRows: number = 0;
+	private _resizeDirections: string[] = [];
 
 	//	[ng-grid-item] handler
 	set config(v: NgGridItemConfig) {
@@ -227,8 +229,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 
 			if (typeof this._resizeHandle !== "object") return null;
 
-			const resizeDirections = [ "bottomright", "bottomleft", "topright", "topleft", "right", "left", "bottom", "top" ];
-			for (let direction of resizeDirections) {
+			for (let direction of this._resizeDirections) {
 				if (direction in this._resizeHandle) {
 					if (this.findHandle(this._resizeHandle[direction], e.target)) {
 						return direction;
@@ -245,23 +246,23 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 
 		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return "bottomright";
+			return this._resizeDirections.indexOf("bottomright") < 0 ? null : "bottomright";
 		} else if (mousePos.left < this._borderSize && mousePos.top < this._elemHeight
 			&& mousePos.top > this._elemHeight - this._borderSize) {
-			return "bottomleft";
+			return this._resizeDirections.indexOf("bottomleft") < 0 ? null : "bottomleft";
 		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
 			&& mousePos.top < this._borderSize) {
-			return "topright";
+			return this._resizeDirections.indexOf("topright") < 0 ? null : "topright";
 		} else if (mousePos.left < this._borderSize && mousePos.top < this._borderSize) {
-			return "topleft";
+			return this._resizeDirections.indexOf("topleft") < 0 ? null : "topleft";
 		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
-			return "right";
+			return this._resizeDirections.indexOf("right") < 0 ? null : "right";
 		} else if (mousePos.left < this._borderSize) {
-			return "left";
+			return this._resizeDirections.indexOf("left") < 0 ? null : "left";
 		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return "bottom";
+			return this._resizeDirections.indexOf("bottom") < 0 ? null : "bottom";
 		} else if (mousePos.top < this._borderSize) {
-			return "top";
+			return this._resizeDirections.indexOf("top") < 0 ? null : "top";
 		}
 
 		return null;
@@ -354,6 +355,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 		this.isDraggable = config.draggable ? true : false;
 		this.isResizable = config.resizable ? true : false;
 		this.isFixed = config.fixed ? true : false;
+		this._resizeDirections = config.resizeDirections || this._ngGrid.resizeDirections;
 
 		this._maxCols = !isNaN(config.maxCols) && isFinite(config.maxCols) ? config.maxCols : 0;
 		this._minCols = !isNaN(config.minCols) && isFinite(config.minCols) ? config.minCols : 0;
