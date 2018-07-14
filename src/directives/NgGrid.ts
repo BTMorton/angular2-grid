@@ -692,8 +692,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._removeFromGrid(this._resizingItem);
 		this._createPlaceholder(this._resizingItem);
 
-		if (this._allowOverlap)
+		if (this._allowOverlap) {
 			this._resizingItem.zIndex = this._lastZValue++;
+		}
 
 		//	Status Flags
 		this.isResizing = true;
@@ -712,8 +713,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._removeFromGrid(this._draggingItem);
 		this._createPlaceholder(this._draggingItem);
 
-		if (this._allowOverlap)
+		if (this._allowOverlap) {
 			this._draggingItem.zIndex = this._lastZValue++;
+		}
 
 		//	Status Flags
 		this.isDragging = true;
@@ -1369,8 +1371,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			pos = item.getGridPosition();
 		}
 
-		if (this._allowOverlap)
+		if (this._allowOverlap) {
 			item.zIndex = this._lastZValue++;
+		}
 
 		this._itemsInGrid.add(item.uid);
 	}
