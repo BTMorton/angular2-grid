@@ -85,7 +85,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _elementBasedDynamicRowHeight: boolean = false;
 	private _itemFixDirection: NgConfigFixDirection = "cascade";
 	private _collisionFixDirection: NgConfigFixDirection = "cascade";
+	private _allowOverlap: boolean = false;
 	private _cascadePromise: Promise<void>;
+	private _lastZValue: number = 1;
 
 	// Events
 	private _documentMousemove$: Observable<MouseEvent>;
@@ -128,6 +130,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		element_based_row_height: false,
 		fix_item_position_direction: "cascade",
 		fix_collision_position_direction: "cascade",
+		allow_overlap: false,
 	};
 	// tslint:enable:object-literal-sort-keys
 	private _config = NgGrid.CONST_DEFAULT_CONFIG;
@@ -274,7 +277,15 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 				case "fix_collision_position_direction":
 					this._collisionFixDirection = val;
 					break;
+				case "allow_overlap":
+					this._allowOverlap = !!val;
+					break;
 			}
+		}
+
+		if (this._allowOverlap && this.cascade !== "off" && this.cascade !== "") {
+			console.warn("Unable to overlap items when a cascade direction is set.");
+			this._allowOverlap = false;
 		}
 
 		if (this.dragEnable || this.resizeEnable) {
@@ -681,6 +692,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._removeFromGrid(this._resizingItem);
 		this._createPlaceholder(this._resizingItem);
 
+		if (this._allowOverlap) {
+			this._resizingItem.zIndex = this._lastZValue++;
+		}
+
 		//	Status Flags
 		this.isResizing = true;
 		this._resizeReady = false;
@@ -697,6 +712,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		this._draggingItem.startMoving();
 		this._removeFromGrid(this._draggingItem);
 		this._createPlaceholder(this._draggingItem);
+
+		if (this._allowOverlap) {
+			this._draggingItem.zIndex = this._lastZValue++;
+		}
 
 		//	Status Flags
 		this.isDragging = true;
@@ -964,6 +983,8 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _getCollisions(pos: NgGridItemPosition, dims: NgGridItemSize): NgGridItem[] {
+		if (this._allowOverlap) return [];
+
 		const returns: NgGridItem[] = [];
 
 		if (!pos.col) { pos.col = 1; }
@@ -1037,6 +1058,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 
 	private _cascadeGrid(pos?: NgGridItemPosition, dims?: NgGridItemSize): void {
 		if (this._destroyed) return;
+		if (this._allowOverlap) return;
 		if (!pos !== !dims) throw new Error("Cannot cascade with only position and not dimensions");
 
 		if (this.isDragging && this._draggingItem && !pos && !dims) {
@@ -1349,6 +1371,10 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 			pos = item.getGridPosition();
 		}
 
+		if (this._allowOverlap) {
+			item.zIndex = this._lastZValue++;
+		}
+
 		this._itemsInGrid.add(item.uid);
 	}
 
@@ -1445,15 +1471,18 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	}
 
 	private _getItemFromPosition(position: NgGridRawPosition): NgGridItem {
-		return Array.from(this._itemsInGrid, (itemId: string) => this._items.get(itemId)).find((item: NgGridItem) => {
-			if (!item) return false;
+		return Array.from(this._itemsInGrid, (itemId: string) => this._items.get(itemId))
+			.sort((a, b) => b.zIndex - a.zIndex)
+			.find((item: NgGridItem) => {
+				if (!item) return false;
 
-			const size: NgGridItemDimensions = item.getDimensions();
-			const pos: NgGridRawPosition = item.getPosition();
+				const size: NgGridItemDimensions = item.getDimensions();
+				const pos: NgGridRawPosition = item.getPosition();
 
-			return position.left >= pos.left && position.left < (pos.left + size.width) &&
-			position.top >= pos.top && position.top < (pos.top + size.height);
-		});
+				// tslint:disable-next-line:indent
+				return position.left >= pos.left && position.left < (pos.left + size.width) &&
+				       position.top >= pos.top && position.top < (pos.top + size.height);
+			});
 	}
 
 	private _createPlaceholder(item: NgGridItem): void {

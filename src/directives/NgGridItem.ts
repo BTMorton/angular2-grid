@@ -70,6 +70,16 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 	private _maxRows: number = 0;
 	private _minRows: number = 0;
 	private _resizeDirections: string[] = [];
+	private _zIndex: number = 0;
+
+	set zIndex(zIndex: number) {
+		this._renderer.setElementStyle(this._ngEl.nativeElement, "z-index", zIndex.toString());
+		this._zIndex = zIndex;
+	}
+
+	get zIndex(): number {
+		return this._zIndex;
+	}
 
 	//	[ng-grid-item] handler
 	set config(v: NgGridItemConfig) {
