@@ -43,6 +43,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	public cascade: string = "up";
 	public minWidth: number = 100;
 	public minHeight: number = 100;
+	public resizeDirections: string[] = ["bottomright", "bottomleft", "topright", "topleft", "right", "left", "bottom", "top"];
 
 	//	Private variables
 	private _items: Map<string, NgGridItem> = new Map<string, NgGridItem>();
@@ -112,6 +113,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		zoom_on_drag: false,
 		limit_to_screen: false,
 		center_to_screen: false,
+		resize_directions: ["bottomright", "bottomleft", "topright", "topleft", "right", "left", "bottom", "top"],
 		element_based_row_height: false,
 		fix_item_position_direction: "cascade",
 		fix_collision_position_direction: "cascade",
@@ -248,6 +250,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					break;
 				case "center_to_screen":
 					this._centerToScreen = val ? true : false;
+					break;
+				case "resize_directions":
+					this.resizeDirections = val || ["bottomright", "bottomleft", "topright", "topleft", "right", "left", "bottom", "top"];
 					break;
 				case "element_based_row_height":
 					this._elementBasedDynamicRowHeight = !!val;
