@@ -244,25 +244,10 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 
 		const mousePos: NgGridRawPosition = this._getMousePosition(e);
 
-		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
-			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return this._resizeDirections.indexOf("bottomright") < 0 ? null : "bottomright";
-		} else if (mousePos.left < this._borderSize && mousePos.top < this._elemHeight
-			&& mousePos.top > this._elemHeight - this._borderSize) {
-			return this._resizeDirections.indexOf("bottomleft") < 0 ? null : "bottomleft";
-		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
-			&& mousePos.top < this._borderSize) {
-			return this._resizeDirections.indexOf("topright") < 0 ? null : "topright";
-		} else if (mousePos.left < this._borderSize && mousePos.top < this._borderSize) {
-			return this._resizeDirections.indexOf("topleft") < 0 ? null : "topleft";
-		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
-			return this._resizeDirections.indexOf("right") < 0 ? null : "right";
-		} else if (mousePos.left < this._borderSize) {
-			return this._resizeDirections.indexOf("left") < 0 ? null : "left";
-		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return this._resizeDirections.indexOf("bottom") < 0 ? null : "bottom";
-		} else if (mousePos.top < this._borderSize) {
-			return this._resizeDirections.indexOf("top") < 0 ? null : "top";
+		for (let direction of this._resizeDirections) {
+			if (this.canResizeInDirection(direction, mousePos)) {
+				return direction;
+			}
 		}
 
 		return null;
@@ -599,5 +584,31 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 		this._config.col = this._userConfig.col = this._currentPosition.col;
 		this._config.row = this._userConfig.row = this._currentPosition.row;
 		this.ngGridItemChange.emit(this._userConfig);
+	}
+
+	private canResizeInDirection(direction: string, mousePos: NgGridRawPosition): boolean {
+		switch (direction) {
+			case "bottomright":
+				return mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+				    && mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize;	// tslint:disable-line:indent
+			case "bottomleft":
+				return mousePos.left < this._borderSize && mousePos.top < this._elemHeight
+				    && mousePos.top > this._elemHeight - this._borderSize;	// tslint:disable-line:indent
+			case "topright":
+				return mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+				    && mousePos.top < this._borderSize;	// tslint:disable-line:indent
+			case "topleft":
+				return mousePos.left < this._borderSize && mousePos.top < this._borderSize;
+			case "right":
+				return mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize;
+			case "left":
+				return mousePos.left < this._borderSize;
+			case "bottom":
+				return mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize;
+			case "top":
+				return mousePos.top < this._borderSize;
+			default:
+				return false;
+		}
 	}
 }

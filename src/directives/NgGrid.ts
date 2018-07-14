@@ -16,6 +16,17 @@ import "rxjs/add/observable/fromEvent";
 	selector: "[ngGrid]",
 })
 export class NgGrid implements OnInit, DoCheck, OnDestroy {
+	public static CONST_DEFAULT_RESIZE_DIRECTIONS: string[] = [
+		"bottomright",
+		"bottomleft",
+		"topright",
+		"topleft",
+		"right",
+		"left",
+		"bottom",
+		"top",
+	];
+
 	//	Event Emitters
 	@Output() public onDragStart: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
 	@Output() public onDrag: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
@@ -43,7 +54,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	public cascade: string = "up";
 	public minWidth: number = 100;
 	public minHeight: number = 100;
-	public resizeDirections: string[] = ["bottomright", "bottomleft", "topright", "topleft", "right", "left", "bottom", "top"];
+	public resizeDirections: string[] = NgGrid.CONST_DEFAULT_RESIZE_DIRECTIONS;
 
 	//	Private variables
 	private _items: Map<string, NgGridItem> = new Map<string, NgGridItem>();
@@ -113,7 +124,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		zoom_on_drag: false,
 		limit_to_screen: false,
 		center_to_screen: false,
-		resize_directions: ["bottomright", "bottomleft", "topright", "topleft", "right", "left", "bottom", "top"],
+		resize_directions: NgGrid.CONST_DEFAULT_RESIZE_DIRECTIONS,
 		element_based_row_height: false,
 		fix_item_position_direction: "cascade",
 		fix_collision_position_direction: "cascade",

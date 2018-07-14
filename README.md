@@ -58,7 +58,16 @@ To configure the grid with your own options, it is as easy as adding them as the
     'prefer_new': false,        //  When adding new items, will use that items position ahead of existing items
     'limit_to_screen': false,   //  When resizing the screen, with this true and auto_resize false, the grid will re-arrange to fit the screen size. Please note, at present this only works with cascade direction up.
     'center_to_screen': false,  //  When resizing the screen, with this true and limit_to_screen true, the grid will center itself to the screen if max columns width is smaller than the grid width.
-    'resize_directions': ["bottomright", "bottomleft", "topright", "topleft", "right", "left", "bottom", "top"],  //  The enabled resize directions
+    'resize_directions': [      //  The enabled resize directions in priority order
+        "bottomright",          //  If two directions overlap, e.g. bottomright and right, the direction that appears first in this list will be used
+        "bottomleft",
+        "topright",
+        "topleft",
+        "right",
+        "left",
+        "bottom",
+        "top"
+    ],
 }
 ```
 
@@ -84,7 +93,7 @@ The defaults for the grid item are:
     'minRows': 0,           //  The minimum number of rows for a particular item. This value will only override the value from the grid if larger
     'minWidth': 0,          //  The minimum width of a particular item. This value will override the value from the grid, as well as the minimum columns if the resulting size is larger
     'minHeight': 0,         //  The minimum height of a particular item. This value will override the value from the grid, as well as the minimum rows if the resulting size is larger
-    'resizeDirections': null,  //  The enabled resize directions. If null, uses the 'resize_directions' for the grid
+    'resizeDirections': null,  //  The enabled resize directions in priority order. If null, uses the 'resize_directions' for the grid
 }
 ```
 
