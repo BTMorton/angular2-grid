@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Remove debug logging
 
-## [2.2.0](https://github.com/BTMorton/angular2-grid/compare/078d3d2abbf0950bb7f3f06b48c76dd6bf5f5232...v2.2.0) - 2018-06-10
+## [2.2.0](https://github.com/BTMorton/angular2-grid/compare/v2.1.0...v2.2.0) - 2018-06-10
 ### Added
 - Configuration to specify directions to fix item positions
 - Top/left resizing for items ([#191](https://github.com/BTMorton/angular2-grid/issues/191))
@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Change detection of user configuration
 - Resize detection on item extremities ([#282](https://github.com/BTMorton/angular2-grid/issues/282))
 
-## [2.1.0](https://github.com/BTMorton/angular2-grid/compare/v2.0.7...078d3d2abbf0950bb7f3f06b48c76dd6bf5f5232) - 2017-10-22
+## [2.1.0](https://github.com/BTMorton/angular2-grid/compare/v2.0.7...v2.1.0) - 2017-10-22
 ### Added
 - Option to center items when using `limit_to_screen` ([#261](https://github.com/BTMorton/angular2-grid/pull/261))
 
@@ -61,7 +61,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Update peer dependencies to support Angular v4
 
-## [2.0.4](https://github.com/BTMorton/angular2-grid/compare/7f6cbe780889ab813fd795867556d99dad8d20ec...v2.0.4) - 2017-06-25
+## [2.0.4](https://github.com/BTMorton/angular2-grid/compare/v2.0.3...v2.0.4) - 2017-06-25
 ### Added
 - Add public method to trigger a resize
 
@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fix Firefox dragHandle issue ([#225](https://github.com/BTMorton/angular2-grid/issues/225))
 - Remove debug logging
 
-## [2.0.3](https://github.com/BTMorton/angular2-grid/compare/v2.0.2...7f6cbe780889ab813fd795867556d99dad8d20ec) - 2017-06-03
+## [2.0.3](https://github.com/BTMorton/angular2-grid/compare/v2.0.2...v2.0.3) - 2017-06-03
 ### Changed
 - Use [ngGrid] binding instead of [ng-grid] in readme ([#205](https://github.com/BTMorton/angular2-grid/pull/205))
 
