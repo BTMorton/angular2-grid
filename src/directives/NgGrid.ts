@@ -16,6 +16,17 @@ import "rxjs/add/observable/fromEvent";
 	selector: "[ngGrid]",
 })
 export class NgGrid implements OnInit, DoCheck, OnDestroy {
+	public static CONST_DEFAULT_RESIZE_DIRECTIONS: string[] = [
+		"bottomright",
+		"bottomleft",
+		"topright",
+		"topleft",
+		"right",
+		"left",
+		"bottom",
+		"top",
+	];
+
 	//	Event Emitters
 	@Output() public onDragStart: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
 	@Output() public onDrag: EventEmitter<NgGridItem> = new EventEmitter<NgGridItem>();
@@ -43,6 +54,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	public cascade: string = "up";
 	public minWidth: number = 100;
 	public minHeight: number = 100;
+	public resizeDirections: string[] = NgGrid.CONST_DEFAULT_RESIZE_DIRECTIONS;
 
 	//	Private variables
 	private _items: Map<string, NgGridItem> = new Map<string, NgGridItem>();
@@ -114,6 +126,7 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 		zoom_on_drag: false,
 		limit_to_screen: false,
 		center_to_screen: false,
+		resize_directions: NgGrid.CONST_DEFAULT_RESIZE_DIRECTIONS,
 		element_based_row_height: false,
 		fix_item_position_direction: "cascade",
 		fix_collision_position_direction: "cascade",
@@ -251,6 +264,9 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 					break;
 				case "center_to_screen":
 					this._centerToScreen = val ? true : false;
+					break;
+				case "resize_directions":
+					this.resizeDirections = val || ["bottomright", "bottomleft", "topright", "topleft", "right", "left", "bottom", "top"];
 					break;
 				case "element_based_row_height":
 					this._elementBasedDynamicRowHeight = !!val;
@@ -1159,62 +1175,107 @@ export class NgGrid implements OnInit, DoCheck, OnDestroy {
 	private _fixGridPosition(pos: NgGridItemPosition, dims: NgGridItemSize): NgGridItemPosition {
 		if (!this._hasGridCollision(pos, dims)) return pos;
 
-		const maxRow = this._maxRows === 0 ? this._getMaxRow() : this._maxRows;
-		const maxCol = this._maxCols === 0 ? this._getMaxCol() : this._maxCols;
+		const maxAllowedRows = this._maxRows;
+		const maxUsedRows = this._getMaxRow();
+		const maxAllowedCols = this._maxCols;
+		const maxUsedCols = this._getMaxCol();
 		const newPos = {
 			col: pos.col,
 			row: pos.row,
 		};
 
-		if (this._itemFixDirection === "vertical") {
-			fixLoop:
-			for (; newPos.col <= maxRow; ) {
+		if (maxAllowedCols === 0 && dims.y >= maxAllowedRows) {
+			//	It's too big to fit alongside any other item, it has to go straight to the top right
+			newPos.col = maxUsedCols + 1;
+			newPos.row = 1;
+		} else if  (maxAllowedRows === 0 && dims.x >= maxAllowedCols) {
+			//	It's too big to fit alongside any other item, it has to go straight to the bottom left
+			newPos.row = maxUsedRows + 1;
+			newPos.col = 1;
+		} else if (this._itemFixDirection === "vertical") {
+			if (maxAllowedRows === 0) {
+				//	We can keep pushing it down as long as we like
+				//	See if it will fit in any gaps between existing items
 				const itemsInPath = this._getItemsInVerticalPath(newPos, dims, newPos.row);
-				let nextRow = newPos.row;
+				newPos.row = this._getNextFittingRow(newPos, dims, itemsInPath);
+			} else {
+				//	We can only move down so far, before we need to try putting at the top of the next column
+				//	Luckily, we can push it out as far as we like as maxAllowedCols *must* be 0
+				for (; newPos.col <= maxUsedCols; ) {
+					//	See if it will fit in any gaps between existing items in this column
+					const itemsInPath = this._getItemsInVerticalPath(newPos, dims, newPos.row);
+					const nextRow = this._getNextFittingRow(newPos, dims, itemsInPath);
 
-				for (let item of itemsInPath) {
-					if (item.row - nextRow >= dims.y) {
+					//	See if the item will fit somewhere in this row
+					if (maxAllowedRows - nextRow >= dims.y) {
 						newPos.row = nextRow;
-						break fixLoop;
+						break;
 					}
 
-					nextRow = item.row + item.sizey;
+					//	If not, try moving to the top of the column left of the smallest item in our way
+					newPos.col = Math.max(newPos.col + 1, Math.min.apply(Math, itemsInPath.map((item) => item.col + item.sizex)));
+					newPos.row = 1;
 				}
-
-				if (maxRow - nextRow >= dims.y) {
-					newPos.row = nextRow;
-					break fixLoop;
-				}
-
-				newPos.col = Math.max(newPos.col + 1, Math.min.apply(Math, itemsInPath.map((item) => item.col + dims.x)));
-				newPos.row = 1;
 			}
 		} else if (this._itemFixDirection === "horizontal") {
-			fixLoop:
-			for (; newPos.row <= maxRow; ) {
-				const itemsInPath = this._getItemsInHorizontalPath(newPos, dims, newPos.col);
-				let nextCol = newPos.col;
+			if (maxAllowedCols === 0) {
+				//	We can keep pushing it out as long as we like
+				//	See if it will fit in any gaps between existing items
+				const itemsInPath = this._getItemsInHorizontalPath(newPos, dims, newPos.row);
+				newPos.col = this._getNextFittingCol(newPos, dims, itemsInPath);
+			} else {
+				//	We can only move out so far, before we need to try putting at the left of the next row
+				//	Luckily, we can push it down as far as we like as maxAllowedRows *must* be 0
+				for (; newPos.row <= maxUsedRows; ) {
+					const itemsInPath = this._getItemsInHorizontalPath(newPos, dims, newPos.col);
+					let nextCol = this._getNextFittingCol(newPos, dims, itemsInPath);
 
-				for (let item of itemsInPath) {
-					if (item.col - nextCol >= dims.x) {
+					//	See if the item will fit somewhere in this column
+					if (maxAllowedCols - nextCol >= dims.x) {
 						newPos.col = nextCol;
-						break fixLoop;
+						break;
 					}
 
-					nextCol = item.col + item.sizex;
+					//	If not, try moving to the left of the row below the smallest item in our way
+					newPos.row = Math.max(newPos.row + 1, Math.min.apply(Math, itemsInPath.map((item) => item.row + item.sizey)));
+					newPos.col = 1;
 				}
-
-				if (maxCol - nextCol >= dims.x) {
-					newPos.col = nextCol;
-					break fixLoop;
-				}
-
-				newPos.row = Math.max(newPos.row + 1, Math.min.apply(Math, itemsInPath.map((item) => item.row + dims.y)));
-				newPos.col = 1;
 			}
 		}
 
 		return newPos;
+	}
+
+	private _getNextFittingRow(newPos: NgGridItemPosition, dims: NgGridItemSize, itemsInPath: NgGridItem[]): number {
+		let nextRow = newPos.row;
+
+		for (let item of itemsInPath) {
+			//	Will our item fit in this column between the last item and this one?
+			if (item.row - nextRow >= dims.y) {
+				return nextRow;
+			}
+
+			//	Store the bottom of this item for the next comparison
+			nextRow = item.row + item.sizey;
+		}
+
+		return nextRow;
+	}
+
+	private _getNextFittingCol(newPos: NgGridItemPosition, dims: NgGridItemSize, itemsInPath: NgGridItem[]): number {
+		let nextCol = newPos.col;
+
+		for (let item of itemsInPath) {
+			//	Will our item fit in this row between the last item and this one?
+			if (item.col - nextCol >= dims.x) {
+				return nextCol;
+			}
+
+			//	Store the right of this item for the next comparison
+			nextCol = item.col + item.sizex;
+		}
+
+		return nextCol;
 	}
 
 	private _getItemsInHorizontalPath(pos: NgGridItemPosition, dims: NgGridItemSize, startColumn: number = 0): NgGridItem[] {

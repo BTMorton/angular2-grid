@@ -38,6 +38,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 		draggable: true,
 		resizable: true,
 		borderSize: 25,
+		resizeDirections: null,
 	};
 	// tslint:enable:object-literal-sort-keys
 
@@ -68,6 +69,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 	private _minCols: number = 0;
 	private _maxRows: number = 0;
 	private _minRows: number = 0;
+	private _resizeDirections: string[] = [];
 	private _zIndex: number = 0;
 
 	set zIndex(zIndex: number) {
@@ -237,8 +239,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 
 			if (typeof this._resizeHandle !== "object") return null;
 
-			const resizeDirections = [ "bottomright", "bottomleft", "topright", "topleft", "right", "left", "bottom", "top" ];
-			for (let direction of resizeDirections) {
+			for (let direction of this._resizeDirections) {
 				if (direction in this._resizeHandle) {
 					if (this.findHandle(this._resizeHandle[direction], e.target)) {
 						return direction;
@@ -253,25 +254,10 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 
 		const mousePos: NgGridRawPosition = this._getMousePosition(e);
 
-		if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
-			&& mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return "bottomright";
-		} else if (mousePos.left < this._borderSize && mousePos.top < this._elemHeight
-			&& mousePos.top > this._elemHeight - this._borderSize) {
-			return "bottomleft";
-		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
-			&& mousePos.top < this._borderSize) {
-			return "topright";
-		} else if (mousePos.left < this._borderSize && mousePos.top < this._borderSize) {
-			return "topleft";
-		} else if (mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize) {
-			return "right";
-		} else if (mousePos.left < this._borderSize) {
-			return "left";
-		} else if (mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize) {
-			return "bottom";
-		} else if (mousePos.top < this._borderSize) {
-			return "top";
+		for (let direction of this._resizeDirections) {
+			if (this.canResizeInDirection(direction, mousePos)) {
+				return direction;
+			}
 		}
 
 		return null;
@@ -364,6 +350,7 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 		this.isDraggable = config.draggable ? true : false;
 		this.isResizable = config.resizable ? true : false;
 		this.isFixed = config.fixed ? true : false;
+		this._resizeDirections = config.resizeDirections || this._ngGrid.resizeDirections;
 
 		this._maxCols = !isNaN(config.maxCols) && isFinite(config.maxCols) ? config.maxCols : 0;
 		this._minCols = !isNaN(config.minCols) && isFinite(config.minCols) ? config.minCols : 0;
@@ -607,5 +594,31 @@ export class NgGridItem implements OnInit, OnDestroy, DoCheck {
 		this._config.col = this._userConfig.col = this._currentPosition.col;
 		this._config.row = this._userConfig.row = this._currentPosition.row;
 		this.ngGridItemChange.emit(this._userConfig);
+	}
+
+	private canResizeInDirection(direction: string, mousePos: NgGridRawPosition): boolean {
+		switch (direction) {
+			case "bottomright":
+				return mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+				    && mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize;	// tslint:disable-line:indent
+			case "bottomleft":
+				return mousePos.left < this._borderSize && mousePos.top < this._elemHeight
+				    && mousePos.top > this._elemHeight - this._borderSize;	// tslint:disable-line:indent
+			case "topright":
+				return mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize
+				    && mousePos.top < this._borderSize;	// tslint:disable-line:indent
+			case "topleft":
+				return mousePos.left < this._borderSize && mousePos.top < this._borderSize;
+			case "right":
+				return mousePos.left < this._elemWidth && mousePos.left > this._elemWidth - this._borderSize;
+			case "left":
+				return mousePos.left < this._borderSize;
+			case "bottom":
+				return mousePos.top < this._elemHeight && mousePos.top > this._elemHeight - this._borderSize;
+			case "top":
+				return mousePos.top < this._borderSize;
+			default:
+				return false;
+		}
 	}
 }
