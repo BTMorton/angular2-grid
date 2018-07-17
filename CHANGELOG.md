@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.3.1](https://github.com/BTMorton/angular2-grid/compare/v2.3.0...v2.3.1) - 2018-07-17
+### Changed
+- Exposed NgConfigFixDirection interface ([#294](https://github.com/BTMorton/angular2-grid/issues/294))
+- Update Angular peer dependecy to support Angular 5 ([#292](https://github.com/BTMorton/angular2-grid/issues/292))
+
 ## [2.3.0](https://github.com/BTMorton/angular2-grid/compare/v2.2.4...v2.3.0) - 2018-07-14
 ### Added
 - Configuration of available resize directions ([#290](https://github.com/BTMorton/angular2-grid/pull/290))
