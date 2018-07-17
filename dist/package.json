@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/BTMorton/angular2-grid",
   "peerDependencies": {
-    "@angular/core": ">=2 <=4",
+    "@angular/core": ">=2 <=5",
     "reflect-metadata": "^0.1.8",
     "rxjs": "^5.0.1",
     "zone.js": "^0.7.2"
