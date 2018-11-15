@@ -1,22 +1,40 @@
-typings
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+
+# dependencies
+/node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage/*
+/libpeerconnection.log
 npm-debug.log
-dist/*/
-dist/*.js
-dist/*.js.map
-dist/*.ts
-dist/*.css
-dist/*.metadata.json
-dist/LICENSE
-dist/README.md
-demo/**/*.js*
-demo/node-modules/
-demo-dashboard/**/*.js*
-demo-dashboard/node-modules/
-node_modules/
-bower_components/
-coverage/
-test/*.js
-test/*.js.map
-test/*.d.ts
-.idea/
-temp/
+testem.log
+/typings
+
+# e2e
+/e2e/*.js
+/e2e/*.map
+
+#System Files
+.DS_Store
+Thumbs.db
